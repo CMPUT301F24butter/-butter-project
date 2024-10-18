@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "20423716009",
+    "project_id": "butterproject-288be",
+    "storage_bucket": "butterproject-288be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20423716009:android:6e787693dc11afa7e94db8",
+        "android_client_info": {
+          "package_name": "com.example.butter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD-TnlgDl-RlmlXMTbj6zu9gcL7DWRc80s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

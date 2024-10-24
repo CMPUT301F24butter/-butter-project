@@ -1,3 +1,18 @@
 <resources>
     <string name="app_name">butter</string>
+    <string name="butterLogo">Butter</string>
+    <string name="splash_desc">MADE BY BUTTER</string>
+    <string name="ex_john_smith">Ex: John Smith</string>
+    <string name="username">Username</string>
+    <string name="create_profile_descr">Enter your info for events and fun!</string>
+    <string name="create_profile">Create Profile</string>
+    <string name="email">Email</string>
+    <string name="email_hint">Enter your email</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="phone_hint">Ex: 780-xxx-xxxx</string>
+    <string name="role">Select Role</string>
+    <string name="create_button">Create</string>
+    <string name="facility_name">Facility Name</string>
+    <string name="facility_hint">Eg. UASU</string>
+
 </resources>

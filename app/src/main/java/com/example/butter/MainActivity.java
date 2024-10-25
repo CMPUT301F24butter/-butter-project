@@ -35,6 +35,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (id == R.id.homeIcon) {
                 replaceFragment(new HomeFragment());
+
             } else if (id == R.id.eventsIcon) {
                 replaceFragment(new EventsFragment());
             } else if (id == R.id.notificationsIcon) {

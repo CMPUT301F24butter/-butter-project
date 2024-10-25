@@ -1,3 +1,39 @@
 <resources>
     <string name="app_name">butter</string>
+    <string name="butterLogo">Butter</string>
+    <string name="splash_desc">MADE BY BUTTER</string>
+    <string name="ex_john_smith">Ex: John Smith</string>
+    <string name="username">Username</string>
+    <string name="create_profile_descr">Enter your info for events and fun!</string>
+    <string name="create_profile">Create Profile</string>
+    <string name="email">Email</string>
+    <string name="email_hint">Enter your email</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="phone_hint">Ex: 780-xxx-xxxx</string>
+    <string name="role">Select Role</string>
+    <string name="create_button">Create</string>
+    <string name="facility_name">Facility Name</string>
+    <string name="facility_hint">Eg. UASU</string>
+    <string name="home">Home</string>
+    <string name="events">Events</string>
+    <string name="notifications">Notifications</string>
+    <string name="profile">Profile</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="welcome_screen">Hey %s!</string>
+    <string name="events_text">Events</string>
+    <string name="notifications_text">Notifications</string>
+    <string name="profiles_text">Profile</string>
+    <string name="QR_code_info">Scan your QR Code on the top right \nto find events near you!</string>
+    <string name="upcoming_text">Upcoming</string>
+    <string name="profile_text">Profile</string>
+    <string name="edit_profile">Edit profile</string>
+    <string name="role_text">Role</string>
+    <string name="profile_initial">%s</string>
+    <string name="profile_username">%s</string>
+    <string name="profile_email">%s</string>
+    <string name="profile_number">%s</string>
+    <string name="profile_facility">%s</string>
+    <string name="qrscanner">q</string>
+
 </resources>

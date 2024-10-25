@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Color will change when menu bar icon is selected -->
+    <item android:color="@color/primaryPurpleColor" android:state_selected="true" />
+    <!-- Menu bar icon default state when it is not selected -->
+    <item android:color="@color/primaryGreyColor"/>
+</selector>

@@ -45,7 +45,8 @@
         app:layout_constraintTop_toBottomOf="@id/username_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:textSize="12sp"/>
+        android:textSize="12sp"
+        android:inputType="none"/>
 
     <TextView
         android:id="@+id/email_label"
@@ -54,7 +55,8 @@
         android:text="@string/email"
         app:layout_constraintTop_toBottomOf="@id/username"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:inputType="none"/>
 
     <EditText
         android:id="@+id/email"
@@ -74,7 +76,8 @@
         android:text="@string/phone_number"
         app:layout_constraintTop_toBottomOf="@id/email"
         app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:inputType="none"/>
 
     <EditText
         android:id="@+id/password"
@@ -124,7 +127,26 @@
         app:layout_constraintTop_toBottomOf="@id/facility_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:inputType="none"/>
+
+    <Button
+        android:id="@+id/qrScannerButton"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
+        android:text="@string/qrscanner"
+        android:backgroundTint="@color/white"
+        android:drawableEnd="@drawable/admin_button"
+        android:stateListAnimator="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:visibility="gone"
+        />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/sign_up_button"

@@ -34,5 +34,6 @@
     <string name="profile_email">%s</string>
     <string name="profile_number">%s</string>
     <string name="profile_facility">%s</string>
+    <string name="qrscanner">q</string>
 
 </resources>

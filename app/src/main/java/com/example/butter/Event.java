@@ -31,6 +31,19 @@ public class Event {
         createUserLists();
     }
 
+    public Event(String name, String date, int capacity) {
+        this.name = name;
+        this.date = date;
+        this.capacity = capacity;
+
+        this.eventID = null;
+        this.organizerID = null;
+        this.waitlistID = null;
+        this.drawListID = null;
+        this.registeredListID = null;
+        this.cancelledListID = null;
+    }
+
     private void createUserLists() {
         UserListDB userListDB = new UserListDB();
 

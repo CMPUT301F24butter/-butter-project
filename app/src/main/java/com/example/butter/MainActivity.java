@@ -1,6 +1,7 @@
 package com.example.butter;
 
 import android.os.Bundle;
+import android.provider.Settings;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -45,12 +46,17 @@ public class MainActivity extends AppCompatActivity {
             }
             return true;
         });
+
+        //String deviceID = Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID);
     }
 
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout, fragment);
+        Bundle args = new Bundle();
+        args.putString("deviceID", Settings.Secure.getString(getContentResolver(), Settings.Secure.ANDROID_ID));
+        fragment.setArguments(args);
         fragmentTransaction.commit();
     }
 

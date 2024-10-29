@@ -12,4 +12,5 @@
         android:text="@string/notifications_text"
         android:textSize="25sp"/>
 
+
 </FrameLayout>

@@ -66,5 +66,10 @@
     <string name="show_details_code">" Show Details Code"</string>
     <string name="delete_event">" Delete Event"</string>
     <string name="edit_event">" Edit Event"</string>
+    <string name="cancel">Cancel</string>
+    <string name="send">Send</string>
+    <string name="send_to">Send to:</string>
+    <string name="notification_message">notification message</string>
+    <string name="event_announcement">Event Announcement</string>
 
 </resources>

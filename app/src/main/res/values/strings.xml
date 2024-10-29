@@ -71,5 +71,11 @@
     <string name="send_to">Send to:</string>
     <string name="notification_message">notification message</string>
     <string name="event_announcement">Event Announcement</string>
+    <string name="current_title">%s</string>
+    <string name="current_start">%s</string>
+    <string name="current_end">%s</string>
+    <string name="current_description">%s</string>
+    <string name="current_max">%s</string>
+    <string name="save_changes">Save Changes</string>
 
 </resources>

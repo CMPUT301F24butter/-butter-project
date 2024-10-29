@@ -30,7 +30,7 @@
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:text="@string/create_event"
+            android:text="@string/edit_event"
             android:textColor="@color/black"
             android:textSize="30sp"
             android:textStyle="bold"
@@ -69,35 +69,35 @@
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:autofillHints=""
-        android:hint="@string/event_name"
+        android:text="@string/current_title"
         android:background="@drawable/edit_text_border"
         android:inputType="text"
         android:textSize="12sp"
         android:drawableStart="@drawable/event_name"
         android:drawablePadding="8dp"
         android:layout_marginBottom="15dp"
-    />
+        />
 
     <EditText
         android:id="@+id/start_date"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:autofillHints=""
-        android:hint="@string/start_date"
+        android:text="@string/current_start"
         android:background="@drawable/edit_text_border"
         android:inputType="date"
         android:textSize="12sp"
         android:drawableStart="@drawable/calendar"
         android:drawablePadding="8dp"
         android:layout_marginBottom="15dp"
-    />
+        />
 
     <EditText
         android:id="@+id/end_date"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:autofillHints=""
-        android:hint="@string/end_date"
+        android:text="@string/current_end"
         android:background="@drawable/edit_text_border"
         android:inputType="date"
         android:textSize="12sp"
@@ -113,17 +113,17 @@
         android:background="@drawable/edit_text_border"
         android:paddingHorizontal="16dp">
 
-    <EditText
-        android:id="@+id/event_description"
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:autofillHints=""
-        android:inputType="text"
-        android:hint="@string/description"
-        android:textSize="12sp"
-        android:drawableStart="@drawable/description"
-        android:drawablePadding="8dp"
-        android:background="@android:color/transparent" />
+        <EditText
+            android:id="@+id/event_description"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:autofillHints=""
+            android:inputType="text"
+            android:text="@string/current_description"
+            android:textSize="12sp"
+            android:drawableStart="@drawable/description"
+            android:drawablePadding="8dp"
+            android:background="@android:color/transparent" />
     </RelativeLayout>
 
     <LinearLayout
@@ -140,7 +140,7 @@
             android:layout_weight="1"
             android:autofillHints=""
             android:inputType="text"
-            android:hint="@string/max_entrants"
+            android:text="@string/current_max"
             android:background="@drawable/edit_text_border"
             android:textSize="12sp"
             android:drawableStart="@drawable/max_attendees"
@@ -158,10 +158,10 @@
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/create_event_button"
+        android:id="@+id/edit_event_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/create_button"
+        android:text="@string/save_changes"
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/primaryPurpleColor"
         android:textColor="@color/white"

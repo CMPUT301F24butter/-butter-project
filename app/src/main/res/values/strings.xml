@@ -58,5 +58,13 @@
     <string name="details_qr_code">Details QR Code</string>
     <string name="qr_code">QR code</string>
     <string name="go_back">go back</string>
+    <string name="organizer_options">Organizer Options</string>
+    <string name="view_entrants">" View Entrants"</string>
+    <string name="view_map">" View Map"</string>
+    <string name="send_notifications">" Send Notifications"</string>
+    <string name="show_check_in_code">" Show Check-In Code"</string>
+    <string name="show_details_code">" Show Details Code"</string>
+    <string name="delete_event">" Delete Event"</string>
+    <string name="edit_event">" Edit Event"</string>
 
 </resources>

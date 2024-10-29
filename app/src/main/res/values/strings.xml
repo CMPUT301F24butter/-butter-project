@@ -44,5 +44,7 @@
     <string name="geolocation">Geolocation</string>
     <string name="event_poster">Event Poster</string>
     <string name="edit_event_poster">edit event poster</string>
+    <string name="waiting_list_button">Join waiting list</string>
+    <string name="event_title">%s</string>
 
 </resources>

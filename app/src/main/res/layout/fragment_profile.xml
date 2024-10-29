@@ -55,9 +55,10 @@
         android:layout_marginTop="50dp" />
 
     <EditText
-        android:id="@+id/username"
+        android:id="@+id/name_event"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
+        android:drawableStart="@drawable/username"
         android:text="@string/profile_username"
         android:background="@drawable/edit_text_border"
         app:layout_constraintTop_toBottomOf="@id/username_label"
@@ -71,17 +72,18 @@
         android:layout_height="wrap_content"
         android:textColor="@color/black"
         android:text="@string/email"
-        app:layout_constraintTop_toBottomOf="@id/username"
+        app:layout_constraintTop_toBottomOf="@id/name_event"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
 
     <EditText
-        android:id="@+id/email"
+        android:id="@+id/start_date"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:textSize="12sp"
         android:text="@string/profile_email"
         android:background="@drawable/edit_text_border"
+        android:drawableStart="@drawable/email"
         app:layout_constraintTop_toBottomOf="@id/email_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -92,17 +94,18 @@
         android:layout_height="wrap_content"
         android:textColor="@color/black"
         android:text="@string/phone_number"
-        app:layout_constraintTop_toBottomOf="@id/email"
+        app:layout_constraintTop_toBottomOf="@id/start_date"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="16dp" />
 
     <EditText
         android:id="@+id/password"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:text="@string/profile_number"
         android:textSize="12sp"
         android:background="@drawable/edit_text_border"
+        android:drawableStart="@drawable/number"
         app:layout_constraintTop_toBottomOf="@id/phone_label"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
@@ -139,7 +142,7 @@
     <EditText
         android:id="@+id/facility_name"
         android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_height="48dp"
         android:text="@string/profile_facility"
         android:textSize="12sp"
         app:layout_constraintTop_toBottomOf="@id/facility_label"

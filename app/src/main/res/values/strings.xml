@@ -48,5 +48,15 @@
     <string name="event_title">%s</string>
     <string name="generate_entrants">Generate Entrants</string>
     <string name="draw_replacements">Draw Replacement(s)</string>
+    <string name="map">MAP</string>
+    <string name="event">%s</string>
+    <string name="start_date_s">Start Date: %s</string>
+    <string name="end_date_s">End Date: %s</string>
+    <string name="time_s">Time: %s</string>
+    <string name="place_s">Place: %s</string>
+    <string name="check_in_qr_code">Check In QR Code</string>
+    <string name="details_qr_code">Details QR Code</string>
+    <string name="qr_code">QR code</string>
+    <string name="go_back">go back</string>
 
 </resources>

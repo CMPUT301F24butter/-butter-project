@@ -30,33 +30,7 @@ import java.util.Objects;
  * Use the {@link EventsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public static class EventsFragment extends Fragment {
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_events, container, false);
-
-        TabLayout tabLayout = view.findViewById(R.id.tabLayout);
-        ViewPager2 viewPager = view.findViewById(R.id.viewPager);
-        ViewPagerAdapter adapter = new ViewPagerAdapter(getActivity());
-        viewPager.setAdapter(adapter);
-
-        new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> {
-                    switch (position) {
-                        case 0:
-                            tab.setText("Registered");
-                            break;
-                        case 1:
-                            tab.setText("Waiting List");
-                            break;
-                    }
-                }).attach();
-
-        return view;
-    }
-
+public class EventsFragment extends Fragment {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -104,6 +78,7 @@ public static class EventsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);

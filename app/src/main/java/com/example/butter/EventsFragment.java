@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -136,6 +137,14 @@ public class EventsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_events, container, false);
         eventsList = (ListView) view.findViewById(R.id.events_list);
         eventsList.setAdapter(eventArrayAdapter);
+
+        eventsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Event event = userEvents.get(position);
+                System.out.println(event.getEventID());
+            }
+        });
 
         fab = (FloatingActionButton) view.findViewById(R.id.addButton);
         fab.setOnClickListener(new View.OnClickListener() {

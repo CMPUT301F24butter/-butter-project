@@ -1,19 +1,20 @@
 package com.example.butter;
 
-import android.content.ContentResolver;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.viewpager2.widget.ViewPager2;
 
-import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
-import android.widget.TextView;
 
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -29,7 +30,33 @@ import java.util.Objects;
  * Use the {@link EventsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class EventsFragment extends Fragment {
+public static class EventsFragment extends Fragment {
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_events, container, false);
+
+        TabLayout tabLayout = view.findViewById(R.id.tabLayout);
+        ViewPager2 viewPager = view.findViewById(R.id.viewPager);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getActivity());
+        viewPager.setAdapter(adapter);
+
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> {
+                    switch (position) {
+                        case 0:
+                            tab.setText("Registered");
+                            break;
+                        case 1:
+                            tab.setText("Waiting List");
+                            break;
+                    }
+                }).attach();
+
+        return view;
+    }
+
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER

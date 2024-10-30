@@ -8,7 +8,7 @@
     <string name="create_profile">Create Profile</string>
     <string name="email">Email</string>
     <string name="email_hint">Enter your email</string>
-    <string name="phone_number">Phone Number</string>
+    <string name="phone_number">Phone Number (Optional)</string>
     <string name="phone_hint">Ex: 780-xxx-xxxx</string>
     <string name="role">Select Role</string>
     <string name="create_button">Create</string>
@@ -77,5 +77,11 @@
     <string name="current_description">%s</string>
     <string name="current_max">%s</string>
     <string name="save_changes">Save Changes</string>
+
+    <string-array name="roles_array">
+        <item>Entrant</item>
+        <item>Organizer</item>
+        <item>Both</item>
+    </string-array>
 
 </resources>

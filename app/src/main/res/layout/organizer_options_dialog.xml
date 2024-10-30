@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/edit_text_border">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/organizer_options"
+        android:textColor="@color/black"
+        android:textSize="18sp" />
+
+    <TextView
+        android:id="@+id/edit_event_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/edit_event"
+        android:height="48dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:drawableStartCompat="@drawable/event_name" />
+
+    <TextView
+        android:id="@+id/view_entrants_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/view_entrants"
+        android:height="48dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:drawableStartCompat="@drawable/max_attendees" />
+
+    <TextView
+        android:id="@+id/view_map_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/view_map"
+        android:height="48dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:drawableStartCompat="@drawable/ic_map" />
+
+    <TextView
+        android:id="@+id/send_notifications_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/send_notifications"
+        android:height="48dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:drawableStartCompat="@drawable/description" />
+
+    <TextView
+        android:id="@+id/show_check_in_code_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/show_check_in_code"
+        android:height="48dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:drawableStartCompat="@drawable/ic_qrcode" />
+
+    <TextView
+        android:id="@+id/show_details_code_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/show_details_code"
+        android:height="48dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:drawableStartCompat="@drawable/ic_details" />
+
+    <TextView
+        android:id="@+id/delete_event_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/delete_event"
+        android:height="48dp"
+        android:padding="10dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"
+        app:drawableStartCompat="@drawable/ic_delete" />
+
+</LinearLayout>

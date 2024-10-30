@@ -7,4 +7,5 @@
     <color name="primaryGreyColor">#ABB7C2</color>
     <color name="secondaryPinkColor">#FEEBF2</color>
     <color name="secondaryPurpleColor">#C888FC</color>
+    <color name="secondaryGreyColor">#E1E1E1</color>
 </resources>

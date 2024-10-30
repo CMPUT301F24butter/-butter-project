@@ -1,5 +1,6 @@
 package com.example.butter;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -13,9 +14,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ListView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
@@ -48,6 +53,9 @@ public class EventsFragment extends Fragment {
 
     private FirebaseFirestore db;
     private CollectionReference eventRef;
+    private CollectionReference userRef;
+
+    private FloatingActionButton fab;
 
     String deviceID;
 
@@ -55,6 +63,7 @@ public class EventsFragment extends Fragment {
         userEvents = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
+        userRef = db.collection("user");
     }
 
     /**
@@ -102,11 +111,14 @@ public class EventsFragment extends Fragment {
                         String organizerID = doc.getString("eventInfo.organizerID");
 
                         if (Objects.equals(organizerID, deviceID)) {
+                            String eventID = doc.getId();
                             String eventName = doc.getString("eventInfo.name");
                             String eventDate = doc.getString("eventInfo.date");
                             int eventCapacity = Integer.parseInt(doc.getString("eventInfo.capacityString"));
 
-                            Event event = new Event(eventName, eventDate, eventCapacity);
+
+
+                            Event event = new Event(eventID, eventName, eventDate, eventCapacity);
                             userEvents.add(event);
                         }
                     }
@@ -114,6 +126,7 @@ public class EventsFragment extends Fragment {
                 }
             }
         });
+
     }
 
     @Override
@@ -124,8 +137,33 @@ public class EventsFragment extends Fragment {
         eventsList = (ListView) view.findViewById(R.id.events_list);
         eventsList.setAdapter(eventArrayAdapter);
 
-        return view;
+        fab = (FloatingActionButton) view.findViewById(R.id.addButton);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                userRef.document(deviceID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot doc = task.getResult();
+                            if (doc.exists()) {
+                                String privileges = doc.getString("userInfo.privilegesString");
+                                String facility = doc.getString("userInfo.facility");
 
-        //return inflater.inflate(R.layout.fragment_events, container, false);
+                                if (Objects.equals(privileges, "200") || Objects.equals(privileges, "300") || Objects.equals(privileges, "600") || Objects.equals(privileges, "700")) {
+                                    if (facility != null) {
+                                        Intent intent = new Intent(getContext(), CreateEventFragment.class);
+                                        intent.putExtra("deviceID", deviceID);
+                                        startActivity(intent);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        return view;
     }
 }

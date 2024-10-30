@@ -79,7 +79,7 @@
         />
 
     <EditText
-        android:id="@+id/start_date"
+        android:id="@+id/create_email_text"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:autofillHints=""

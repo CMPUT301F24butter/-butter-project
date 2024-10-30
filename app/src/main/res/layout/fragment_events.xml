@@ -47,12 +47,12 @@
         </ListView>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/deleteButton"
+        android:id="@+id/addButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:contentDescription="deleteevent"
-        android:src="@drawable/tong"
+        android:src="@drawable/add"
         app:backgroundTint="@color/primaryPinkColor"
         app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"

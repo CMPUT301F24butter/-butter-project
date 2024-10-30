@@ -4,21 +4,27 @@ public class Event {
     private final String eventID;
     private final String name;
     private final String organizerID;
+    private String registrationOpenDate;
+    private String registrationCloseDate;
     private String date;
-    private String time;
     private int capacity;
+    private boolean geolocation;
+    private String description;
 
     private final String waitlistID;
     private final String drawListID;
     private final String registeredListID;
     private final String cancelledListID;
 
-    public Event(String name, String organizerID, String date, String time, int capacity) {
+    public Event(String name, String organizerID, String registrationOpenDate, String registrationCloseDate, String date, int capacity, boolean geolocation, String description) {
         this.name = name;
         this.organizerID = organizerID;
+        this.registrationOpenDate = registrationOpenDate;
+        this.registrationCloseDate = registrationCloseDate;
         this.date = date;
-        this.time = time;
         this.capacity = capacity;
+        this.geolocation = geolocation;
+        this.description = description;
 
         this.eventID = name.replace(" ", "_") + "-" + organizerID; // eventID = Event_Name-organizerID
 
@@ -31,12 +37,12 @@ public class Event {
         createUserLists();
     }
 
-    public Event(String name, String date, int capacity) {
+    public Event(String eventID, String name, String date, int capacity) {
+        this.eventID = eventID;
         this.name = name;
         this.date = date;
         this.capacity = capacity;
 
-        this.eventID = null;
         this.organizerID = null;
         this.waitlistID = null;
         this.drawListID = null;
@@ -73,14 +79,6 @@ public class Event {
         this.date = date;
     }
 
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
-    }
-
     public int getCapacity() {
         return capacity;
     }
@@ -110,5 +108,40 @@ public class Event {
 
     public String getCancelledListID() {
         return cancelledListID;
+    }
+
+    public boolean isGeolocation() { return geolocation; }
+
+    public void setGeolocation(boolean geolocation) { this.geolocation = geolocation; }
+
+    public String getGeolocationString() {
+        if (geolocation) {
+            return "true";
+        }
+        return "false";
+    }
+
+    public String getRegistrationOpenDate() {
+        return registrationOpenDate;
+    }
+
+    public void setRegistrationOpenDate(String registrationOpenDate) {
+        this.registrationOpenDate = registrationOpenDate;
+    }
+
+    public String getRegistrationCloseDate() {
+        return registrationCloseDate;
+    }
+
+    public void setRegistrationCloseDate(String registrationCloseDate) {
+        this.registrationCloseDate = registrationCloseDate;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

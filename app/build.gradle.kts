@@ -37,7 +37,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.maps)
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-firestore")

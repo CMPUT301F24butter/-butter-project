@@ -1,41 +1,42 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@color/white">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:layout_gravity="center_horizontal">
 
         <ImageButton
             android:id="@+id/back_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start"
-            android:layout_marginTop="8dp"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/go_back"
             android:padding="10dp"
-            android:src="@drawable/ic_back" />
+            android:src="@drawable/ic_back"
+            android:layout_gravity="start"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
 
         <TextView
             android:id="@+id/title"
             android:layout_width="0dp"
+            android:layout_weight="1"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="40dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:paddingBottom="20dp"
             android:text="@string/create_event"
             android:textColor="@color/black"
             android:textSize="30sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:gravity="center"
+            android:paddingBottom="20dp"
+            android:layout_marginEnd="40dp"/>
 
     </LinearLayout>
 
@@ -57,50 +58,67 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:background="?android:attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/edit_event_poster"
-            android:src="@drawable/camera" />
+            android:src="@drawable/camera"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
 
     </FrameLayout>
 
     <EditText
-        android:id="@+id/create_username"
+        android:id="@+id/name_event"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginBottom="15dp"
         android:autofillHints=""
+        android:hint="@string/event_name"
         android:background="@drawable/edit_text_border"
+        android:inputType="text"
+        android:textSize="12sp"
         android:drawableStart="@drawable/event_name"
         android:drawablePadding="8dp"
-        android:hint="@string/event_name"
-        android:inputType="text"
-        android:textSize="12sp" />
+        android:layout_marginBottom="15dp"
+    />
 
     <EditText
-        android:id="@+id/create_email_text"
+        android:id="@+id/start_date"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginBottom="15dp"
         android:autofillHints=""
+        android:hint="@string/start_date"
         android:background="@drawable/edit_text_border"
+        android:inputType="date"
+        android:textSize="12sp"
         android:drawableStart="@drawable/calendar"
         android:drawablePadding="8dp"
-        android:hint="@string/start_date"
-        android:inputType="date"
-        android:textSize="12sp" />
+        android:layout_marginBottom="15dp"
+    />
 
     <EditText
         android:id="@+id/end_date"
         android:layout_width="match_parent"
         android:layout_height="48dp"
-        android:layout_marginBottom="15dp"
         android:autofillHints=""
+        android:hint="@string/end_date"
         android:background="@drawable/edit_text_border"
+        android:inputType="date"
+        android:textSize="12sp"
         android:drawableStart="@drawable/clock"
         android:drawablePadding="8dp"
-        android:hint="@string/end_date"
+        android:layout_marginBottom="15dp"
+        />
+
+    <EditText
+        android:id="@+id/event_date"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:autofillHints=""
+        android:hint="@string/event_date"
+        android:background="@drawable/edit_text_border"
         android:inputType="date"
-        android:textSize="12sp" />
+        android:textSize="12sp"
+        android:drawableStart="@drawable/clock"
+        android:drawablePadding="8dp"
+        android:layout_marginBottom="15dp"
+        />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -109,25 +127,25 @@
         android:background="@drawable/edit_text_border"
         android:paddingHorizontal="16dp">
 
-        <EditText
-            android:id="@+id/event_description"
-            android:layout_width="match_parent"
-            android:layout_height="120dp"
-            android:autofillHints=""
-            android:background="@android:color/transparent"
-            android:drawableStart="@drawable/description"
-            android:drawablePadding="8dp"
-            android:hint="@string/description"
-            android:inputType="text"
-            android:textSize="12sp" />
+    <EditText
+        android:id="@+id/event_description"
+        android:layout_width="match_parent"
+        android:layout_height="80dp"
+        android:autofillHints=""
+        android:inputType="text"
+        android:hint="@string/description"
+        android:textSize="12sp"
+        android:drawableStart="@drawable/description"
+        android:drawablePadding="8dp"
+        android:background="@android:color/transparent" />
     </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
-        android:orientation="horizontal">
+        android:layout_marginBottom="20dp">
 
         <EditText
             android:id="@+id/max_entrants"
@@ -135,32 +153,32 @@
             android:layout_height="48dp"
             android:layout_weight="1"
             android:autofillHints=""
-            android:background="@drawable/edit_text_border"
-            android:drawableStart="@drawable/max_attendees"
-            android:drawablePadding="8dp"
+            android:inputType="number"
             android:hint="@string/max_entrants"
-            android:inputType="text"
-            android:textSize="12sp" />
+            android:background="@drawable/edit_text_border"
+            android:textSize="12sp"
+            android:drawableStart="@drawable/max_attendees"
+            android:drawablePadding="8dp"/>
 
         <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/location_switch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="20dp"
             android:text="@string/geolocation"
             android:textSize="12sp"
-            app:trackTint="@color/primaryPinkColor" />
+            android:layout_marginEnd="20dp"
+            app:trackTint="@color/primaryPinkColor"
+            android:layout_marginStart="16dp"/>
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/create_event_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:text="@string/create_button"
         android:layout_marginTop="20dp"
         android:backgroundTint="@color/primaryPurpleColor"
-        android:text="@string/create_button"
         android:textColor="@color/white"
-        app:cornerRadius="10dp" />
+        app:cornerRadius="10dp"/>
 
 </LinearLayout>

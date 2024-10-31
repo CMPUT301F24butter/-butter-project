@@ -37,8 +37,8 @@
     <string name="qrscanner">q</string>
     <string name="create_event">Create Event</string>
     <string name="event_name">Enter event name</string>
-    <string name="start_date">Select Start Date</string>
-    <string name="end_date">Select End Date</string>
+    <string name="start_date">Registration Open Date (YYYY-MM-DD)</string>
+    <string name="end_date">Registration Close Date (YYYY-MM-DD)</string>
     <string name="description">Description</string>
     <string name="max_entrants">Max entrants (optional)</string>
     <string name="geolocation">Geolocation</string>
@@ -50,8 +50,8 @@
     <string name="draw_replacements">Draw Replacement(s)</string>
     <string name="map">MAP</string>
     <string name="event">%s</string>
-    <string name="start_date_s">Register Opens: %s</string>
-    <string name="end_date_s">Register Closes: %s</string>
+    <string name="start_date_s">Start Date: %s</string>
+    <string name="end_date_s">End Date: %s</string>
     <string name="time_s">Time: %s</string>
     <string name="place_s">Place: %s</string>
     <string name="check_in_qr_code">Check In QR Code</string>
@@ -77,23 +77,7 @@
     <string name="current_description">%s</string>
     <string name="current_max">%s</string>
     <string name="save_changes">Save Changes</string>
-    <string name="event_date_s">Event Date: %s</string>
-    <string name="select_role">Select Role</string>
-    <string name="remove_profile">Remove Profile</string>
-    <string name="add_image">Add Image</string>
-    <string name="entrants_list">Entrants list</string>
-    <string name="register_opens">Register Opens:</string>
-    <string name="register_closes">Register Closes:</string>
-    <string name="event_date">Event Date:</string>
-    <string name="delete_event_admin">Delete Event</string>
-    <string name="organizer_options_events">Organizer Options</string>
-    <string name="event_description">%s</string>
-    <string name="my_events">My Events</string>
-    <string name="add_event">Add Event</string>
-    <string name="notifications_title">Notifications</string>
-    <string name="event_text">Event Name</string>
-    <string name="date">Date</string>
-    <string name="capacity_d">Capacity: %d</string>
+    <string name="event_date">Event Date (YYYY-MM-DD)</string>
 
     <string-array name="roles_array">
         <item>Entrant</item>

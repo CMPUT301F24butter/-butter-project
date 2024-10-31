@@ -1,29 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
-    
+
     <TextView
         android:id="@+id/event_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Event Name"
-        android:textSize="30dp" />
+        android:text="@string/event_text"
+        android:textSize="30sp" />
 
     <TextView
         android:id="@+id/event_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Date"
-        android:textSize="16dp" />
+        android:text="@string/date"
+        android:textSize="16sp" />
 
     <TextView
         android:id="@+id/event_capacity"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Capacity: %d"
-        android:textSize="16dp" />
+        android:text="@string/capacity_d"
+        android:textSize="16sp" />
 
 </LinearLayout>

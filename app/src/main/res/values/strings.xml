@@ -79,6 +79,21 @@
     <string name="save_changes">Save Changes</string>
     <string name="event_date_s">Event Date: %s</string>
     <string name="select_role">Select Role</string>
+    <string name="remove_profile">Remove Profile</string>
+    <string name="add_image">Add Image</string>
+    <string name="entrants_list">Entrants list</string>
+    <string name="register_opens">Register Opens:</string>
+    <string name="register_closes">Register Closes:</string>
+    <string name="event_date">Event Date:</string>
+    <string name="delete_event_admin">Delete Event</string>
+    <string name="organizer_options_events">Organizer Options</string>
+    <string name="event_description">%s</string>
+    <string name="my_events">My Events</string>
+    <string name="add_event">Add Event</string>
+    <string name="notifications_title">Notifications</string>
+    <string name="event_text">Event Name</string>
+    <string name="date">Date</string>
+    <string name="capacity_d">Capacity: %d</string>
 
     <string-array name="roles_array">
         <item>Entrant</item>

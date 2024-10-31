@@ -64,7 +64,7 @@
     </FrameLayout>
 
     <EditText
-        android:id="@+id/name_event"
+        android:id="@+id/create_username"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginBottom="15dp"

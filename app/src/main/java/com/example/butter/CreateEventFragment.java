@@ -118,8 +118,6 @@ public class CreateEventFragment extends AppCompatActivity {
 
 
                 if (validDetails) { // if event details are valid to this point
-                    // create the Event object
-                    //Event event = new Event(name, deviceID, registrationOpenDate, registrationCloseDate, date, maxCapacity, geolocation, eventDescription);
 
                     int cap = maxCapacity;
                     String eventID = name.replace(" ", "_") + "-" + deviceID; // eventID of this potential new event

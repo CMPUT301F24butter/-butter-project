@@ -100,6 +100,12 @@
     <string name="date_label">Date</string>
     <string name="event_date_list">%s</string>
     <string name="capacity_list">%d</string>
+    <string name="my_events_label">My Events</string>
+    <string name="waiting_list">Waiting List</string>
+    <string name="entrant_event_title">%s</string>
+    <string name="entrant_event_date">%s</string>
+    <string name="entrant_event_capacity">%d</string>
+    <string name="delete_my_event">Delete Event</string>
 
     <string-array name="roles_array">
         <item>Entrant</item>

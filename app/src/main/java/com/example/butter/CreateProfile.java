@@ -3,8 +3,6 @@ package com.example.butter;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,15 +11,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A simple {@link AppCompatActivity} subclass.
@@ -53,7 +44,7 @@ public class CreateProfile extends AppCompatActivity {
 
         EditText editUsername = findViewById(R.id.username);
         EditText editEmail = findViewById(R.id.email);
-        EditText editPhone = findViewById(R.id.password);
+        EditText editPhone = findViewById(R.id.phone);
         EditText editFacility = findViewById(R.id.facility_name);
 
         // on click listener for the create button

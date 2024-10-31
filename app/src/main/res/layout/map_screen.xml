@@ -11,6 +11,7 @@
         android:layout_marginStart="5dp"
         android:layout_marginTop="10dp"
         android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/go_back"
         android:padding="12dp"
         android:src="@drawable/ic_back"
         app:layout_constraintStart_toStartOf="parent"

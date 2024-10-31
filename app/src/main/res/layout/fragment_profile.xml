@@ -6,6 +6,36 @@
     android:padding="16dp"
     android:background="@color/white">
 
+    <!-- Back button only accessible to admins -->
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/go_back"
+        android:padding="12dp"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone" />
+
+    <!-- Button only accessible to admin - lets them delete a profile -->
+    <Button
+        android:id="@+id/admin_button"
+        android:layout_width="60dp"
+        android:layout_height="wrap_content"
+        android:text="@string/qrscanner"
+        android:backgroundTint="@color/white"
+        android:drawableEnd="@drawable/admin_button"
+        android:stateListAnimator="@null"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        android:visibility="gone"
+        />
+
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
@@ -151,6 +181,7 @@
         android:background="@drawable/edit_text_border"
         android:visibility="gone" />
 
+    <!-- not visible in admins perspective -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/edit_profile_button"
         android:layout_width="0dp"
@@ -163,6 +194,7 @@
         app:backgroundTint="@color/primaryPurpleColor"
         android:textColor="@color/white"
         app:cornerRadius="10dp"
+        android:visibility="visible"
         />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

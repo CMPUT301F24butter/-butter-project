@@ -115,12 +115,17 @@ public class EventsFragment extends Fragment {
                             String eventID = doc.getId();
                             String eventName = doc.getString("eventInfo.name");
                             String eventDate = doc.getString("eventInfo.date");
-                            int eventCapacity = Integer.parseInt(doc.getString("eventInfo.capacityString"));
+                            String eventCapacityString = doc.getString("eventInfo.capacityString");
 
+                            if (eventCapacityString != null) {
+                                int eventCapacity = Integer.parseInt(eventCapacityString);
+                                Event event = new Event(eventID, eventName, eventDate, eventCapacity);
+                                userEvents.add(event);
 
-
-                            Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                            userEvents.add(event);
+                            } else {
+                                Event event = new Event(eventID, eventName, eventDate, -1);
+                                userEvents.add(event);
+                            }
                         }
                     }
                     eventArrayAdapter.notifyDataSetChanged();

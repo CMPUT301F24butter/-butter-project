@@ -32,7 +32,7 @@ public class CreateProfile extends AppCompatActivity {
         setContentView(R.layout.create_profile);    // set view to create profile screen
 
         // must setup role spinner
-        Spinner roleSpinner = findViewById(R.id.edit_role_spinner);
+        Spinner roleSpinner = findViewById(R.id.role_spinner);
         ArrayAdapter<CharSequence> roleAdapter = ArrayAdapter.createFromResource(
                 this, R.array.roles_array, android.R.layout.simple_spinner_item);
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -42,9 +42,9 @@ public class CreateProfile extends AppCompatActivity {
 
         TextView facilityLabel = findViewById(R.id.facility_label); // view to show facility, used to hide/unhide text
 
-        EditText editUsername = findViewById(R.id.create_username);
-        EditText editEmail = findViewById(R.id.create_email_text);
-        EditText editPhone = findViewById(R.id.create_number_text);
+        EditText editUsername = findViewById(R.id.username);
+        EditText editEmail = findViewById(R.id.email);
+        EditText editPhone = findViewById(R.id.phone);
         EditText editFacility = findViewById(R.id.facility_name);
 
         // on click listener for the create button

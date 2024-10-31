@@ -163,7 +163,8 @@
             android:layout_marginEnd="20dp"
             android:text="@string/geolocation"
             android:textSize="12sp"
-            app:trackTint="@color/primaryPinkColor" />
+            app:thumbTint="@color/switch_thumb_color"
+            app:trackTint="@color/switch_track_color" />
     </LinearLayout>
 
     <com.google.android.material.button.MaterialButton

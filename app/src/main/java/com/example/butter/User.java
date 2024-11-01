@@ -2,7 +2,9 @@ package com.example.butter;
 
 import androidx.annotation.Nullable;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
     private final String deviceID;
     private String name;
     private int privileges;
@@ -37,6 +39,18 @@ public class User {
 
     public String getPrivilegesString() {
         return String.valueOf(privileges);
+    }
+
+    public String getRole() {   // returns the role as a string
+        if (this.privileges < 200) {
+            return "Entrant";
+        } else if (this.privileges < 300) {
+            return "Organizer";
+        } else if (this.privileges < 400) {
+            return "Organizer & Entrant";
+        } else {
+            return "Admin";
+        }
     }
 
     public void setPrivileges(int privileges) {

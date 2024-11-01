@@ -16,7 +16,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * Uses {@link SplashActivity} to provide a splash screen on boot.
  * This splash screen will show a splash, while checking for which screen to redirect to.
  * Redirect to {@link MainActivity} if the user already exists in the db.
- * Else redirect to {@link CreateProfile} if the user does not exist in the db.
+ * Else redirect to {@link CreateProfileActivity} if the user does not exist in the db.
  */
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
@@ -35,7 +35,7 @@ public class SplashActivity extends AppCompatActivity {
 
             // initialize our two activities as intents
             Intent toMainActivity = new Intent(SplashActivity.this, MainActivity.class);
-            Intent toCreateProfile = new Intent(SplashActivity.this, CreateProfile.class);
+            Intent toCreateProfile = new Intent(SplashActivity.this, CreateProfileActivity.class);
 
             // check if user exists in the database (by deviceID)
             db = FirebaseFirestore.getInstance();

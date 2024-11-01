@@ -1,64 +1,112 @@
 package com.example.butter;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.Handler;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link ProfileFragment#newInstance} factory method to
+ * Use the {@link ProfileFragment} factory method to
  * create an instance of this fragment.
  */
 public class ProfileFragment extends Fragment {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
+    private User user;
+    private View view;
 
     public ProfileFragment() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ProfileFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ProfileFragment newInstance(String param1, String param2) {
-        ProfileFragment fragment = new ProfileFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
+        // empty constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
+        // get user data from the db, and apply the attributes to our view
+        // our user must exist by this point
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference userRef = db.collection("user").document(getArguments().getString("deviceID"));
+
+        // setup a listener to keep updating user class each time it changes (asynchronous)
+        userRef.addSnapshotListener((doc, __) -> {
+            if (doc != null && doc.exists()) {
+                // get data from userData
+                String email = doc.getString("userInfo.email");
+                String facility = doc.getString("userInfo.facility");
+                String name = doc.getString("userInfo.name");
+                String phone = doc.getString("userInfo.phoneNumber");
+                int privileges = Integer.parseInt(doc.getString("userInfo.privilegesString")); // parse to int
+
+                // now we should have all data. lets put into user obj
+                user = new User(getArguments().getString("deviceID"), name, privileges, facility, email, phone);
+
+                // now update the UI with the user (or new) user data
+                updateUserDataInView();
+            }
+        });
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_profile, container, false);
+        view = inflater.inflate(R.layout.fragment_profile, container, false);
+        return view;
+    }
+
+    private void updateUserDataInView() {
+        // setup all of the TextViews in view
+        TextView name = view.findViewById(R.id.username_text);
+        TextView email = view.findViewById(R.id.email_text);
+        TextView facility = view.findViewById(R.id.facility_name_text);
+        TextView facilityLabel = view.findViewById(R.id.facility_label);
+        TextView phone = view.findViewById(R.id.password_text);
+        TextView role = view.findViewById(R.id.role_text);
+
+        // first lets check if we are higher than entrant, if so, unhide facility
+        if (user.getPrivileges() > 100) { // if we are higher than entrant
+            facility.setVisibility(View.VISIBLE);
+            facility.setText(user.getFacility());   // set our facility as well
+            facilityLabel.setVisibility(View.VISIBLE);
+        } else {    // else we want to hide this
+            facilityLabel.setVisibility(View.INVISIBLE);
+            facility.setVisibility(View.INVISIBLE);
+        }
+        // if we do not have a phone #
+        if (user.getPhoneNumber() == null) {    // if our phone # is empty
+            phone.setText(getString(R.string.empty_phone));
+        } else {
+            phone.setText(user.getPhoneNumber());
+        }
+
+        // now to update the text with ours given from database
+        name.setText(user.getName());
+        email.setText(user.getEmail());
+        role.setText(user.getRole());
+
+        // finally, lets set up an onClickListener for the edit profile button
+        Button editProfile = view.findViewById(R.id.edit_profile_button);
+        editProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // simply pass the user object to our EditProfile activity
+                Intent toEditProfile = new Intent(getContext(), EditProfileActivity.class);
+                toEditProfile.putExtra("user", user);
+                startActivity(toEditProfile);
+            }
+        });
+
+
     }
 }

@@ -147,7 +147,13 @@ public class EventsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Event event = userEvents.get(position);
-                System.out.println(event.getEventID());
+                //System.out.println(event.getEventID());
+
+                String eventID = event.getEventID();
+                Intent intent = new Intent(getContext(), EventDetailsActivity.class);
+                intent.putExtra("deviceID", deviceID);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
             }
         });
 

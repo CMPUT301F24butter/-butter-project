@@ -32,7 +32,7 @@ public class UserListDB {
      * @param userListID
      *      ID of the new user list to be created
      */
-    public void create(String userListID) {
+    public void create(String userListID, String listType) {
         DocumentReference docRef = userListRef.document(userListID);
 
         // fetching any existing data associated with this userListID
@@ -44,6 +44,7 @@ public class UserListDB {
                     if (!doc.exists()) { // If there is no list with this userListID
                         HashMap<String, Object> data = new HashMap<>();
                         data.put("size", String.valueOf(0)); // initialize the size to 0
+                        data.put("type", listType);
                         userListRef.document(userListID).set(data); // create new userList document
 
                         userListRef

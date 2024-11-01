@@ -40,7 +40,11 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
 
         eventName.setText(event.getName());
         eventDate.setText(event.getDate());
-        eventCapacity.setText(String.format("Capacity: %d", event.getCapacity()));
+        if (event.getCapacity() != -1) {
+            eventCapacity.setText(String.format("Capacity: %d", event.getCapacity()));
+        } else {
+            eventCapacity.setText("Capacity: N/A");
+        }
 
         return view;
     }

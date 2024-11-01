@@ -79,6 +79,7 @@ public class CreateEventFragment extends AppCompatActivity {
 
                 int maxCapacity = -1;
                 if (!maxCapacityString.isEmpty()) {
+                    System.out.println("Hello");
                     maxCapacity = Integer.parseInt(maxCapacityString);
                     if (maxCapacity < 1) { // max capacity cannot be 0
                         validDetails = false;
@@ -117,9 +118,8 @@ public class CreateEventFragment extends AppCompatActivity {
 
 
                 if (validDetails) { // if event details are valid to this point
-                    // create the Event object
-                    Event event = new Event(name, deviceID, registrationOpenDate, registrationCloseDate, date, maxCapacity, geolocation, eventDescription);
 
+                    int cap = maxCapacity;
                     String eventID = name.replace(" ", "_") + "-" + deviceID; // eventID of this potential new event
                     // checking if an event with this ID already exists
                     eventRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -132,6 +132,8 @@ public class CreateEventFragment extends AppCompatActivity {
                                     toast.show();
                                 }
                                 else { // otherwise, add the event to firebase and return to the previous page
+                                    Event event = new Event(name, deviceID, registrationOpenDate, registrationCloseDate, date, cap, geolocation, eventDescription);
+
                                     EventDB eventDB = new EventDB();
                                     eventDB.add(event);
 

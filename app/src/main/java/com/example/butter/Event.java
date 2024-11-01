@@ -53,10 +53,10 @@ public class Event {
     private void createUserLists() {
         UserListDB userListDB = new UserListDB();
 
-        userListDB.create(this.waitlistID);
-        userListDB.create(this.drawListID);
-        userListDB.create(this.registeredListID);
-        userListDB.create(this.cancelledListID);
+        userListDB.create(this.waitlistID, "waitlist");
+        userListDB.create(this.drawListID, "draw");
+        userListDB.create(this.registeredListID, "registered");
+        userListDB.create(this.cancelledListID, "cancelled");
     }
 
     public String getEventID() {

@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -114,12 +115,17 @@ public class EventsFragment extends Fragment {
                             String eventID = doc.getId();
                             String eventName = doc.getString("eventInfo.name");
                             String eventDate = doc.getString("eventInfo.date");
-                            int eventCapacity = Integer.parseInt(doc.getString("eventInfo.capacityString"));
+                            String eventCapacityString = doc.getString("eventInfo.capacityString");
 
+                            if (eventCapacityString != null) {
+                                int eventCapacity = Integer.parseInt(eventCapacityString);
+                                Event event = new Event(eventID, eventName, eventDate, eventCapacity);
+                                userEvents.add(event);
 
-
-                            Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                            userEvents.add(event);
+                            } else {
+                                Event event = new Event(eventID, eventName, eventDate, -1);
+                                userEvents.add(event);
+                            }
                         }
                     }
                     eventArrayAdapter.notifyDataSetChanged();
@@ -136,6 +142,14 @@ public class EventsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_events, container, false);
         eventsList = (ListView) view.findViewById(R.id.events_list);
         eventsList.setAdapter(eventArrayAdapter);
+
+        eventsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                Event event = userEvents.get(position);
+                System.out.println(event.getEventID());
+            }
+        });
 
         fab = (FloatingActionButton) view.findViewById(R.id.addButton);
         fab.setOnClickListener(new View.OnClickListener() {

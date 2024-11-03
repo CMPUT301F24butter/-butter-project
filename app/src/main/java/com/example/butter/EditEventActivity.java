@@ -48,8 +48,9 @@ public class EditEventActivity extends AppCompatActivity {
         eventRef = db.collection("event"); // event collection
 
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
-        String eventID = getIntent().getExtras().getString("eventID"); // logged in deviceID
+        String eventID = getIntent().getExtras().getString("eventID"); // eventID
 
+        // getting all input boxes
         eventNameText = findViewById(R.id.event_name);
         registrationOpenText = findViewById(R.id.event_start_date);
         registrationCloseText = findViewById(R.id.end_date);
@@ -58,12 +59,14 @@ public class EditEventActivity extends AppCompatActivity {
         capacityText = findViewById(R.id.max_entrants);
         geolocationSwitch = findViewById(R.id.location_switch);
 
+        // retrieving data for this event
         eventRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot doc = task.getResult();
                     if (doc.exists()) {
+                        // retrieving current event details and setting the input boxes with these details
                         eventNameText.setText(doc.getString("eventInfo.name"));
                         eventName = doc.getString("eventInfo.name");
                         registrationOpenText.setText(doc.getString("eventInfo.registrationOpenDate"));
@@ -87,6 +90,7 @@ public class EditEventActivity extends AppCompatActivity {
             }
         });
 
+        // setting click listener for the back button
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,11 +99,13 @@ public class EditEventActivity extends AppCompatActivity {
             }
         });
 
+        // setting click listener for the save button
         Button saveButton = findViewById(R.id.edit_event_button);
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean validDetails = true;
+                // retrieving inputted event details
                 String registrationOpenDate = registrationOpenText.getText().toString();
                 String registrationCloseDate = registrationCloseText.getText().toString();
                 String date = dateText.getText().toString();
@@ -107,8 +113,8 @@ public class EditEventActivity extends AppCompatActivity {
                 String maxCapacityString = capacityText.getText().toString();
                 Boolean geolocation = geolocationSwitch.isChecked();
 
-                int maxCapacity = -1;
-                if (!maxCapacityString.isEmpty()) {
+                int maxCapacity = -1; // default capacity if capacity isn't set
+                if (!maxCapacityString.isEmpty()) { // if a max capacity was inputted
                     maxCapacity = Integer.parseInt(maxCapacityString);
                     if (maxCapacity < 1) { // max capacity cannot be 0
                         validDetails = false;
@@ -123,6 +129,7 @@ public class EditEventActivity extends AppCompatActivity {
                     toast.show();
                 }
 
+                // format for date input
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 Date date1, date2, date3;
                 try {
@@ -133,7 +140,8 @@ public class EditEventActivity extends AppCompatActivity {
                     Boolean bool1 = date2.after(date1);
                     Boolean bool2 = date3.after(date2);
 
-                    if (!bool1 || !bool2) { // confirming that all dates are valid, i.e. event date isn't before registration date
+                    // default capacity if capacity isn't set
+                    if (!bool1 || !bool2) {
                         validDetails = false;
                         Toast toast = Toast.makeText(getApplicationContext(), "Invalid dates.", Toast.LENGTH_LONG);
                         toast.show();
@@ -145,7 +153,7 @@ public class EditEventActivity extends AppCompatActivity {
                     toast.show();
                 }
 
-                if (validDetails) {
+                if (validDetails) { // if the event details are valid, update the event in the database
                     Event event = new Event(eventName, deviceID, registrationOpenDate, registrationCloseDate, date, maxCapacity, geolocation, eventDescription);
 
                     EventDB eventDB = new EventDB();

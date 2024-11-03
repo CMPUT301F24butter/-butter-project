@@ -42,16 +42,19 @@ public class EventDetailsActivity extends AppCompatActivity {
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         String eventID = getIntent().getExtras().getString("eventID"); // logged in deviceID
 
+        // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
         registrationOpenText = findViewById(R.id.register_opens);
         registrationCloseText = findViewById(R.id.register_closes);
         eventDateText = findViewById(R.id.event_date);
         eventDescriptionText = findViewById(R.id.event_description);
 
+        // retrieving event info for this eventID
         DocumentReference docRef = eventRef.document(eventID);
         docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot doc, @Nullable FirebaseFirestoreException error) {
+                // setting text boxes with corresponding event info pulled from the database
                 eventNameText.setText(doc.getString("eventInfo.name"));
                 registrationOpenText.setText(doc.getString("eventInfo.registrationOpenDate"));
                 registrationCloseText.setText(doc.getString("eventInfo.registrationCloseDate"));
@@ -60,6 +63,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
+        // adding on click listener for the back button
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -68,10 +72,12 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
+        // adding on click listener for the settings button
         ImageButton orgOptions = findViewById(R.id.event_settings);
         orgOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // open the organizer options dialog box
                 new OrganizerOptions(eventID, deviceID).show(getSupportFragmentManager(), "Organizer Settings");
             }
         });

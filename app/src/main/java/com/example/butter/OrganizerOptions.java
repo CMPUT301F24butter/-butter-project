@@ -29,11 +29,13 @@ public class OrganizerOptions extends DialogFragment {
 
         View view = LayoutInflater.from(getContext()).inflate(R.layout.organizer_options_dialog, null);
 
+        // getting text boxes
         TextView editEvent = view.findViewById(R.id.edit_event_text);
         TextView viewEntrants = view.findViewById(R.id.view_entrants_text);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
+        // setting click listener for 'edit event' text
         editEvent.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -44,6 +46,7 @@ public class OrganizerOptions extends DialogFragment {
             }
         });
 
+        // setting click listener for 'view entrants' text
         viewEntrants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

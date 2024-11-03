@@ -4,18 +4,70 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 public class EventDetailsActivity extends AppCompatActivity {
+
+    TextView eventNameText;
+    TextView registrationOpenText;
+    TextView registrationCloseText;
+    TextView eventDateText;
+    TextView eventDescriptionText;
+
+    private FirebaseFirestore db;
+    private CollectionReference eventRef;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.edit_event);
+        setContentView(R.layout.event_screen);
+
+        db = FirebaseFirestore.getInstance();
+        eventRef = db.collection("event"); // event collection
 
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         String eventID = getIntent().getExtras().getString("eventID"); // logged in deviceID
+
+        eventNameText = findViewById(R.id.event_title);
+        registrationOpenText = findViewById(R.id.register_opens);
+        registrationCloseText = findViewById(R.id.register_closes);
+        eventDateText = findViewById(R.id.event_date);
+        eventDescriptionText = findViewById(R.id.event_description);
+
+        eventRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+                        eventNameText.setText(doc.getString("eventInfo.name"));
+                        registrationOpenText.setText(doc.getString("eventInfo.registrationOpenDate"));
+                        registrationCloseText.setText(doc.getString("eventInfo.registrationCloseDate"));
+                        eventDateText.setText(doc.getString("eventInfo.date"));
+                        eventDescriptionText.setText(doc.getString("eventInfo.description"));
+                    }
+                }
+            }
+        });
+
+        ImageButton backButton = findViewById(R.id.back_button);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
+
 
     }
 }

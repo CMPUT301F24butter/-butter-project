@@ -47,7 +47,10 @@ public class OrganizerOptions extends DialogFragment {
         viewEntrants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                System.out.println("View entrants");
+                Intent intent = new Intent(getContext(), EntrantListsActivity.class);
+                intent.putExtra("deviceID", deviceID);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
             }
         });
 

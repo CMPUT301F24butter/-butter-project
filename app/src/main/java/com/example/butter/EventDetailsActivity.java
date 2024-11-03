@@ -8,13 +8,17 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 public class EventDetailsActivity extends AppCompatActivity {
 
@@ -44,19 +48,15 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventDateText = findViewById(R.id.event_date);
         eventDescriptionText = findViewById(R.id.event_description);
 
-        eventRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+        DocumentReference docRef = eventRef.document(eventID);
+        docRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot doc = task.getResult();
-                    if (doc.exists()) {
-                        eventNameText.setText(doc.getString("eventInfo.name"));
-                        registrationOpenText.setText(doc.getString("eventInfo.registrationOpenDate"));
-                        registrationCloseText.setText(doc.getString("eventInfo.registrationCloseDate"));
-                        eventDateText.setText(doc.getString("eventInfo.date"));
-                        eventDescriptionText.setText(doc.getString("eventInfo.description"));
-                    }
-                }
+            public void onEvent(@Nullable DocumentSnapshot doc, @Nullable FirebaseFirestoreException error) {
+                eventNameText.setText(doc.getString("eventInfo.name"));
+                registrationOpenText.setText(doc.getString("eventInfo.registrationOpenDate"));
+                registrationCloseText.setText(doc.getString("eventInfo.registrationCloseDate"));
+                eventDateText.setText(doc.getString("eventInfo.date"));
+                eventDescriptionText.setText(doc.getString("eventInfo.description"));
             }
         });
 
@@ -68,6 +68,12 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
-
+        ImageButton orgOptions = findViewById(R.id.event_settings);
+        orgOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new OrganizerOptions(eventID, deviceID).show(getSupportFragmentManager(), "Organizer Settings");
+            }
+        });
     }
 }

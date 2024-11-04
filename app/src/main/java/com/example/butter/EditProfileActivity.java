@@ -42,12 +42,14 @@ public class EditProfileActivity extends AppCompatActivity {
 
         TextView facilityLabel = findViewById(R.id.facility_label); // view to show facility, used to hide/unhide text
 
+        TextView editInitial = findViewById(R.id.profileText);
         EditText editUsername = findViewById(R.id.username);
         EditText editEmail = findViewById(R.id.email);
         EditText editPhone = findViewById(R.id.create_number_text);
         EditText editFacility = findViewById(R.id.facility_name);
 
         // now we want to set all of our text and such to be what was included in user object passed
+        editInitial.setText(user.getName().substring(0,1));
         editUsername.setText(user.getName());
         editEmail.setText(user.getEmail());
         editPhone.setText(user.getPhoneNumber());

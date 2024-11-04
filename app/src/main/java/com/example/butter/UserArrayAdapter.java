@@ -40,9 +40,11 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
         if (isFacility) {
             userTitle.setText(user.getFacility());
             userInfo.setText(user.getName());
+            userInitial.setText(user.getName().substring(0,1));
         } else {
             userTitle.setText(user.getName());
             userInfo.setText(user.getRole());
+            userInitial.setText(user.getName().substring(0,1));
         }
 
 

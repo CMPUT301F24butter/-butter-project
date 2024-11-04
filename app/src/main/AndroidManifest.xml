@@ -22,7 +22,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".MainActivity"/>
-        <activity android:name=".CreateProfile"/>
+        <activity android:name=".CreateProfileActivity"/>
+        <activity android:name=".CreateEventFragment"/>
+        <activity android:name=".EditProfileActivity"/>
+        <activity android:name=".EventDetailsActivity"/>
+        <activity android:name=".EditEventActivity"/>
+        <activity android:name=".EntrantListsActivity"/>
     </application>
 
 </manifest>

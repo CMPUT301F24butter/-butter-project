@@ -1,29 +1,74 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_height="wrap_content"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:orientation="vertical">
-    
+    android:layout_height="wrap_content"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/event_image"
+        android:layout_width="120dp"
+        android:layout_height="100dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="16dp"
+        android:background="@drawable/curved_image"
+        android:contentDescription="@string/event_title_list"
+        android:scaleType="centerCrop" />
+
     <TextView
         android:id="@+id/event_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Event Name"
-        android:textSize="30dp" />
+        android:layout_marginStart="20dp"
+        android:layout_toEndOf="@id/event_image"
+        android:text="@string/event_title_list"
+        android:textColor="#000000"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/date_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/event_name"
+        android:layout_alignStart="@id/event_name"
+        android:layout_marginTop="4dp"
+        android:text="@string/date_label"
+        android:textColor="@color/primaryGreyColor"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/event_date"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Date"
-        android:textSize="16dp" />
+        android:layout_below="@id/date_label"
+        android:layout_alignStart="@id/date_label"
+        android:layout_marginTop="4dp"
+        android:text="@string/event_date_list"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/capacity_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/event_name"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="4dp"
+        android:layout_marginEnd="40dp"
+        android:text="@string/capacity_label"
+        android:textColor="@color/primaryGreyColor"
+        android:textSize="14sp" />
 
     <TextView
         android:id="@+id/event_capacity"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Capacity: %d"
-        android:textSize="16dp" />
+        android:layout_below="@id/capacity_label"
+        android:layout_alignStart="@+id/capacity_label"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="4dp"
+        android:text="@string/capacity_list"
+        android:textColor="@color/black"
+        android:textSize="14sp" />
 
-</LinearLayout>
+</RelativeLayout>

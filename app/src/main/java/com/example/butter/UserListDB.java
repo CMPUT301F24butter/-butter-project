@@ -32,7 +32,7 @@ public class UserListDB {
      * @param userListID
      *      ID of the new user list to be created
      */
-    public void create(String userListID) {
+    public void create(String userListID, String listType) {
         DocumentReference docRef = userListRef.document(userListID);
 
         // fetching any existing data associated with this userListID
@@ -44,6 +44,7 @@ public class UserListDB {
                     if (!doc.exists()) { // If there is no list with this userListID
                         HashMap<String, Object> data = new HashMap<>();
                         data.put("size", String.valueOf(0)); // initialize the size to 0
+                        data.put("type", listType);
                         userListRef.document(userListID).set(data); // create new userList document
 
                         userListRef
@@ -179,6 +180,31 @@ public class UserListDB {
                     }
                     else { // if this user list does not exist
                         Log.d("Firebase", "User list does not exist"); // do nothing
+                    }
+                }
+            }
+        });
+    }
+
+    public void deleteList(String userListID) {
+        DocumentReference docRef = userListRef.document(userListID);
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+
+                        docRef.delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Log.d("Firebase", "List deleted successfully");
+                                    }
+                                });
+                    } else {
+                        Log.d("Firebase", "List does not exist"); // do nothing
                     }
                 }
             }

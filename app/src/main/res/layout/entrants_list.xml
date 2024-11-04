@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ImageButton
+        android:id="@+id/back_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/go_back"
+        android:padding="12dp"
+        android:src="@drawable/ic_back"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/entrants_list_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="@string/entrants_list"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RelativeLayout
+        android:id="@+id/entrants_spinner_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/entrants_list_title">
+
+        <Spinner
+            android:id="@+id/entrants_spinner"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginEnd="16dp"
+            android:background="@drawable/edit_text_border"
+            android:minHeight="48dp"
+            android:spinnerMode="dropdown"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignStart="@+id/entrants_spinner"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="345dp"
+            android:layout_marginEnd="35dp"
+            android:contentDescription="@string/select_role"
+            app:srcCompat="@android:drawable/arrow_down_float"
+            app:tint="@color/primaryPinkColor" />
+    </RelativeLayout>
+
+
+    <!-- Placeholder for the waiting list, chosen, etc. fragments -->
+    <FrameLayout
+        android:id="@+id/entrants_container"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="20dp"
+        app:layout_constraintBottom_toTopOf="@id/generate_entrants_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/entrants_spinner_layout">
+
+        <ListView
+            android:id="@+id/entrants_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
+    </FrameLayout>
+
+    <View
+        android:id="@+id/pink_divider"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_marginVertical="20dp"
+        android:background="@color/secondaryGreyColor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/entrants_spinner_layout" />
+
+    <!-- Generate Entrant button, only visible in waiting list entrants -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/generate_entrants_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/primaryPurpleColor"
+        android:text="@string/generate_entrants"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- Draw replacement button, only visible in canceled entrants -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/draw_replacements_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="40dp"
+        android:layout_marginEnd="40dp"
+        android:layout_marginBottom="20dp"
+        android:backgroundTint="@color/primaryPurpleColor"
+        android:text="@string/draw_replacements"
+        android:textColor="@color/white"
+        android:visibility="gone"
+        app:cornerRadius="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <!-- This add button can only be accessed by organizers -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="328dp"
+        android:contentDescription="@string/create_button"
+        android:padding="50dp"
+        android:paddingVertical="100dp"
+        app:backgroundTint="@color/primaryPinkColor"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/entrants_container"
+        app:layout_constraintVertical_bias="0.943"
+        app:srcCompat="@android:drawable/ic_menu_delete"
+        app:tint="@android:color/white" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

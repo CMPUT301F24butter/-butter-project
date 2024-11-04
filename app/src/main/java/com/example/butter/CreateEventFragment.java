@@ -49,6 +49,7 @@ public class CreateEventFragment extends AppCompatActivity {
         Button createButton = findViewById(R.id.create_event_button);
         ImageButton backButton = findViewById(R.id.back_button);
 
+        // setting click listener for back button
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,6 +57,7 @@ public class CreateEventFragment extends AppCompatActivity {
             }
         });
 
+        // getting all input boxes
         eventName = findViewById(R.id.name_event);
         openDate = findViewById(R.id.start_date);
         closeDate = findViewById(R.id.end_date);
@@ -64,11 +66,13 @@ public class CreateEventFragment extends AppCompatActivity {
         capacity = findViewById(R.id.max_entrants);
         geolocationSwitch = findViewById(R.id.location_switch);
 
+        // setting click listener for the create event button
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // extracting input
-                boolean validDetails = true;
+                boolean validDetails = true; // represents whether the event details are valid or not
+
+                // extracting inputted event details
                 String name = eventName.getText().toString();
                 String registrationOpenDate = openDate.getText().toString();
                 String registrationCloseDate = closeDate.getText().toString();
@@ -77,9 +81,8 @@ public class CreateEventFragment extends AppCompatActivity {
                 String maxCapacityString = capacity.getText().toString();
                 Boolean geolocation = geolocationSwitch.isChecked();
 
-                int maxCapacity = -1;
-                if (!maxCapacityString.isEmpty()) {
-                    System.out.println("Hello");
+                int maxCapacity = -1; // default capacity if capacity isn't set
+                if (!maxCapacityString.isEmpty()) { // if a max capacity was inputted
                     maxCapacity = Integer.parseInt(maxCapacityString);
                     if (maxCapacity < 1) { // max capacity cannot be 0
                         validDetails = false;
@@ -94,6 +97,7 @@ public class CreateEventFragment extends AppCompatActivity {
                     toast.show();
                 }
 
+                // format for date input
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                 Date date1, date2, date3;
                 try {
@@ -104,7 +108,8 @@ public class CreateEventFragment extends AppCompatActivity {
                     Boolean bool1 = date2.after(date1);
                     Boolean bool2 = date3.after(date2);
 
-                    if (!bool1 || !bool2) { // confirming that all dates are valid, i.e. event date isn't before registration date
+                    // confirming that all dates are valid, i.e. event date isn't before registration date
+                    if (!bool1 || !bool2) {
                         validDetails = false;
                         Toast toast = Toast.makeText(getApplicationContext(), "Invalid dates.", Toast.LENGTH_LONG);
                         toast.show();

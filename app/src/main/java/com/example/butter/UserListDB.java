@@ -185,4 +185,29 @@ public class UserListDB {
             }
         });
     }
+
+    public void deleteList(String userListID) {
+        DocumentReference docRef = userListRef.document(userListID);
+
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+
+                        docRef.delete()
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void unused) {
+                                        Log.d("Firebase", "List deleted successfully");
+                                    }
+                                });
+                    } else {
+                        Log.d("Firebase", "List does not exist"); // do nothing
+                    }
+                }
+            }
+        });
+    }
 }

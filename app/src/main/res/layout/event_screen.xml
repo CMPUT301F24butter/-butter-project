@@ -126,7 +126,7 @@
             android:minHeight="120dp"
             android:paddingHorizontal="16dp">
 
-            <EditText
+            <TextView
                 android:id="@+id/event_description"
                 android:layout_width="match_parent"
                 android:layout_height="120dp"

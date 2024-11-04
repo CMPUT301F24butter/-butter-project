@@ -63,8 +63,8 @@
 
     </FrameLayout>
 
-    <EditText
-        android:id="@+id/create_username"
+    <TextView
+        android:id="@+id/event_name"
         android:layout_width="match_parent"
         android:layout_height="48dp"
         android:layout_marginBottom="15dp"
@@ -72,7 +72,6 @@
         android:background="@drawable/edit_text_border"
         android:drawableStart="@drawable/event_name"
         android:drawablePadding="8dp"
-        android:inputType="text"
         android:text="@string/current_title"
         android:textSize="12sp" />
 
@@ -151,7 +150,7 @@
             android:background="@drawable/edit_text_border"
             android:drawableStart="@drawable/max_attendees"
             android:drawablePadding="8dp"
-            android:inputType="text"
+            android:inputType="number"
             android:text="@string/current_max"
             android:textSize="12sp" />
 

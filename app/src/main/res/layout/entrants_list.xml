@@ -75,6 +75,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/entrants_spinner_layout">
 
+        <ListView
+            android:id="@+id/entrants_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+
     </FrameLayout>
 
     <View

@@ -100,45 +100,36 @@ public class EventsFragment extends Fragment {
 
         eventArrayAdapter = new EventArrayAdapter(getContext(), userEvents);
 
-        userRef.document(deviceID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+        eventRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
-            public void onSuccess(DocumentSnapshot doc) {
-                String privileges = doc.getString("userInfo.privilegesString");
+            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e("Firestore", error.toString());
+                    return;
+                }
+                if (querySnapshots != null) {
+                    userEvents.clear();
+                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                        String organizerID = doc.getString("eventInfo.organizerID");
 
-                if (Objects.equals(privileges, "200") || Objects.equals(privileges, "300") || Objects.equals(privileges, "600") || Objects.equals(privileges, "700")) {
-                    eventRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-                        @Override
-                        public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
-                            if (error != null) {
-                                Log.e("Firestore", error.toString());
-                                return;
-                            }
-                            if (querySnapshots != null) {
-                                userEvents.clear();
-                                for (QueryDocumentSnapshot doc : querySnapshots) {
-                                    String organizerID = doc.getString("eventInfo.organizerID");
+                        if (Objects.equals(organizerID, deviceID)) {
+                            String eventID = doc.getId();
+                            String eventName = doc.getString("eventInfo.name");
+                            String eventDate = doc.getString("eventInfo.date");
+                            String eventCapacityString = doc.getString("eventInfo.capacityString");
 
-                                    if (Objects.equals(organizerID, deviceID)) {
-                                        String eventID = doc.getId();
-                                        String eventName = doc.getString("eventInfo.name");
-                                        String eventDate = doc.getString("eventInfo.date");
-                                        String eventCapacityString = doc.getString("eventInfo.capacityString");
+                            if (eventCapacityString != null) {
+                                int eventCapacity = Integer.parseInt(eventCapacityString);
+                                Event event = new Event(eventID, eventName, eventDate, eventCapacity);
+                                userEvents.add(event);
 
-                                        if (eventCapacityString != null) {
-                                            int eventCapacity = Integer.parseInt(eventCapacityString);
-                                            Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                                            userEvents.add(event);
-
-                                        } else {
-                                            Event event = new Event(eventID, eventName, eventDate, -1);
-                                            userEvents.add(event);
-                                        }
-                                    }
-                                }
-                                eventArrayAdapter.notifyDataSetChanged();
+                            } else {
+                                Event event = new Event(eventID, eventName, eventDate, -1);
+                                userEvents.add(event);
                             }
                         }
-                    });
+                    }
+                    eventArrayAdapter.notifyDataSetChanged();
                 }
             }
         });

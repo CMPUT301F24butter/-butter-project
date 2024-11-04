@@ -73,6 +73,7 @@ public class ProfileFragment extends Fragment {
         TextView facilityLabel = view.findViewById(R.id.facility_label);
         TextView phone = view.findViewById(R.id.password_text);
         TextView role = view.findViewById(R.id.role_text);
+        TextView profileInitial = view.findViewById(R.id.profileText);
 
         // first lets check if we are higher than entrant, if so, unhide facility
         if (user.getPrivileges() > 100) { // if we are higher than entrant
@@ -91,6 +92,7 @@ public class ProfileFragment extends Fragment {
         }
 
         // now to update the text with ours given from database
+        profileInitial.setText(user.getName().substring(0, 1));
         name.setText(user.getName());
         email.setText(user.getEmail());
         role.setText(user.getRole());

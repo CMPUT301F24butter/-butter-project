@@ -45,15 +45,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-                android:layout_marginBottom="20dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="10dp"
                 android:text="@string/event_title"
-                android:textSize="40sp" />
+                android:textSize="40sp"
+                android:textColor="@color/black"/>
 
             <!-- This organizer options button can only be accessed by organizer -->
             <ImageButton
                 android:id="@+id/organizer_opt_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:layout_alignParentEnd="true"
                 android:backgroundTint="@color/white"
                 android:contentDescription="@string/organizer_options_events"
@@ -65,6 +69,7 @@
                 android:id="@+id/admin_delete_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:layout_below="@id/organizer_opt_button"
                 android:layout_alignParentEnd="true"
                 android:backgroundTint="@color/white"
@@ -77,6 +82,7 @@
                 android:id="@+id/decline_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:layout_below="@id/admin_delete_button"
                 android:layout_alignParentEnd="true"
                 android:backgroundTint="@color/white"
@@ -128,12 +134,11 @@
 
             <TextView
                 android:id="@+id/event_description"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="120dp"
                 android:autofillHints=""
                 android:background="@android:color/transparent"
                 android:drawablePadding="90dp"
-                android:inputType="text"
                 android:minHeight="48dp"
                 android:text="@string/event_description"
                 android:textSize="12sp" />

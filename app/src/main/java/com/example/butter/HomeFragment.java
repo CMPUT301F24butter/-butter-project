@@ -133,6 +133,8 @@ public class HomeFragment extends Fragment {
 
                         // If user is an entrant / entrant + organizer, only has upcoming / waiting list
                         } else if (Objects.equals(privileges, "100") || Objects.equals(privileges, "300")) {
+                            String user = doc.getString("userInfo.name");
+                            greetingText.setText(String.format("Hey %s!", user));
                             greetingText.setVisibility(View.VISIBLE);
                             qrCodeText.setVisibility(View.VISIBLE);
                             switchToEntrant(adminListView, upcomingText, upcomingScrollView, waitingText, waitingScrollView);

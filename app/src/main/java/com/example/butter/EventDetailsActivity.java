@@ -56,9 +56,12 @@ public class EventDetailsActivity extends AppCompatActivity {
             public void onEvent(@Nullable DocumentSnapshot doc, @Nullable FirebaseFirestoreException error) {
                 // setting text boxes with corresponding event info pulled from the database
                 eventNameText.setText(doc.getString("eventInfo.name"));
-                registrationOpenText.setText(doc.getString("eventInfo.registrationOpenDate"));
-                registrationCloseText.setText(doc.getString("eventInfo.registrationCloseDate"));
-                eventDateText.setText(doc.getString("eventInfo.date"));
+                String registrationOpenDate = doc.getString("eventInfo.registrationOpenDate");
+                registrationOpenText.setText(String.format("Registration Opens: %s", registrationOpenDate));
+                String registrationCloseDate = doc.getString("eventInfo.registrationCloseDate");
+                registrationCloseText.setText(String.format("Registration Closes: %s", registrationCloseDate));
+                String eventDate = doc.getString("eventInfo.date");
+                eventDateText.setText(String.format("Event Date: %s", eventDate));
                 eventDescriptionText.setText(doc.getString("eventInfo.description"));
             }
         });
@@ -72,8 +75,10 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
+        ImageButton orgOptions = findViewById(R.id.organizer_opt_button);
+        orgOptions.setVisibility(View.VISIBLE);
+
         // adding on click listener for the settings button
-        ImageButton orgOptions = findViewById(R.id.event_settings);
         orgOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

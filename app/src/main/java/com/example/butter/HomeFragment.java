@@ -127,7 +127,7 @@ public class HomeFragment extends Fragment {
                         String privileges = doc.getString("userInfo.privilegesString");
 
                         // If a user is an admin + organizer, they get browse abilities + upcoming / waiting list
-                        if (Objects.equals(privileges, "400") || Objects.equals(privileges, "600")) {
+                        if (Objects.equals(privileges, "400") || Objects.equals(privileges, "500") || Objects.equals(privileges, "600") || Objects.equals(privileges, "700")) {
                             adminSpinnerLayout.setVisibility(View.VISIBLE);
                             adminListView.setVisibility(View.VISIBLE);
 

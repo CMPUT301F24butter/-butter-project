@@ -131,17 +131,21 @@ public class EditEventActivity extends AppCompatActivity {
 
                 // format for date input
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                Date date1, date2, date3;
+                Date todaysDate = new Date();
+                String todayString = formatter.format(todaysDate);
+                Date date1, date2, date3, today;
                 try {
                     date1 = formatter.parse(registrationOpenDate);
                     date2 = formatter.parse(registrationCloseDate);
                     date3 = formatter.parse(date);
+                    today = formatter.parse(todayString);
 
                     Boolean bool1 = date2.after(date1);
                     Boolean bool2 = date3.after(date2);
+                    Boolean bool3 = date1.after(today);
 
                     // default capacity if capacity isn't set
-                    if (!bool1 || !bool2) {
+                    if (!bool1 || !bool2 || !bool3) {
                         validDetails = false;
                         Toast toast = Toast.makeText(getApplicationContext(), "Invalid dates.", Toast.LENGTH_LONG);
                         toast.show();

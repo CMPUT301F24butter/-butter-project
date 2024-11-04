@@ -32,6 +32,7 @@ public class OrganizerOptions extends DialogFragment {
         // getting text boxes
         TextView editEvent = view.findViewById(R.id.edit_event_text);
         TextView viewEntrants = view.findViewById(R.id.view_entrants_text);
+        TextView showDetailsCode = view.findViewById(R.id.show_details_code_text);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -51,6 +52,16 @@ public class OrganizerOptions extends DialogFragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), EntrantListsActivity.class);
+                intent.putExtra("deviceID", deviceID);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
+            }
+        });
+
+        showDetailsCode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), OrganizerShowCodeActivity.class);
                 intent.putExtra("deviceID", deviceID);
                 intent.putExtra("eventID", eventID);
                 startActivity(intent);

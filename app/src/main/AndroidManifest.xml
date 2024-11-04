@@ -28,6 +28,7 @@
         <activity android:name=".EventDetailsActivity"/>
         <activity android:name=".EditEventActivity"/>
         <activity android:name=".EntrantListsActivity"/>
+        <activity android:name=".OrganizerShowCodeActivity"/>
     </application>
 
 </manifest>

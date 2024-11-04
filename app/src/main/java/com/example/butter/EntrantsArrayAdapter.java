@@ -34,8 +34,6 @@ public class EntrantsArrayAdapter extends ArrayAdapter<User> {
 
         User user = users.get(position);
 
-        System.out.println(user.getName());
-
         TextView username = view.findViewById(R.id.entrant_name);
         username.setText(user.getName());
 

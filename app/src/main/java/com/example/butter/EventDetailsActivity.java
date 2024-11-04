@@ -86,5 +86,28 @@ public class EventDetailsActivity extends AppCompatActivity {
                 new OrganizerOptions(eventID, deviceID).show(getSupportFragmentManager(), "Organizer Settings");
             }
         });
+
+        Button deleteEventButton = findViewById(R.id.waiting_list_button);
+        deleteEventButton.setText("Delete Event");
+        deleteEventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String waitlistID = eventID + "-wait";
+                String drawlistID = eventID + "-draw";
+                String registerListID = eventID + "-registered";
+                String cancelledListID = eventID + "-cancelled";
+
+                UserListDB userListDB = new UserListDB();
+                userListDB.deleteList(waitlistID);
+                userListDB.deleteList(drawlistID);
+                userListDB.deleteList(registerListID);
+                userListDB.deleteList(cancelledListID);
+
+                EventDB eventDB = new EventDB();
+                eventDB.delete(eventID);
+
+                finish();
+            }
+        });
     }
 }

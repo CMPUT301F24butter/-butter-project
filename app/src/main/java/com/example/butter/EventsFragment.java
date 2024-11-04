@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -99,40 +100,48 @@ public class EventsFragment extends Fragment {
 
         eventArrayAdapter = new EventArrayAdapter(getContext(), userEvents);
 
-        eventRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+        userRef.document(deviceID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("Firestore", error.toString());
-                    return;
-                }
-                if (querySnapshots != null) {
-                    userEvents.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
-                        String organizerID = doc.getString("eventInfo.organizerID");
+            public void onSuccess(DocumentSnapshot doc) {
+                String privileges = doc.getString("userInfo.privilegesString");
 
-                        if (Objects.equals(organizerID, deviceID)) {
-                            String eventID = doc.getId();
-                            String eventName = doc.getString("eventInfo.name");
-                            String eventDate = doc.getString("eventInfo.date");
-                            String eventCapacityString = doc.getString("eventInfo.capacityString");
+                if (Objects.equals(privileges, "200") || Objects.equals(privileges, "300") || Objects.equals(privileges, "600") || Objects.equals(privileges, "700")) {
+                    eventRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
+                        @Override
+                        public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
+                            if (error != null) {
+                                Log.e("Firestore", error.toString());
+                                return;
+                            }
+                            if (querySnapshots != null) {
+                                userEvents.clear();
+                                for (QueryDocumentSnapshot doc : querySnapshots) {
+                                    String organizerID = doc.getString("eventInfo.organizerID");
 
-                            if (eventCapacityString != null) {
-                                int eventCapacity = Integer.parseInt(eventCapacityString);
-                                Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                                userEvents.add(event);
+                                    if (Objects.equals(organizerID, deviceID)) {
+                                        String eventID = doc.getId();
+                                        String eventName = doc.getString("eventInfo.name");
+                                        String eventDate = doc.getString("eventInfo.date");
+                                        String eventCapacityString = doc.getString("eventInfo.capacityString");
 
-                            } else {
-                                Event event = new Event(eventID, eventName, eventDate, -1);
-                                userEvents.add(event);
+                                        if (eventCapacityString != null) {
+                                            int eventCapacity = Integer.parseInt(eventCapacityString);
+                                            Event event = new Event(eventID, eventName, eventDate, eventCapacity);
+                                            userEvents.add(event);
+
+                                        } else {
+                                            Event event = new Event(eventID, eventName, eventDate, -1);
+                                            userEvents.add(event);
+                                        }
+                                    }
+                                }
+                                eventArrayAdapter.notifyDataSetChanged();
                             }
                         }
-                    }
-                    eventArrayAdapter.notifyDataSetChanged();
+                    });
                 }
             }
         });
-
     }
 
     @Override

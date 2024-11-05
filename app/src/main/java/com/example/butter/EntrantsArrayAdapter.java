@@ -29,13 +29,16 @@ public class EntrantsArrayAdapter extends ArrayAdapter<User> {
         View view = convertView;
 
         if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.entrant_content, parent,false);
+            view = LayoutInflater.from(context).inflate(R.layout.users_content, parent,false);
         }
 
         User user = users.get(position);
 
-        TextView username = view.findViewById(R.id.entrant_name);
+        TextView username = view.findViewById(R.id.user_title);
         username.setText(user.getName());
+
+        TextView email = view.findViewById(R.id.user_info);
+        email.setText(user.getEmail());
 
         return view;
     }

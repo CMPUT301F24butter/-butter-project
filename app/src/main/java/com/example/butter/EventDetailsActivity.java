@@ -30,6 +30,11 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private CollectionReference eventRef;
+    private CollectionReference userRef;
+
+    private String organizerID;
+    private String eventID;
+    private String deviceID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,8 +44,8 @@ public class EventDetailsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
 
-        String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
-        String eventID = getIntent().getExtras().getString("eventID"); // logged in deviceID
+        deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
+        eventID = getIntent().getExtras().getString("eventID"); // logged in deviceID
 
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
@@ -63,6 +68,18 @@ public class EventDetailsActivity extends AppCompatActivity {
                 String eventDate = doc.getString("eventInfo.date");
                 eventDateText.setText(String.format("Event Date: %s", eventDate));
                 eventDescriptionText.setText(doc.getString("eventInfo.description"));
+
+                // get the organizers ID to see what the user has access to
+                organizerID = doc.getString("eventInfo.organizerID");
+                System.out.println("Organizer: " + organizerID);
+                System.out.println("Entrant: " + deviceID);
+
+                // If the user is the event's organizer, they will see organizer options
+                if (deviceID.equals(organizerID)) {
+                    setUpOrganizerOptions();
+                } else {
+                    setUpEntrantActions();
+                }
             }
         });
 
@@ -74,18 +91,23 @@ public class EventDetailsActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
-        ImageButton orgOptions = findViewById(R.id.organizer_opt_button);
-        orgOptions.setVisibility(View.VISIBLE);
-
-        // adding on click listener for the settings button
-        orgOptions.setOnClickListener(new View.OnClickListener() {
+    private void setUpEntrantActions() {
+        // adding click listener for delete button
+        Button entrantEventButton = findViewById(R.id.waiting_list_button);
+        entrantEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // open the organizer options dialog box
-                new OrganizerOptions(eventID, deviceID).show(getSupportFragmentManager(), "Organizer Settings");
+                // Add in implementation for join waiting list
             }
         });
+    }
+
+    private void setUpOrganizerOptions() {
+        System.out.println("Hey I made it here");
+        ImageButton orgOptions = findViewById(R.id.organizer_opt_button);
+        orgOptions.setVisibility(View.VISIBLE);
 
         // adding click listener for delete button
         Button deleteEventButton = findViewById(R.id.waiting_list_button);
@@ -114,6 +136,15 @@ public class EventDetailsActivity extends AppCompatActivity {
                 eventDB.delete(eventID);
 
                 finish();
+            }
+        });
+
+        // adding on click listener for the settings button
+        orgOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // open the organizer options dialog box
+                new OrganizerOptions(eventID, deviceID).show(getSupportFragmentManager(), "Organizer Settings");
             }
         });
     }

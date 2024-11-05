@@ -1,11 +1,13 @@
 package com.example.butter;
 
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.text.ParseException;
@@ -22,6 +24,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 public class CreateEventFragment extends AppCompatActivity {
 
@@ -49,6 +56,7 @@ public class CreateEventFragment extends AppCompatActivity {
         Button createButton = findViewById(R.id.create_event_button);
         ImageButton backButton = findViewById(R.id.back_button);
 
+        // setting click listener for back button
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -56,6 +64,7 @@ public class CreateEventFragment extends AppCompatActivity {
             }
         });
 
+        // getting all input boxes
         eventName = findViewById(R.id.name_event);
         openDate = findViewById(R.id.start_date);
         closeDate = findViewById(R.id.end_date);
@@ -64,11 +73,13 @@ public class CreateEventFragment extends AppCompatActivity {
         capacity = findViewById(R.id.max_entrants);
         geolocationSwitch = findViewById(R.id.location_switch);
 
+        // setting click listener for the create event button
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // extracting input
-                boolean validDetails = true;
+                boolean validDetails = true; // represents whether the event details are valid or not
+
+                // extracting inputted event details
                 String name = eventName.getText().toString();
                 String registrationOpenDate = openDate.getText().toString();
                 String registrationCloseDate = closeDate.getText().toString();
@@ -77,9 +88,8 @@ public class CreateEventFragment extends AppCompatActivity {
                 String maxCapacityString = capacity.getText().toString();
                 Boolean geolocation = geolocationSwitch.isChecked();
 
-                int maxCapacity = -1;
-                if (!maxCapacityString.isEmpty()) {
-                    System.out.println("Hello");
+                int maxCapacity = -1; // default capacity if capacity isn't set
+                if (!maxCapacityString.isEmpty()) { // if a max capacity was inputted
                     maxCapacity = Integer.parseInt(maxCapacityString);
                     if (maxCapacity < 1) { // max capacity cannot be 0
                         validDetails = false;
@@ -94,17 +104,24 @@ public class CreateEventFragment extends AppCompatActivity {
                     toast.show();
                 }
 
+                // format for date input
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-                Date date1, date2, date3;
+                Date todaysDate = new Date();
+                String todayString = formatter.format(todaysDate);
+                Date date1, date2, date3, today;
                 try {
                     date1 = formatter.parse(registrationOpenDate);
                     date2 = formatter.parse(registrationCloseDate);
                     date3 = formatter.parse(date);
+                    today = formatter.parse(todayString);
 
                     Boolean bool1 = date2.after(date1);
                     Boolean bool2 = date3.after(date2);
+                    Boolean bool3 = date1.after(today);
 
-                    if (!bool1 || !bool2) { // confirming that all dates are valid, i.e. event date isn't before registration date
+
+                    // confirming that all dates are valid, i.e. event date isn't before registration date
+                    if (!bool1 || !bool2 || !bool3) {
                         validDetails = false;
                         Toast toast = Toast.makeText(getApplicationContext(), "Invalid dates.", Toast.LENGTH_LONG);
                         toast.show();
@@ -137,6 +154,8 @@ public class CreateEventFragment extends AppCompatActivity {
                                     EventDB eventDB = new EventDB();
                                     eventDB.add(event);
 
+                                    generateQRCode(eventID); // generating the QR code for this event
+
                                     finish();
                                 }
                             }
@@ -146,5 +165,21 @@ public class CreateEventFragment extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void generateQRCode(String eventID) {
+        MultiFormatWriter writer = new MultiFormatWriter();
+        try {
+            BitMatrix matrix = writer.encode(eventID, BarcodeFormat.QR_CODE, 600, 600);
+
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            Bitmap bitmap = encoder.createBitmap(matrix); // generating the bitmap
+
+            QRCodeDB qrCodeDB = new QRCodeDB();
+            qrCodeDB.add(bitmap, eventID); // adding this QR Code to firebase
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
     }
 }

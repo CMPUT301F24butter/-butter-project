@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
@@ -132,7 +133,6 @@ public class EventsFragment extends Fragment {
                 }
             }
         });
-
     }
 
     @Override
@@ -147,7 +147,13 @@ public class EventsFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Event event = userEvents.get(position);
-                System.out.println(event.getEventID());
+                //System.out.println(event.getEventID());
+
+                String eventID = event.getEventID();
+                Intent intent = new Intent(getContext(), EventDetailsActivity.class);
+                intent.putExtra("deviceID", deviceID);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
             }
         });
 

@@ -37,6 +37,8 @@ android {
 }
 
 dependencies {
+    implementation("com.google.zxing:core:3.3.3")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-firestore")
@@ -47,4 +49,6 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
 }

@@ -178,6 +178,7 @@ public class EntrantListsActivity extends AppCompatActivity {
         });
     }
 
+    // displays the correct buttons based on the list you have selected
     private void generateButtons() {
         generateEntrants.setVisibility(View.GONE);
 
@@ -186,37 +187,36 @@ public class EntrantListsActivity extends AppCompatActivity {
         }
     }
 
+    // randomly moves users from the waitlist to the draw list
     private void sampleEntrants() {
-        int sampleSize = 1;
+        int sampleSize = 1; // currently only works for 1 user at a time
 
         ArrayList<User> shuffledUsers = new ArrayList<>();
         shuffledUsers.addAll(entrantsData);
 
-        Collections.shuffle(shuffledUsers, new Random());
+        Collections.shuffle(shuffledUsers, new Random()); // shuffling the users in the list
 
         List<User> selectedList;
         if (shuffledUsers.size() > sampleSize) {
-            selectedList = shuffledUsers.subList(0, sampleSize);
+            selectedList = shuffledUsers.subList(0, sampleSize); // creating a sublist of selected users
         } else {
             selectedList = shuffledUsers.subList(0, shuffledUsers.size());
         }
 
         UserListDB userListDB = new UserListDB();
 
-
         for (User user : selectedList) {
             String deviceID = user.getDeviceID();
-            userListDB.removeFromList(waitlistID, deviceID);
-
-            userListDB.addToList(drawlistID, deviceID);
+            userListDB.removeFromList(waitlistID, deviceID); // removing the user from the waitlist
+            userListDB.addToList(drawlistID, deviceID); // adding the user to the draw list
         }
 
-        try {
+        try { // sleeping before re printing the list
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        displayEntrants();
+        displayEntrants(); // re printing the updated list
     }
 }

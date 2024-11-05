@@ -52,15 +52,18 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         eventRef = db.collection("event");
         userRef = db.collection("user");
 
+        // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
         registrationOpenText = findViewById(R.id.reg_open_text);
         registrationCloseText = findViewById(R.id.reg_close_text);
         eventDateText = findViewById(R.id.event_date);
         facilityText = findViewById(R.id.event_place);
 
+        // retrieving event info from firebase
         eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot doc) {
+                // setting all the text boxes with correct event info
                 eventNameText.setText(doc.getString("eventInfo.name"));
                 String openDate = doc.getString("eventInfo.registrationOpenDate");
                 registrationOpenText.setText(String.format("Registration Opens: %s", openDate));
@@ -71,9 +74,11 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
             }
         });
 
+        // getting the organizer's facility from firebase
         userRef.document(deviceID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot doc) {
+                // displaying the organizer's facility
                 String place = doc.getString("userInfo.facility");
                 facilityText.setText(String.format("Location: %s", place));
             }
@@ -91,28 +96,31 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
 
     }
 
+    // displays the QR Code for this event
     private void displayQRCode(String eventID) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         CollectionReference QRCodeRef = db.collection("QRCode");
 
+        // fetching the QR Code associated to this eventID from firebase
         QRCodeRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
                 if (task.isSuccessful()) {
                     DocumentSnapshot doc = task.getResult();
-                    if (doc.exists()) {
-                        String base64String = doc.getString("QRCodeString");
+                    if (doc.exists()) { // if there is a QR Code associated with this eventID
+                        String base64String = doc.getString("QRCodeString"); // retrieving the string
 
-                        Bitmap bitmap = stringToBitmap(base64String);
+                        Bitmap bitmap = stringToBitmap(base64String); // turning the string into a bitmap
 
                         ImageView qrCode = findViewById(R.id.details_barcode_image);
-                        qrCode.setImageBitmap(bitmap);
+                        qrCode.setImageBitmap(bitmap); // displaying the bitmap
                     }
                 }
             }
         });
     }
 
+    // function to convert a string into a bitmap
     private Bitmap stringToBitmap(String base64String) {
         byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);

@@ -58,6 +58,7 @@ public class OrganizerOptions extends DialogFragment {
             }
         });
 
+        // setting click listener for 'show details code' text
         showDetailsCode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -154,7 +154,7 @@ public class CreateEventFragment extends AppCompatActivity {
                                     EventDB eventDB = new EventDB();
                                     eventDB.add(event);
 
-                                    generateQRCode(eventID);
+                                    generateQRCode(eventID); // generating the QR code for this event
 
                                     finish();
                                 }
@@ -173,10 +173,10 @@ public class CreateEventFragment extends AppCompatActivity {
             BitMatrix matrix = writer.encode(eventID, BarcodeFormat.QR_CODE, 600, 600);
 
             BarcodeEncoder encoder = new BarcodeEncoder();
-            Bitmap bitmap = encoder.createBitmap(matrix);
+            Bitmap bitmap = encoder.createBitmap(matrix); // generating the bitmap
 
             QRCodeDB qrCodeDB = new QRCodeDB();
-            qrCodeDB.add(bitmap, eventID);
+            qrCodeDB.add(bitmap, eventID); // adding this QR Code to firebase
 
         } catch (WriterException e) {
             e.printStackTrace();

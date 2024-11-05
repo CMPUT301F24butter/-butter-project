@@ -1,7 +1,12 @@
 package com.example.butter;
 
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
@@ -11,6 +16,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -23,6 +29,10 @@ import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.zxing.client.android.Intents;
+import com.journeyapps.barcodescanner.CaptureActivity;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -54,6 +64,9 @@ public class HomeFragment extends Fragment {
     private EventArrayAdapter eventArrayAdapter;
     private ArrayAdapter<User> userArrayAdapter;
     private Boolean isFacility;
+    ActivityResultLauncher<ScanOptions> barLauncher;
+
+    Button qrScan;
 
     public HomeFragment() {
         allEvents = new ArrayList<>();
@@ -89,6 +102,15 @@ public class HomeFragment extends Fragment {
         Bundle args = getArguments();
         deviceID = args.getString("deviceID");
         eventArrayAdapter = new EventArrayAdapter(getContext(), allEvents);
+
+        barLauncher = registerForActivityResult(new ScanContract(), result -> {
+            if (result.getContents() != null) {
+                Intent intent = new Intent(requireContext(), EventDetailsActivity.class);
+                intent.putExtra("deviceID", deviceID);
+                intent.putExtra("eventID", result.getContents());
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -96,6 +118,11 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        qrScan = view.findViewById(R.id.qrScannerButton);
+        qrScan.setOnClickListener(v -> {
+            scanCode();
+        });
 
         adminListView = (ListView) view.findViewById(R.id.admin_list_view);
         adminListView.setAdapter(eventArrayAdapter);
@@ -187,6 +214,15 @@ public class HomeFragment extends Fragment {
             }
         });
         return view;
+    }
+
+    private void scanCode() {
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Volume up to flash on");
+        options.setBeepEnabled(true);
+        options.setOrientationLocked(true);
+        options.setCaptureActivity(CaptureAct.class);
+        barLauncher.launch(options);
     }
 
     private void switchToEntrant(ListView adminListView, TextView upcomingText, HorizontalScrollView upcomingScrollView, TextView waitingText, HorizontalScrollView waitingScrollView) {

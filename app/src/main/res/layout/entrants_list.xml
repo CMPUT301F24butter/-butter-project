@@ -119,6 +119,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:inputType="number"
         android:hint="Sample size"
+        android:visibility="gone"
         />
 
     <!-- Draw replacement button, only visible in canceled entrants -->

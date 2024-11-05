@@ -187,10 +187,7 @@ public class EntrantListsActivity extends AppCompatActivity {
     }
 
     private void sampleEntrants() {
-        EditText sampleSizeText = findViewById(R.id.sample_size);
-        String sampleSizeString = sampleSizeText.getText().toString();
-
-        int sampleSize = Integer.parseInt(sampleSizeString);
+        int sampleSize = 1;
 
         ArrayList<User> shuffledUsers = new ArrayList<>();
         shuffledUsers.addAll(entrantsData);

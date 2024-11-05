@@ -106,6 +106,9 @@ public class EventDetailsActivity extends AppCompatActivity {
                 EventDB eventDB = new EventDB();
                 eventDB.delete(eventID);
 
+                QRCodeDB qrCodeDB = new QRCodeDB();
+                qrCodeDB.delete(eventID);
+
                 finish();
             }
         });

@@ -1,11 +1,13 @@
 package com.example.butter;
 
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.text.ParseException;
@@ -22,6 +24,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.WriterException;
+import com.google.zxing.common.BitMatrix;
+import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 public class CreateEventFragment extends AppCompatActivity {
 
@@ -147,6 +154,8 @@ public class CreateEventFragment extends AppCompatActivity {
                                     EventDB eventDB = new EventDB();
                                     eventDB.add(event);
 
+                                    generateQRCode(eventID);
+
                                     finish();
                                 }
                             }
@@ -156,5 +165,21 @@ public class CreateEventFragment extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void generateQRCode(String eventID) {
+        MultiFormatWriter writer = new MultiFormatWriter();
+        try {
+            BitMatrix matrix = writer.encode(eventID, BarcodeFormat.QR_CODE, 600, 600);
+
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            Bitmap bitmap = encoder.createBitmap(matrix);
+
+            QRCodeDB qrCodeDB = new QRCodeDB();
+            qrCodeDB.add(bitmap, eventID);
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
     }
 }

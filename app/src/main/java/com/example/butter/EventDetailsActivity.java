@@ -87,6 +87,7 @@ public class EventDetailsActivity extends AppCompatActivity {
             }
         });
 
+        // adding click listener for delete button
         Button deleteEventButton = findViewById(R.id.waiting_list_button);
         deleteEventButton.setText("Delete Event");
         deleteEventButton.setOnClickListener(new View.OnClickListener() {
@@ -97,12 +98,18 @@ public class EventDetailsActivity extends AppCompatActivity {
                 String registerListID = eventID + "-registered";
                 String cancelledListID = eventID + "-cancelled";
 
+                // deleting all user lists associated with this event
                 UserListDB userListDB = new UserListDB();
                 userListDB.deleteList(waitlistID);
                 userListDB.deleteList(drawlistID);
                 userListDB.deleteList(registerListID);
                 userListDB.deleteList(cancelledListID);
 
+                // deleting the QR code associated with this event
+                QRCodeDB qrCodeDB = new QRCodeDB();
+                qrCodeDB.delete(eventID);
+
+                // deleting the event itself
                 EventDB eventDB = new EventDB();
                 eventDB.delete(eventID);
 

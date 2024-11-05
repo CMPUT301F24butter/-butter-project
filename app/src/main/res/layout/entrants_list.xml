@@ -110,6 +110,17 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <EditText
+        android:id="@+id/sample_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@+id/generate_entrants_button"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:inputType="number"
+        android:hint="Sample size"
+        />
+
     <!-- Draw replacement button, only visible in canceled entrants -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/draw_replacements_button"
@@ -140,7 +151,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/entrants_container"
-        app:layout_constraintVertical_bias="0.943"
+        app:layout_constraintVertical_bias="0.850"
         app:srcCompat="@android:drawable/ic_menu_delete"
         app:tint="@android:color/white" />
 

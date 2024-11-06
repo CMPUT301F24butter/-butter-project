@@ -4,6 +4,12 @@ import androidx.annotation.Nullable;
 
 import java.io.Serializable;
 
+/**
+ * This is the main model class for users
+ *
+ * Current outstanding issues: Currently have a getter for the String equivalent of non-string
+ *      fields because I don't know how to pull non-string data from Firebase
+ */
 public class User implements Serializable {
     private final String deviceID;
     private String name;

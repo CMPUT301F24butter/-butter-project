@@ -30,6 +30,16 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+/**
+ * This class is for organizers to publish new events
+ * All inputted event details be validated before the event is published
+ * When the event is created, the details are saved in firebase
+ * When the event is created, a QR Code is generated and stored in firebase
+ *
+ * Current outstanding issues: need to implement poster images
+ *
+ * @author Nate Pane (natepane)
+ */
 public class CreateEventFragment extends AppCompatActivity {
 
     EditText eventName;
@@ -49,7 +59,7 @@ public class CreateEventFragment extends AppCompatActivity {
         setContentView(R.layout.create_event);
 
         db = FirebaseFirestore.getInstance();
-        eventRef = db.collection("event");
+        eventRef = db.collection("event"); // event collection
 
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
 
@@ -167,6 +177,7 @@ public class CreateEventFragment extends AppCompatActivity {
 
     }
 
+    // function to generate a QR code bitmap
     private void generateQRCode(String eventID) {
         MultiFormatWriter writer = new MultiFormatWriter();
         try {

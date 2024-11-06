@@ -27,6 +27,15 @@ import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
 
+/**
+ * This activity displays the QR code for this activity
+ * This QR code can be scanned by a user in order to join the waiting list for the event
+ * This activity also displays some event details as well
+ *
+ * Current outstanding issues: need to implement poster images
+ *
+ * @author Nate Pane (natepane)
+ */
 public class OrganizerShowCodeActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
@@ -46,11 +55,11 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         setContentView(R.layout.details_code);
 
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
-        String eventID = getIntent().getExtras().getString("eventID"); // logged in deviceID
+        String eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
 
         db = FirebaseFirestore.getInstance();
-        eventRef = db.collection("event");
-        userRef = db.collection("user");
+        eventRef = db.collection("event"); // event collection
+        userRef = db.collection("user"); // user collection
 
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
@@ -84,8 +93,9 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
             }
         });
 
-        displayQRCode(eventID);
+        displayQRCode(eventID); // displaying the event's QR code
 
+        // setting a click listener for the back button
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -27,9 +27,18 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
+/**
+ * This activity is used to display the users in any event's waitlist/draw list/registered list/cancelled list
+ * Only the organizer of the event can see this
+ * The organizer currently has the ability to move a single (random) user from the waitlist to the draw list
+ *
+ * Current outstanding issues: more functionality needs to be added for moving users between lists
+ *
+ * @author Nate Pane (natepane)
+ */
 public class EntrantListsActivity extends AppCompatActivity {
 
-    String listSelected;
+    String listSelected; // defines which user list has been chosen (waitlist, draw list, etc.)
     ListView entrantList;
     ArrayList<User> entrantsData;
     EntrantsArrayAdapter adapter;
@@ -53,8 +62,9 @@ public class EntrantListsActivity extends AppCompatActivity {
         setContentView(R.layout.entrants_list);
 
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
-        eventID = getIntent().getExtras().getString("eventID"); // eventID
+        eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
 
+        // declaring the list IDs for all user lists associated with this event
         waitlistID = eventID + "-wait";
         drawlistID = eventID + "-draw";
         registeredListID = eventID + "-registered";
@@ -63,7 +73,7 @@ public class EntrantListsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         userRef = db.collection("user"); // user collection
         userListRef = db.collection("userList"); // userList collection
-        eventRef = db.collection("event");
+        eventRef = db.collection("event"); // event collection
 
         generateEntrants = findViewById(R.id.generate_entrants_button);
 
@@ -85,15 +95,16 @@ public class EntrantListsActivity extends AppCompatActivity {
         adapter.setDropDownViewResource(android.R.layout.select_dialog_singlechoice);
         spinner.setAdapter(adapter);
 
+        // setting a click listener for the spinner
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
 
                 String list = adapterView.getItemAtPosition(position).toString(); // selected list
-                listSelected = list;
+                listSelected = list; // setting the selected list
 
                 displayEntrants(); // displaying entrants in this list
-                generateButtons();
+                generateButtons(); // displaying correct buttons for the chosen list
             }
 
             @Override
@@ -102,6 +113,7 @@ public class EntrantListsActivity extends AppCompatActivity {
             }
         });
 
+        // setting a click listener for the back button
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -110,6 +122,7 @@ public class EntrantListsActivity extends AppCompatActivity {
             }
         });
 
+        // setting a click listener for the generate entrants button
         generateEntrants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,6 +132,7 @@ public class EntrantListsActivity extends AppCompatActivity {
 
     }
 
+    // function to display entrants in the chosen list
     private void displayEntrants() {
         String userListID; // generating the userListID for the given list
         if (Objects.equals(listSelected, "Waitlist")) {
@@ -134,6 +148,8 @@ public class EntrantListsActivity extends AppCompatActivity {
         entrantsData.clear(); // clearing current data in the entrants list
         adapter.notifyDataSetChanged();
         // getting data from this userList document
+
+        // retrieving data for this list
         userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -196,9 +212,10 @@ public class EntrantListsActivity extends AppCompatActivity {
 
         Collections.shuffle(shuffledUsers, new Random()); // shuffling the users in the list
 
+        // creating a sublist of selected users
         List<User> selectedList;
         if (shuffledUsers.size() > sampleSize) {
-            selectedList = shuffledUsers.subList(0, sampleSize); // creating a sublist of selected users
+            selectedList = shuffledUsers.subList(0, sampleSize);
         } else {
             selectedList = shuffledUsers.subList(0, shuffledUsers.size());
         }
@@ -206,17 +223,17 @@ public class EntrantListsActivity extends AppCompatActivity {
         UserListDB userListDB = new UserListDB();
 
         for (User user : selectedList) {
-            String deviceID = user.getDeviceID();
+            String deviceID = user.getDeviceID(); // selected user's deviceID
             userListDB.removeFromList(waitlistID, deviceID); // removing the user from the waitlist
             userListDB.addToList(drawlistID, deviceID); // adding the user to the draw list
         }
 
-        try { // sleeping before re printing the list
+        try { // sleeping before re-printing the list
             Thread.sleep(500);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        displayEntrants(); // re printing the updated list
+        displayEntrants(); // re-printing the updated list
     }
 }

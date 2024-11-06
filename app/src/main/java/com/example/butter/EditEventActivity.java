@@ -24,6 +24,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
+/**
+ * This activity is used to edit the details of an event
+ * Once again, all event details are validated before officially updating
+ * When complete, the event details are updated in firebase
+ * Organizer's can not change the name of an event
+ *
+ * Current outstanding issues: need to implement poster images
+ *
+ * @author Nate Pane (natepane)
+ */
 public class EditEventActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
@@ -48,7 +58,7 @@ public class EditEventActivity extends AppCompatActivity {
         eventRef = db.collection("event"); // event collection
 
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
-        String eventID = getIntent().getExtras().getString("eventID"); // eventID
+        String eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
 
         // getting all input boxes
         eventNameText = findViewById(R.id.event_name);
@@ -81,6 +91,7 @@ public class EditEventActivity extends AppCompatActivity {
                             capacityText.setText("");
                         }
 
+                        // setting the geolocation switch
                         String geolocation = doc.getString("eventInfo.geolocationString");
                         if (Objects.equals(geolocation, "true")) {
                             geolocationSwitch.setChecked(true);
@@ -95,7 +106,7 @@ public class EditEventActivity extends AppCompatActivity {
         backButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                finish();
+                finish(); // returning to the previous page
             }
         });
 
@@ -104,7 +115,7 @@ public class EditEventActivity extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean validDetails = true;
+                boolean validDetails = true; // represents if the event details are valid or not
                 // retrieving inputted event details
                 String registrationOpenDate = registrationOpenText.getText().toString();
                 String registrationCloseDate = registrationCloseText.getText().toString();
@@ -144,7 +155,7 @@ public class EditEventActivity extends AppCompatActivity {
                     Boolean bool2 = date3.after(date2);
                     Boolean bool3 = date1.after(today);
 
-                    // default capacity if capacity isn't set
+                    // confirming that all dates are valid, i.e. event date isn't before registration date
                     if (!bool1 || !bool2 || !bool3) {
                         validDetails = false;
                         Toast toast = Toast.makeText(getApplicationContext(), "Invalid dates.", Toast.LENGTH_LONG);
@@ -163,7 +174,7 @@ public class EditEventActivity extends AppCompatActivity {
                     EventDB eventDB = new EventDB();
                     eventDB.update(event);
 
-                    finish();
+                    finish(); // returning to the previous screen
                 }
             }
         });

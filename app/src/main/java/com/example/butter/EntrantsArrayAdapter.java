@@ -12,6 +12,14 @@ import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 
+/**
+ * This is the array adapter for User objects
+ * This is used to display users in user lists
+ *
+ * Current outstanding issues: need to implement poster images
+ *
+ * @author Nate Pane (natepane)
+ */
 public class EntrantsArrayAdapter extends ArrayAdapter<User> {
     private ArrayList<User> users;
     private Context context;

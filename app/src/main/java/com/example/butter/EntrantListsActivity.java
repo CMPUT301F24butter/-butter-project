@@ -136,13 +136,13 @@ public class EntrantListsActivity extends AppCompatActivity {
     private void displayEntrants() {
         String userListID; // generating the userListID for the given list
         if (Objects.equals(listSelected, "Waitlist")) {
-            userListID = eventID + "-wait";
+            userListID = waitlistID;
         } else if (Objects.equals(listSelected, "Draw")) {
-            userListID = eventID + "-draw";
+            userListID = drawlistID;
         } else if (Objects.equals(listSelected, "Registered")) {
-            userListID = eventID + "-registered";
+            userListID = registeredListID;
         } else {
-            userListID = eventID + "-cancelled";
+            userListID = cancelledListID;
         }
 
         entrantsData.clear(); // clearing current data in the entrants list

@@ -1,5 +1,11 @@
 package com.example.butter;
 
+/**
+ * This is the main model class for events
+ *
+ * Current outstanding issues: Currently have a getter for the String equivalent of non-string
+ *      fields because I don't know how to pull non-string data from Firebase
+ */
 public class Event {
     private final String eventID;
     private final String name;

@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +30,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.CaptureActivity;
@@ -35,6 +39,7 @@ import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -73,6 +78,14 @@ public class HomeFragment extends Fragment {
     private ArrayAdapter<User> userArrayAdapter;
     private Boolean isFacility;
     ActivityResultLauncher<ScanOptions> barLauncher;
+
+    // Entrant waiting and upcoming recycler view
+    private RecyclerView eventsRecyclerView;
+    private RecyclerView waitingListRecyclerView;
+    private HomeAdapter upcomingAdapter;
+    private HomeAdapter waitingListAdapter;
+    private ListenerRegistration upcomingListener;
+    private ListenerRegistration waitingListener;
 
     Button qrScan;
 
@@ -146,6 +159,20 @@ public class HomeFragment extends Fragment {
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        //----------------------------------------------------------------------------
+        // Setup RecyclerView for upcoming events
+        eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
+        eventsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        upcomingAdapter = new HomeAdapter(new ArrayList<>());
+        eventsRecyclerView.setAdapter(upcomingAdapter);
+
+        // Setup RecyclerView for waiting list
+        waitingListRecyclerView = view.findViewById(R.id.waitingListRecyclerView);
+        waitingListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        waitingListAdapter = new HomeAdapter(new ArrayList<>());
+        waitingListRecyclerView.setAdapter(waitingListAdapter);
+        //---------------------------------------------------------------------------------
 
         qrScan = view.findViewById(R.id.qrScannerButton);
         qrScan.setOnClickListener(v -> {
@@ -270,6 +297,10 @@ public class HomeFragment extends Fragment {
         upcomingScrollView.setVisibility(View.VISIBLE);
         waitingText.setVisibility(View.VISIBLE);
         waitingScrollView.setVisibility(View.VISIBLE);
+
+        // Sets up the waiting and upcoming events recycler view
+        fetchUpcomingEvents();
+        fetchWaitingList();
     }
 
     /**
@@ -355,5 +386,118 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+    }
+
+    //------------------------------------------------------------------------------------------
+    private void fetchUpcomingEvents() {
+        upcomingListener = db.collection("userList")
+                .whereEqualTo("type", "registered")
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        System.err.println("Listen failed: " + error);
+                        return;
+                    }
+
+                    List<Event> upcomingEvents = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        int size = document.contains("size") ? Integer.parseInt(document.getString("size")) : 0;
+
+                        if (size > 0) {
+                            for (int i = 0; i < size; i++) {
+                                String userKey = "user" + i;
+                                String userId = document.getString(userKey);
+
+                                if (deviceID.equals(userId)) {
+                                    String fullDocumentId = document.getId();
+                                    String eventId = fullDocumentId.contains("-")
+                                            ? fullDocumentId.substring(0, fullDocumentId.lastIndexOf("-"))
+                                            : fullDocumentId;
+
+                                    db.collection("event").document(eventId)
+                                            .get()
+                                            .addOnSuccessListener(eventDocument -> {
+                                                if (eventDocument.exists()) {
+                                                    String name = eventDocument.getString("eventInfo.name");
+                                                    String date = eventDocument.getString("eventInfo.date");
+                                                    int capacity = 0;
+                                                    String capacityString = eventDocument.getString("eventInfo.capacityString");
+                                                    if (capacityString != null) {
+                                                        capacity = Integer.parseInt(capacityString);
+                                                    }
+
+                                                    Event event = new Event(eventId, name, date, capacity);
+                                                    upcomingEvents.add(event);
+                                                    Log.d("HomeFragment", "Upcoming events list size: " + upcomingEvents.size());
+
+                                                    upcomingAdapter.setItemList(upcomingEvents);
+                                                    upcomingAdapter.notifyDataSetChanged();
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                System.err.println("Error fetching event details: " + e.getMessage());
+                                            });
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void fetchWaitingList() {
+        waitingListener = db.collection("userList")
+                .whereEqualTo("type", "waitlist")
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        System.err.println("Listen failed: " + error);
+                        return;
+                    }
+
+                    List<Event> waitingEvents = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        int size = document.contains("size") ? Integer.parseInt(document.getString("size")) : 0;
+
+                        if (size > 0) {
+                            for (int i = 0; i < size; i++) {
+                                String userKey = "user" + i;
+                                String userId = document.getString(userKey);
+
+                                if (deviceID.equals(userId)) {
+                                    String fullDocumentId = document.getId();
+                                    String eventId = fullDocumentId.contains("-")
+                                            ? fullDocumentId.substring(0, fullDocumentId.lastIndexOf("-"))
+                                            : fullDocumentId;
+
+                                    db.collection("event").document(eventId)
+                                            .get()
+                                            .addOnSuccessListener(eventDocument -> {
+                                                if (eventDocument.exists()) {
+                                                    String name = eventDocument.getString("eventInfo.name");
+                                                    String date = eventDocument.getString("eventInfo.date");
+                                                    int capacity = 0;
+                                                    String capacityString = eventDocument.getString("eventInfo.capacityString");
+                                                    if (capacityString != null) {
+                                                        capacity = Integer.parseInt(capacityString);
+                                                    }
+
+                                                    Event event = new Event(eventId, name, date, capacity);
+                                                    waitingEvents.add(event);
+                                                    Log.d("HomeFragment", "Waiting events list size: " + waitingEvents.size());
+
+
+                                                    waitingListAdapter.setItemList(waitingEvents);
+                                                    waitingListAdapter.notifyDataSetChanged();
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                System.err.println("Error fetching event details: " + e.getMessage());
+                                            });
+                                }
+                            }
+                        }
+                    }
+                });
+
     }
 }

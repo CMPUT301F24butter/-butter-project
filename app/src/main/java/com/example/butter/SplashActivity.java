@@ -17,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * This splash screen will show a splash, while checking for which screen to redirect to.
  * Redirect to {@link MainActivity} if the user already exists in the db.
  * Else redirect to {@link CreateProfileActivity} if the user does not exist in the db.
+ * @author Soopyman
  */
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {

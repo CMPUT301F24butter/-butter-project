@@ -102,7 +102,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void setUpEntrantActions() {
-        // adding click listener for delete button
+        // adding click listener for waiting list button
         Button entrantEventButton = findViewById(R.id.waiting_list_button);
         entrantEventButton.setOnClickListener(new View.OnClickListener() {
             @Override

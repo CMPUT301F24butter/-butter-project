@@ -32,6 +32,7 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
 
 /**
  * This class is for organizers to publish new events
+ * A simple activity called from {@link EventsFragment} when the '+' button is clicked.
  * All inputted event details be validated before the event is published
  * When the event is created, the details are saved in firebase
  * When the event is created, a QR Code is generated and stored in firebase
@@ -42,17 +43,50 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
  */
 public class CreateEventFragment extends AppCompatActivity {
 
+    /**
+     * EditText for the event name
+     */
     EditText eventName;
+    /**
+     * EditText for opening reg date
+     */
     EditText openDate;
+    /**
+     * EditText for closing reg date
+     */
     EditText closeDate;
+    /**
+     * EditText for date of event
+     */
     EditText eventDate;
+    /**
+     * EditText for description of event
+     */
     EditText description;
+    /**
+     * EditText for capacity of event
+     */
     EditText capacity;
+    /**
+     * SwitchCompat for the geolocation switch
+     */
     SwitchCompat geolocationSwitch;
 
+    /**
+     * Firebase database object for access to the database
+     */
     private FirebaseFirestore db;
+    /**
+     * Firebase database object for access to the database
+     */
     private CollectionReference eventRef;
 
+    /**
+     * onCreate simply sets up all of our EditTexts,
+     * and an onClickListener for the button to create the event.
+     * If clicked, perform validity checks on all of the attributes available.
+     * If valid, an eventID will be generated, and the event will be added to {@link UserDB}.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -177,7 +211,13 @@ public class CreateEventFragment extends AppCompatActivity {
 
     }
 
-    // function to generate a QR code bitmap
+    /**
+     * Takes in the eventID, and generates a QRCode for said ID which gets put into the database.
+     * This is called once the event being created has been verified, and added to the event database.
+     * The outputted bitmap for the QRCode gets put into a QRCode database.
+     * @param eventID
+     * The eventID corresponding to the event which is currently being created
+     */
     private void generateQRCode(String eventID) {
         MultiFormatWriter writer = new MultiFormatWriter();
         try {

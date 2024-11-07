@@ -14,14 +14,30 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * A simple {@link AppCompatActivity} subclass.
- * Uses {@link EditProfileActivity} to edit an existing user in the database.
+ * A simple activity called from {@link ProfileFragment}
+ * To edit/update an existing user in the database
  * Is called to from {@link ProfileFragment} when the user clicks the button to edit their profile.
+ * @author Soopyman
  */
 public class EditProfileActivity extends AppCompatActivity {
 
+    /**
+     * User Database object.
+     * Used specifically for updating the user in the database after editing and verifying for validity.
+     */
     private UserDB users; // interact with userDB
 
+    /**
+     * onCreate contains firstly setting up the views and editable options on screen for specific user,
+     * filling it in with already existing user data.
+     * This also requires managing the view dependent on which role (i.e. if role is entrant, do not show facility)
+     * Contains many different onClickListeners for each of the buttons/spinners:
+     * saveButton: performs checks for valid data, and updates user in database if valid.
+     * roleSpinner: onClick of a specific role, hide/un-hide facility attributes.
+     * There will be more buttons added later.
+     * @param savedInstanceState
+     * The last saved state of the activity (if exists)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,6 +164,23 @@ public class EditProfileActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Takes in all data for a user object, and validates all attributes.
+     * This runs many various methods for checking if valid data.
+     * @param username
+     * If username is empty OR greater than 30 characters, invalid
+     * @param email
+     * If email is empty OR is not a valid email address (formatting wise), invalid
+     * @param phone
+     * If phone is not empty AND is not a valid phone number, invalid
+     * @param facility
+     * If role is not 'Entrant' AND (facility is empty OR more than 20 characters), invalid
+     * @param role
+     * Role cannot be invalid. Must be passed using "user.getRole()" or a valid role string.
+     * @return
+     * Returns a string with either "true" if valid,
+     * Or will instead return the corresponding error message to be printed later.
+     */
     // check for valid info
     private String validityCheck(String username, String email, String phone, String facility, String role) {
 

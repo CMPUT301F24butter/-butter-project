@@ -15,14 +15,32 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * A simple {@link AppCompatActivity} subclass.
- * Uses {@link CreateProfileActivity} to create a new user in the database.
- * Is called to from {@link SplashActivity} when user does not exist on boot.
+ * A simple activity called from {@link SplashActivity}
+ * Creates a new user in the database, given that this user does not exist.
+ * The user is established to have not existed in SplashActivity.
+ * Thus, is called to from {@link SplashActivity} when user does not exist on boot.
+ * @author Soopyman
  */
 public class CreateProfileActivity extends AppCompatActivity {
 
+    /**
+     * User database object.
+     * Used for adding the user to the database once validity checks are passed.
+     */
     private UserDB users; // interact with userDB
 
+    /**
+     * onCreate contains all of the guts for this activity.
+     * Sets up all editable on screen, and uses onClickListeners to make changes:
+     * roleSpinner: this will hide/un-hide the facility depending on what privilege level the user selects.
+     * createButton: this will grab all of the inputted data from the user,
+     * and will then run verification checks to make sure that the data is valid.
+     * If so, get into a user object and add to the database, which we can then proceed to {@link MainActivity} as normal.
+     * If not valid, then throw an error message box with the corresponding invalidity, forcing the user to try again.
+     * This Activity will not change until a valid user has been inputted.
+     * @param savedInstanceState
+     * The last saved state of the activity (if exists)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,7 +140,22 @@ public class CreateProfileActivity extends AppCompatActivity {
 
     }
 
-    // check for valid info
+    /**
+     * validityCheck performs basic checks to ensure the user has inputted valid data for each attribute.
+     * @param username
+     * If username is empty OR greater than 30 characters, invalid
+     * @param email
+     * If email is empty OR is not a valid email address (formatting wise), invalid
+     * @param phone
+     * If phone is not empty AND is not a valid phone number, invalid
+     * @param facility
+     * If role is not 'Entrant' AND (facility is empty OR more than 20 characters), invalid
+     * @param role
+     * Role cannot be invalid. Must be passed using "user.getRole()" or a valid role string.
+     * @return
+     * Returns "true" if all data is valid
+     * Else returns an error string with the corresponding invalidity, later to be printed.
+     */
     private String validityCheck(String username, String email, String phone, String facility, String role) {
 
         // returns a string

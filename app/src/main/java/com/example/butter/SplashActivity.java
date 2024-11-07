@@ -12,17 +12,30 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 /**
- * A simple {@link AppCompatActivity} subclass.
+ * This is the first screen that will be shown on boot-up (as specified in AndroidManifest.xml)
  * Uses {@link SplashActivity} to provide a splash screen on boot.
  * This splash screen will show a splash, while checking for which screen to redirect to.
  * Redirect to {@link MainActivity} if the user already exists in the db.
  * Else redirect to {@link CreateProfileActivity} if the user does not exist in the db.
+ * @author Soopyman
  */
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
+    /**
+     * Database object used in order to access if the user exists within the database,
+     * given the users deviceID.
+     */
     private FirebaseFirestore db;
 
+    /**
+     * onCreate method to handle a 2 second delayed splash screen,
+     * and deciding if the user is new or not. If new, go to {@link CreateProfileActivity}
+     * else go to {@link MainActivity}
+     * @param savedInstanceState
+     * The last saved state of the activity (if exists,
+     * which this should not since SplashActivity only gets called to once on boot)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

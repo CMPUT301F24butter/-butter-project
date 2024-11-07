@@ -24,7 +24,13 @@ import androidx.fragment.app.DialogFragment;
  */
 public class OrganizerOptions extends DialogFragment {
 
+    /**
+     * eventID string for the current event shown
+     */
     private String eventID;
+    /**
+     * deviceID string for the current user hosting this event
+     */
     private String deviceID;
 
     public OrganizerOptions(String eventID, String deviceID) {
@@ -32,6 +38,13 @@ public class OrganizerOptions extends DialogFragment {
         this.deviceID = deviceID;
     }
 
+    /**
+     * onCreateDialog simply inflates the fragment for showing Organizer Options,
+     * which then handles an onClickListener for each of the options shown:
+     * editEvent: go to {@link EditEventActivity} to edit the corresponding event.
+     * viewEntrants: go to {@link EntrantListsActivity} to show and work with entrants for the event.
+     * showDetailsCode: go to {@link OrganizerShowCodeActivity} to display event details such as the QRCode.
+     */
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {

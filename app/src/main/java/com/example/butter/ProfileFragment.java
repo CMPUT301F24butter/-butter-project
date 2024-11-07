@@ -20,16 +20,34 @@ import com.google.firebase.firestore.FirebaseFirestore;
  * A simple {@link Fragment} subclass.
  * Use the {@link ProfileFragment} factory method to
  * create an instance of this fragment.
+ * This subclass contains information for the users profile, and the ability to edit said info.
+ * Upon clicking to edit profile, this will go to {@link EditProfileActivity}
+ * @author Soopyman
  */
 public class ProfileFragment extends Fragment {
-
+    /**
+     * User object containing all the user data corresponding to deviceID (in onCreate)
+     * Is updated everytime it is changed in the database (addSnapshotListener)
+     */
     private User user;
+    /**
+     * View object corresponding to the profile_fragment.xml view we are working with.
+     * This object is necessary in order to later update the view after this is passed as a fragment to MainActivity.
+     */
     private View view;
 
     public ProfileFragment() {
         // empty constructor
     }
 
+    /**
+     * onCreate simply grabs available user data in the database using the deviceID
+     * And will send to updateUserDataInView() in order to update the views with the data.
+     * The addSnapshotListener will also continue to listen for if the user is updated in the database.
+     * If so, repeat the process above.
+     * @param savedInstanceState
+     * The last saved state of the fragment (if exists)
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +75,17 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * onCreateView simply gets the view for fragment_profile,
+     * sets this view as a variable in the class to be used later,
+     * and returns the inflated view.
+     * @param inflater
+     * Simply inflates any views given
+     * @param container
+     * Contains parent view that the fragment should be attached to
+     * @param savedInstanceState
+     * Previously saved instance of the fragment (if any)
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -65,6 +94,12 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    /**
+     * updateUserDataInView() uses the private user variable to update the private view object.
+     * Runs some checks to decide what will and will not be visible dependent on user data and roles.
+     * This method is called only from the addSnapshotListener,
+     * which will only be called upon updating the user in the database.
+     */
     private void updateUserDataInView() {
         // setup all of the TextViews in view
         TextView name = view.findViewById(R.id.username_text);

@@ -26,6 +26,9 @@ import java.util.Objects;
 
 /**
  * This activity is used to edit the details of an event
+ * Called from {@link OrganizerOptions}, which passes the eventID as an argument.
+ * {@link OrganizerOptions} is traversed to from the {@link EventDetailsActivity} with the corresponding event being viewed.
+ * Very similar to {@link CreateEventFragment}, but instead provides options to edit an existing event.
  * Once again, all event details are validated before officially updating
  * When complete, the event details are updated in firebase
  * Organizer's can not change the name of an event
@@ -36,19 +39,59 @@ import java.util.Objects;
  */
 public class EditEventActivity extends AppCompatActivity {
 
+    /**
+     * Database object for access to the database
+     */
     private FirebaseFirestore db;
+    /**
+     * Collection reference from the database for events.
+     */
     private CollectionReference eventRef;
-
+    /**
+     * TextView for event name (since this cannot be changed)
+     */
     TextView eventNameText;
+    /**
+     * EditText for opening reg date
+     */
     EditText registrationOpenText;
+    /**
+     * EditText for closing reg date
+     */
     EditText registrationCloseText;
+    /**
+     * EditText for date of event
+     */
     EditText dateText;
+    /**
+     * EditText for description of event
+     */
     EditText descriptionText;
+    /**
+     * EditText for capacity of event
+     */
     EditText capacityText;
+    /**
+     * SwitchCompat for the geolocation switch
+     */
     SwitchCompat geolocationSwitch;
-
+    /**
+     * A string for the event name itself
+     */
     String eventName;
 
+    /**
+     * onCreate method performs everything here.
+     * We simply grab the eventID from the args passed over,
+     * which we then grab all of the attributes for the event from the database,
+     * and update these attributes for our EditTexts/Geo-switch.
+     * Two onClickListeners:
+     * saveButton: Once clicked, perform all validity checks on the newly updated event info,
+     * which if valid, update the event in the event database.
+     * (Note: no new QRCode is needed since it is linked to the eventID itself)
+     * backButton: simply sends the user back to the previous screen {@link EventDetailsActivity},
+     * and no changes are made to the event.
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

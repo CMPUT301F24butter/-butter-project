@@ -35,8 +35,8 @@ import java.util.Objects;
 /**
  * This is the main "Events" screen
  * On this screen, all the events published by the logged in user will be displayed
+ * This fragment is called to from {@link MainActivity} as one of the options on the bottom bar.
  * Users have the ability to click on these events, as well as add new events by clicking the add button in the corner
- *
  * Current outstanding issues: need to implement poster images
  *
  * @author Nate Pane (natepane)
@@ -52,18 +52,43 @@ public class EventsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private ListView eventsList;
+    /**
+     * A ListView object containing all of the events for the corresponding user as views.
+     */
+    ListView eventsList;
+
+    /**
+     * An ArrayList containing all of the user events.
+     */
     private ArrayList<Event> userEvents;
+    /**
+     * An ArrayAdapter for managing the userEvents ArrayList.
+     */
     private EventArrayAdapter eventArrayAdapter;
-
+    /**
+     * Database object for references to the database.
+     */
     private FirebaseFirestore db;
+    /**
+     * Reference to the event collection in the database.
+     */
     private CollectionReference eventRef;
+    /**
+     * Reference to the user collection in the database.
+     */
     private CollectionReference userRef;
-
+    /**
+     * Adding a new event button.
+     */
     private FloatingActionButton fab;
-
+    /**
+     * deviceID for the corresponding user. For querying the database.
+     */
     String deviceID;
 
+    /**
+     * Constructor to setup database and collection references from the database.
+     */
     public EventsFragment() {
         userEvents = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
@@ -89,6 +114,10 @@ public class EventsFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * onCreate sets up the eventArrayAdapter by grabbing each event corresponding to the deviceID of the user.
+     * Simply grabs the events from the database and updates for new ones using the addSnapshotListener.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -140,6 +169,13 @@ public class EventsFragment extends Fragment {
         });
     }
 
+    /**
+     * onCreateView simply sets up the view for all of the events in eventsList.
+     * More specifically, an onClickListener is setup for each of the events in the list,
+     * so once a specific event is clicked on, details will be shown for said event.
+     * Once all listeners are setup for each event AND for the create a new event button,
+     * then the view is returned as a fragment for MainActivity to show.
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {

@@ -1,5 +1,6 @@
 package com.example.butter;
 
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -28,6 +29,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Objects;
 
+/**
+ * This activity is used to implement the navigation bar of the app with menu icons that
+ * will have constraints depending on a users privileges.
+ * User info is taken from firebase using a collection reference to the user document.
+ * @author Angela
+ */
 public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
     private FirebaseFirestore db;
@@ -36,6 +43,12 @@ public class MainActivity extends AppCompatActivity {
     private String deviceID;
     private String privileges;
 
+    /**
+     * OnCreate method: sets up the menu bar by listening to privilege changes
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +72,11 @@ public class MainActivity extends AppCompatActivity {
         invalidateOptionsMenu();
     }
 
+    /**
+     * Listens to privilege changes: finds the users privileges from document and calls
+     * setupBottomNavigationView() which restricts the menu bar access based off the new
+     * privilege
+     */
     private void listenForPrivilegesChange() {
         // Fetch user privileges and set up bottom navigation based on privileges
         userRef.document(deviceID).addSnapshotListener((documentSnapshot, e) -> {
@@ -73,6 +91,12 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Changes menu bar access according to their new role.
+     *      if user changes from entrant to organizer: hides the home icon + shows ticket menu icon
+     *      If user changes from organizer to entrant: hides the ticket icon + shows home menu icon
+     *      Else if user is both or admin + organizer: all menu icons are accessible
+     */
     private void setupBottomNavigationView() {
         // Hide the home menu if user is an organizer, or events menu if user is an entrant
         Menu menu = binding.bottomNavigationView.getMenu();
@@ -107,6 +131,9 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * @param fragment
+     */
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

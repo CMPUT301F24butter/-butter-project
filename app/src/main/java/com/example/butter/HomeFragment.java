@@ -40,6 +40,14 @@ import java.util.Objects;
 /**
  * A simple {@link Fragment} subclass.
  * Uses {@link HomeFragment#newInstance} to create an instance of this fragment.
+ *
+ * This fragment is used to set up the home screen on the admins side and the entrants (or both
+ * entrant and organizers) side. The admins have access to a spinner and the entrants will have
+ * access to only the upcoming and waiting list events.
+ * Outstanding Issue: When I move to another screen and come back to the admin screen,
+ *               the spinner goes back to default option (browse events) instead of the
+ *               option user last clicked on
+ * @author Angela
  */
 public class HomeFragment extends Fragment {
 
@@ -54,13 +62,13 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference eventRef;
     private CollectionReference userRef;
-    String deviceID;
+    private String deviceID;
 
     // Lists of events, users, and posters
     private ArrayList<Event> allEvents;
     private ArrayList<User> allUsers;
     private ArrayList<User> allFacilities;
-    ListView adminListView;
+    private ListView adminListView;
     private EventArrayAdapter eventArrayAdapter;
     private ArrayAdapter<User> userArrayAdapter;
     private Boolean isFacility;
@@ -68,6 +76,9 @@ public class HomeFragment extends Fragment {
 
     Button qrScan;
 
+    /**
+     * Constructor for Home Fragment.
+     */
     public HomeFragment() {
         allEvents = new ArrayList<>();
         allUsers = new ArrayList<>();
@@ -78,7 +89,7 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Create a new instance of home fragment
+     * Create a new instance of home fragment.
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
      * @return A new instance of fragment HomeFragment.
@@ -92,6 +103,11 @@ public class HomeFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * onCreate method
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +129,18 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    /**
+     * Inflates view and sets up qrScan, admin and entrants XML.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return View
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -216,6 +244,9 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Sets up the QR code scanner.
+     */
     private void scanCode() {
         ScanOptions options = new ScanOptions();
         options.setPrompt("Volume up to flash on");
@@ -225,6 +256,14 @@ public class HomeFragment extends Fragment {
         barLauncher.launch(options);
     }
 
+    /**
+     * Sets the xml for entrant actions visible.
+     * @param adminListView - admins list view, will be set to gone
+     * @param upcomingText - entrant textview, will be set to visible
+     * @param upcomingScrollView - entrants upcoming events, will be set visible
+     * @param waitingText - entrant textview, will be set to visible
+     * @param waitingScrollView - entrants waiting list events, will be set visible
+     */
     private void switchToEntrant(ListView adminListView, TextView upcomingText, HorizontalScrollView upcomingScrollView, TextView waitingText, HorizontalScrollView waitingScrollView) {
         adminListView.setVisibility(View.GONE);
         upcomingText.setVisibility(View.VISIBLE);
@@ -233,6 +272,15 @@ public class HomeFragment extends Fragment {
         waitingScrollView.setVisibility(View.VISIBLE);
     }
 
+    /**
+     * Sets the xml for admin actions visible.
+     * @param adminListView - admins list view, will be set visible
+     * @param upcomingText - entrant textview, will be set to gone
+     * @param upcomingScrollView - entrants upcoming events, will be set gone
+     * @param waitingText - entrant textview, will be set to gone
+     * @param waitingScrollView - entrants waiting list events, will be set gone
+     *
+     */
     private void switchToAdmin(ListView adminListView, TextView upcomingText, HorizontalScrollView upcomingScrollView, TextView waitingText, HorizontalScrollView waitingScrollView) {
         adminListView.setVisibility(View.VISIBLE);
         upcomingText.setVisibility(View.GONE);
@@ -241,6 +289,9 @@ public class HomeFragment extends Fragment {
         waitingScrollView.setVisibility(View.GONE);
     }
 
+    /**
+     * Populates the admin list with all events.
+     */
     private void showEventsList() {
         eventRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -271,6 +322,9 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    /**
+     * Show Profiles List method: populates the admin list with all user profiles
+     */
     private void showProfilesList() {
         userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override

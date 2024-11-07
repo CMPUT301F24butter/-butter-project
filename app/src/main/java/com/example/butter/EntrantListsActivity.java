@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -19,7 +21,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class EntrantListsActivity extends AppCompatActivity {
 
@@ -29,10 +35,17 @@ public class EntrantListsActivity extends AppCompatActivity {
     EntrantsArrayAdapter adapter;
 
     String eventID;
+    String waitlistID;
+    String drawlistID;
+    String registeredListID;
+    String cancelledListID;
 
     private FirebaseFirestore db;
     private CollectionReference userRef;
     private CollectionReference userListRef;
+    private CollectionReference eventRef;
+
+    Button generateEntrants;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +55,17 @@ public class EntrantListsActivity extends AppCompatActivity {
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         eventID = getIntent().getExtras().getString("eventID"); // eventID
 
+        waitlistID = eventID + "-wait";
+        drawlistID = eventID + "-draw";
+        registeredListID = eventID + "-registered";
+        cancelledListID = eventID + "-cancelled";
+
         db = FirebaseFirestore.getInstance();
         userRef = db.collection("user"); // user collection
         userListRef = db.collection("userList"); // userList collection
+        eventRef = db.collection("event");
+
+        generateEntrants = findViewById(R.id.generate_entrants_button);
 
         entrantsData = new ArrayList<>();
         entrantList = findViewById(R.id.entrants_list);
@@ -67,9 +88,12 @@ public class EntrantListsActivity extends AppCompatActivity {
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int position, long l) {
+
                 String list = adapterView.getItemAtPosition(position).toString(); // selected list
                 listSelected = list;
+
                 displayEntrants(); // displaying entrants in this list
+                generateButtons();
             }
 
             @Override
@@ -83,6 +107,13 @@ public class EntrantListsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+
+        generateEntrants.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                sampleEntrants();
             }
         });
 
@@ -145,5 +176,47 @@ public class EntrantListsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    // displays the correct buttons based on the list you have selected
+    private void generateButtons() {
+        generateEntrants.setVisibility(View.GONE);
+
+        if (Objects.equals(listSelected, "Waitlist")) {
+            generateEntrants.setVisibility(View.VISIBLE);
+        }
+    }
+
+    // randomly moves users from the waitlist to the draw list
+    private void sampleEntrants() {
+        int sampleSize = 1; // currently only works for 1 user at a time
+
+        ArrayList<User> shuffledUsers = new ArrayList<>();
+        shuffledUsers.addAll(entrantsData);
+
+        Collections.shuffle(shuffledUsers, new Random()); // shuffling the users in the list
+
+        List<User> selectedList;
+        if (shuffledUsers.size() > sampleSize) {
+            selectedList = shuffledUsers.subList(0, sampleSize); // creating a sublist of selected users
+        } else {
+            selectedList = shuffledUsers.subList(0, shuffledUsers.size());
+        }
+
+        UserListDB userListDB = new UserListDB();
+
+        for (User user : selectedList) {
+            String deviceID = user.getDeviceID();
+            userListDB.removeFromList(waitlistID, deviceID); // removing the user from the waitlist
+            userListDB.addToList(drawlistID, deviceID); // adding the user to the draw list
+        }
+
+        try { // sleeping before re printing the list
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        displayEntrants(); // re printing the updated list
     }
 }

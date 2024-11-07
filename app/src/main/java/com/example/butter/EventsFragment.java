@@ -55,7 +55,7 @@ public class EventsFragment extends Fragment {
     /**
      * A ListView object containing all of the events for the corresponding user as views.
      */
-    ListView eventsList;
+    private ListView eventsList;
 
     /**
      * An ArrayList containing all of the user events.

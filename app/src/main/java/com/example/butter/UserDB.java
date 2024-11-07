@@ -15,6 +15,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
+/**
+ * This class can be used to interact with the "user" collection of our Firebase database
+ * It implements methods to easily add, update and remove users in this collection
+ *
+ * @author Nate Pane (natepane)
+ */
 public class UserDB {
     private FirebaseFirestore db;
     private CollectionReference userRef;

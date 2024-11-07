@@ -16,6 +16,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
 
+/**
+ * This class can be used to interact with the "QRCode" collection of our Firebase database
+ * It implements methods to easily add and remove QR codes in this collection
+ *
+ * @author Nate Pane (natepane)
+ */
 public class QRCodeDB {
     private FirebaseFirestore db;
     private CollectionReference QRCodeRef;

@@ -20,6 +20,14 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+/**
+ * This activity shows the details of an event when it is clicked on from the "Events" screen
+ * It also includes buttons for more organizer options (e.g. edit event, see QR Code, etc.), as well as a button to delete the event
+ *
+ * Current outstanding issues: need to implement poster images
+ *
+ * @author Nate Pane (natepane)
+ */
 public class EventDetailsActivity extends AppCompatActivity {
 
     TextView eventNameText;
@@ -45,7 +53,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         eventRef = db.collection("event"); // event collection
 
         deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
-        eventID = getIntent().getExtras().getString("eventID"); // logged in deviceID
+        eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
 
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
@@ -94,7 +102,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void setUpEntrantActions() {
-        // adding click listener for delete button
+        // adding click listener for waiting list button
         Button entrantEventButton = findViewById(R.id.waiting_list_button);
         entrantEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,7 +115,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private void setUpOrganizerOptions() {
         System.out.println("Hey I made it here");
         ImageButton orgOptions = findViewById(R.id.organizer_opt_button);
-        orgOptions.setVisibility(View.VISIBLE);
+        orgOptions.setVisibility(View.VISIBLE); // making the organizer options button visible to the organizer
 
         // adding click listener for delete button
         Button deleteEventButton = findViewById(R.id.waiting_list_button);
@@ -135,7 +143,7 @@ public class EventDetailsActivity extends AppCompatActivity {
                 EventDB eventDB = new EventDB();
                 eventDB.delete(eventID);
 
-                finish();
+                finish(); // returning to the previous screen
             }
         });
 

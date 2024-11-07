@@ -33,9 +33,13 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 /**
- * A simple {@link Fragment} subclass.
- * Use the {@link EventsFragment#newInstance} factory method to
- * create an instance of this fragment.
+ * This is the main "Events" screen
+ * On this screen, all the events published by the logged in user will be displayed
+ * Users have the ability to click on these events, as well as add new events by clicking the add button in the corner
+ *
+ * Current outstanding issues: need to implement poster images
+ *
+ * @author Nate Pane (natepane)
  */
 public class EventsFragment extends Fragment {
 
@@ -48,8 +52,7 @@ public class EventsFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    ListView eventsList;
-
+    private ListView eventsList;
     private ArrayList<Event> userEvents;
     private EventArrayAdapter eventArrayAdapter;
 
@@ -65,7 +68,7 @@ public class EventsFragment extends Fragment {
         userEvents = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
-        userRef = db.collection("user");
+        userRef = db.collection("user"); // user collection
     }
 
     /**
@@ -96,10 +99,11 @@ public class EventsFragment extends Fragment {
         }
 
         Bundle args = getArguments();
-        deviceID = args.getString("deviceID");
+        deviceID = args.getString("deviceID"); // logged in deviceID
 
         eventArrayAdapter = new EventArrayAdapter(getContext(), userEvents);
 
+        // retrieving all event info from the database
         eventRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
             public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
@@ -108,11 +112,12 @@ public class EventsFragment extends Fragment {
                     return;
                 }
                 if (querySnapshots != null) {
-                    userEvents.clear();
-                    for (QueryDocumentSnapshot doc : querySnapshots) {
+                    userEvents.clear(); // clearing the userEvents array
+                    for (QueryDocumentSnapshot doc : querySnapshots) { // iterating over all events in the database
                         String organizerID = doc.getString("eventInfo.organizerID");
 
-                        if (Objects.equals(organizerID, deviceID)) {
+                        if (Objects.equals(organizerID, deviceID)) { // if this event is published by the logged in organizer
+                            // retrieving event details
                             String eventID = doc.getId();
                             String eventName = doc.getString("eventInfo.name");
                             String eventDate = doc.getString("eventInfo.date");
@@ -121,15 +126,15 @@ public class EventsFragment extends Fragment {
                             if (eventCapacityString != null) {
                                 int eventCapacity = Integer.parseInt(eventCapacityString);
                                 Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                                userEvents.add(event);
+                                userEvents.add(event); // adding the event to the list
 
                             } else {
                                 Event event = new Event(eventID, eventName, eventDate, -1);
-                                userEvents.add(event);
+                                userEvents.add(event); // adding the event to the list
                             }
                         }
                     }
-                    eventArrayAdapter.notifyDataSetChanged();
+                    eventArrayAdapter.notifyDataSetChanged(); // notifying a change in the list
                 }
             }
         });
@@ -143,12 +148,11 @@ public class EventsFragment extends Fragment {
         eventsList = (ListView) view.findViewById(R.id.events_list);
         eventsList.setAdapter(eventArrayAdapter);
 
+        // setting a click listener for each event in the list
         eventsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Event event = userEvents.get(position);
-                //System.out.println(event.getEventID());
-
                 String eventID = event.getEventID();
                 Intent intent = new Intent(getContext(), EventDetailsActivity.class);
                 intent.putExtra("deviceID", deviceID);
@@ -157,10 +161,12 @@ public class EventsFragment extends Fragment {
             }
         });
 
+        // setting an event listener for the add event button
         fab = (FloatingActionButton) view.findViewById(R.id.addButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // first, retrieving user info for the logged in user
                 userRef.document(deviceID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -170,6 +176,7 @@ public class EventsFragment extends Fragment {
                                 String privileges = doc.getString("userInfo.privilegesString");
                                 String facility = doc.getString("userInfo.facility");
 
+                                // checking that the user has organizational privileges before allowing them to add an event
                                 if (Objects.equals(privileges, "200") || Objects.equals(privileges, "300") || Objects.equals(privileges, "600") || Objects.equals(privileges, "700")) {
                                     if (facility != null) {
                                         Intent intent = new Intent(getContext(), CreateEventFragment.class);

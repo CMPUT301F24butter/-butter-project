@@ -9,6 +9,8 @@ import android.os.Bundle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -28,6 +30,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.zxing.client.android.Intents;
 import com.journeyapps.barcodescanner.CaptureActivity;
@@ -35,11 +39,20 @@ import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  * A simple {@link Fragment} subclass.
  * Uses {@link HomeFragment#newInstance} to create an instance of this fragment.
+ *
+ * This fragment is used to set up the home screen on the admins side and the entrants (or both
+ * entrant and organizers) side. The admins have access to a spinner and the entrants will have
+ * access to only the upcoming and waiting list events.
+ * Outstanding Issue: When I move to another screen and come back to the admin screen,
+ *               the spinner goes back to default option (browse events) instead of the
+ *               option user last clicked on
+ * @author Angela
  */
 public class HomeFragment extends Fragment {
 
@@ -54,20 +67,31 @@ public class HomeFragment extends Fragment {
     private FirebaseFirestore db;
     private CollectionReference eventRef;
     private CollectionReference userRef;
-    String deviceID;
+    private String deviceID;
 
     // Lists of events, users, and posters
     private ArrayList<Event> allEvents;
     private ArrayList<User> allUsers;
     private ArrayList<User> allFacilities;
-    ListView adminListView;
+    private ListView adminListView;
     private EventArrayAdapter eventArrayAdapter;
     private ArrayAdapter<User> userArrayAdapter;
     private Boolean isFacility;
     ActivityResultLauncher<ScanOptions> barLauncher;
 
+    // Entrant waiting and upcoming recycler view
+    private RecyclerView eventsRecyclerView;
+    private RecyclerView waitingListRecyclerView;
+    private HomeAdapter upcomingAdapter;
+    private HomeAdapter waitingListAdapter;
+    private ListenerRegistration upcomingListener;
+    private ListenerRegistration waitingListener;
+
     Button qrScan;
 
+    /**
+     * Constructor for Home Fragment.
+     */
     public HomeFragment() {
         allEvents = new ArrayList<>();
         allUsers = new ArrayList<>();
@@ -78,7 +102,7 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Create a new instance of home fragment
+     * Create a new instance of home fragment.
      * @param param1 Parameter 1.
      * @param param2 Parameter 2.
      * @return A new instance of fragment HomeFragment.
@@ -92,6 +116,11 @@ public class HomeFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * onCreate method
+     * @param savedInstanceState If the fragment is being re-created from
+     * a previous saved state, this is the state.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,11 +142,37 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    /**
+     * Inflates view and sets up qrScan, admin and entrants XML.
+     * @param inflater The LayoutInflater object that can be used to inflate
+     * any views in the fragment,
+     * @param container If non-null, this is the parent view that the fragment's
+     * UI should be attached to.  The fragment should not add the view itself,
+     * but this can be used to generate the LayoutParams of the view.
+     * @param savedInstanceState If non-null, this fragment is being re-constructed
+     * from a previous saved state as given here.
+     *
+     * @return View
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
+
+        //----------------------------------------------------------------------------
+        // Setup RecyclerView for upcoming events
+        eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
+        eventsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        upcomingAdapter = new HomeAdapter(new ArrayList<>());
+        eventsRecyclerView.setAdapter(upcomingAdapter);
+
+        // Setup RecyclerView for waiting list
+        waitingListRecyclerView = view.findViewById(R.id.waitingListRecyclerView);
+        waitingListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+        waitingListAdapter = new HomeAdapter(new ArrayList<>());
+        waitingListRecyclerView.setAdapter(waitingListAdapter);
+        //---------------------------------------------------------------------------------
 
         qrScan = view.findViewById(R.id.qrScannerButton);
         qrScan.setOnClickListener(v -> {
@@ -216,6 +271,9 @@ public class HomeFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Sets up the QR code scanner.
+     */
     private void scanCode() {
         ScanOptions options = new ScanOptions();
         options.setPrompt("Volume up to flash on");
@@ -225,14 +283,35 @@ public class HomeFragment extends Fragment {
         barLauncher.launch(options);
     }
 
+    /**
+     * Sets the xml for entrant actions visible.
+     * @param adminListView - admins list view, will be set to gone
+     * @param upcomingText - entrant textview, will be set to visible
+     * @param upcomingScrollView - entrants upcoming events, will be set visible
+     * @param waitingText - entrant textview, will be set to visible
+     * @param waitingScrollView - entrants waiting list events, will be set visible
+     */
     private void switchToEntrant(ListView adminListView, TextView upcomingText, HorizontalScrollView upcomingScrollView, TextView waitingText, HorizontalScrollView waitingScrollView) {
         adminListView.setVisibility(View.GONE);
         upcomingText.setVisibility(View.VISIBLE);
         upcomingScrollView.setVisibility(View.VISIBLE);
         waitingText.setVisibility(View.VISIBLE);
         waitingScrollView.setVisibility(View.VISIBLE);
+
+        // Sets up the waiting and upcoming events recycler view
+        fetchUpcomingEvents();
+        fetchWaitingList();
     }
 
+    /**
+     * Sets the xml for admin actions visible.
+     * @param adminListView - admins list view, will be set visible
+     * @param upcomingText - entrant textview, will be set to gone
+     * @param upcomingScrollView - entrants upcoming events, will be set gone
+     * @param waitingText - entrant textview, will be set to gone
+     * @param waitingScrollView - entrants waiting list events, will be set gone
+     *
+     */
     private void switchToAdmin(ListView adminListView, TextView upcomingText, HorizontalScrollView upcomingScrollView, TextView waitingText, HorizontalScrollView waitingScrollView) {
         adminListView.setVisibility(View.VISIBLE);
         upcomingText.setVisibility(View.GONE);
@@ -241,6 +320,9 @@ public class HomeFragment extends Fragment {
         waitingScrollView.setVisibility(View.GONE);
     }
 
+    /**
+     * Populates the admin list with all events.
+     */
     private void showEventsList() {
         eventRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -271,6 +353,9 @@ public class HomeFragment extends Fragment {
         });
     }
 
+    /**
+     * Show Profiles List method: populates the admin list with all user profiles
+     */
     private void showProfilesList() {
         userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -301,5 +386,118 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
+    }
+
+    //------------------------------------------------------------------------------------------
+    private void fetchUpcomingEvents() {
+        upcomingListener = db.collection("userList")
+                .whereEqualTo("type", "registered")
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        System.err.println("Listen failed: " + error);
+                        return;
+                    }
+
+                    List<Event> upcomingEvents = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        int size = document.contains("size") ? Integer.parseInt(document.getString("size")) : 0;
+
+                        if (size > 0) {
+                            for (int i = 0; i < size; i++) {
+                                String userKey = "user" + i;
+                                String userId = document.getString(userKey);
+
+                                if (deviceID.equals(userId)) {
+                                    String fullDocumentId = document.getId();
+                                    String eventId = fullDocumentId.contains("-")
+                                            ? fullDocumentId.substring(0, fullDocumentId.lastIndexOf("-"))
+                                            : fullDocumentId;
+
+                                    db.collection("event").document(eventId)
+                                            .get()
+                                            .addOnSuccessListener(eventDocument -> {
+                                                if (eventDocument.exists()) {
+                                                    String name = eventDocument.getString("eventInfo.name");
+                                                    String date = eventDocument.getString("eventInfo.date");
+                                                    int capacity = 0;
+                                                    String capacityString = eventDocument.getString("eventInfo.capacityString");
+                                                    if (capacityString != null) {
+                                                        capacity = Integer.parseInt(capacityString);
+                                                    }
+
+                                                    Event event = new Event(eventId, name, date, capacity);
+                                                    upcomingEvents.add(event);
+                                                    Log.d("HomeFragment", "Upcoming events list size: " + upcomingEvents.size());
+
+                                                    upcomingAdapter.setItemList(upcomingEvents);
+                                                    upcomingAdapter.notifyDataSetChanged();
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                System.err.println("Error fetching event details: " + e.getMessage());
+                                            });
+                                }
+                            }
+                        }
+                    }
+                });
+    }
+
+    private void fetchWaitingList() {
+        waitingListener = db.collection("userList")
+                .whereEqualTo("type", "waitlist")
+                .addSnapshotListener((queryDocumentSnapshots, error) -> {
+                    if (error != null) {
+                        System.err.println("Listen failed: " + error);
+                        return;
+                    }
+
+                    List<Event> waitingEvents = new ArrayList<>();
+
+                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
+                        int size = document.contains("size") ? Integer.parseInt(document.getString("size")) : 0;
+
+                        if (size > 0) {
+                            for (int i = 0; i < size; i++) {
+                                String userKey = "user" + i;
+                                String userId = document.getString(userKey);
+
+                                if (deviceID.equals(userId)) {
+                                    String fullDocumentId = document.getId();
+                                    String eventId = fullDocumentId.contains("-")
+                                            ? fullDocumentId.substring(0, fullDocumentId.lastIndexOf("-"))
+                                            : fullDocumentId;
+
+                                    db.collection("event").document(eventId)
+                                            .get()
+                                            .addOnSuccessListener(eventDocument -> {
+                                                if (eventDocument.exists()) {
+                                                    String name = eventDocument.getString("eventInfo.name");
+                                                    String date = eventDocument.getString("eventInfo.date");
+                                                    int capacity = 0;
+                                                    String capacityString = eventDocument.getString("eventInfo.capacityString");
+                                                    if (capacityString != null) {
+                                                        capacity = Integer.parseInt(capacityString);
+                                                    }
+
+                                                    Event event = new Event(eventId, name, date, capacity);
+                                                    waitingEvents.add(event);
+                                                    Log.d("HomeFragment", "Waiting events list size: " + waitingEvents.size());
+
+
+                                                    waitingListAdapter.setItemList(waitingEvents);
+                                                    waitingListAdapter.notifyDataSetChanged();
+                                                }
+                                            })
+                                            .addOnFailureListener(e -> {
+                                                System.err.println("Error fetching event details: " + e.getMessage());
+                                            });
+                                }
+                            }
+                        }
+                    }
+                });
+
     }
 }

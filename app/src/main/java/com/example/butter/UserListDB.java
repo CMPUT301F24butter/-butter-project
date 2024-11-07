@@ -16,6 +16,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * This class can be used to interact with the "userList" collection of our Firebase database
+ * It implements methods to create user lists, add users to lists, remove users from lists and delete lists
+ *
+ * @author Nate Pane (natepane)
+ */
 public class UserListDB {
     private FirebaseFirestore db;
     private CollectionReference userListRef;

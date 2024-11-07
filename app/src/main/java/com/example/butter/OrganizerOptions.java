@@ -13,6 +13,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+/**
+ * This is the dialog box for organizer options
+ * This dialog box has options such as edit event, see QR code, see users in the event's lists, etc.
+ * When one of these options is clicked, the user is directed to the corresponding page
+ *
+ * Current outstanding issues: Not all features in this dialog have been implemented, some of the buttons do nothing
+ *
+ * @author Nate Pane (natepane)
+ */
 public class OrganizerOptions extends DialogFragment {
 
     private String eventID;

@@ -15,6 +15,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashMap;
 
+/**
+ * This class can be used to interact with the "event" collection of our Firebase database
+ * It implements methods to easily add, update and remove events in this collection
+ *
+ * @author Nate Pane (natepane)
+ */
 public class EventDB {
     private FirebaseFirestore db;
     private CollectionReference eventRef;

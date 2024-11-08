@@ -144,8 +144,12 @@ public class EventDetailsActivity extends AppCompatActivity {
                                         Log.d("Firebase", "User added to waiting list!");
                                         entrantEventButton.setEnabled(false);
                                         String joinedText = "Joined Waiting List";
-                                        entrantEventButton.setText(joinedText);// temporary until we implement leave waiting list
+                                        entrantEventButton.setText(joinedText); // temporary until we implement leave waiting list
                                     });
+                                } else {
+                                    entrantEventButton.setEnabled(false);
+                                    String alreadyJoinedText = "Already Joined Waiting List"; // temporary until we implement leave waiting list
+                                    entrantEventButton.setText(alreadyJoinedText);
                                 }
                             } else {
                                 Log.d("Firebase", "User list doesn't exists.");

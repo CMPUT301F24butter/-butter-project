@@ -22,7 +22,7 @@
         android:id="@+id/user_initial"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/profile_initial"
+        android:text=""
         android:textColor="@color/white"
         android:textSize="24sp"
         app:layout_constraintBottom_toBottomOf="@+id/profileImage"

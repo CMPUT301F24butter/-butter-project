@@ -15,6 +15,7 @@ import android.widget.TextView;
 
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -35,6 +36,11 @@ public class ProfileFragment extends Fragment {
      * This object is necessary in order to later update the view after this is passed as a fragment to MainActivity.
      */
     private View view;
+    /**
+     * A Listener object for the addSnapshotListener checking for updated user data in database.
+     * Used for solving a bug with onDestroyView.
+     */
+    private ListenerRegistration userListener;
 
     public ProfileFragment() {
         // empty constructor
@@ -57,7 +63,7 @@ public class ProfileFragment extends Fragment {
         DocumentReference userRef = db.collection("user").document(getArguments().getString("deviceID"));
 
         // setup a listener to keep updating user class each time it changes (asynchronous)
-        userRef.addSnapshotListener((doc, __) -> {
+        userListener = userRef.addSnapshotListener((doc, __) -> {
             if (doc != null && doc.exists()) {
                 // get data from userData
                 String email = doc.getString("userInfo.email");
@@ -94,6 +100,15 @@ public class ProfileFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // detach active listener
+        if (userListener != null) {
+            userListener.remove();
+            userListener = null;
+        }
+    }
     /**
      * updateUserDataInView() uses the private user variable to update the private view object.
      * Runs some checks to decide what will and will not be visible dependent on user data and roles.

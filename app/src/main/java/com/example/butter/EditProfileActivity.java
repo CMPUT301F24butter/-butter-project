@@ -13,6 +13,10 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * A simple activity called from {@link ProfileFragment}
  * To edit/update an existing user in the database
@@ -49,8 +53,10 @@ public class EditProfileActivity extends AppCompatActivity {
 
         // setup role spinner
         Spinner roleSpinner = findViewById(R.id.edit_role_spinner);
-        ArrayAdapter<CharSequence> roleAdapter = ArrayAdapter.createFromResource(
-                this, R.array.roles_array, android.R.layout.simple_spinner_item);
+        // convert roles array to modifiable list
+        List<String> rolesList = new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.roles_array)));
+        // create an array adapter for the list
+        ArrayAdapter<String> roleAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, rolesList);
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         roleSpinner.setAdapter(roleAdapter);
 
@@ -75,8 +81,12 @@ public class EditProfileActivity extends AppCompatActivity {
             roleSpinner.setSelection(0); // set spinner to be selected to entrant
         } else if (user.getPrivileges() < 300) { // then we are organizer
             roleSpinner.setSelection(1);
-        } else {    // else we are either both, or admin
+        } else if (user.getPrivileges() < 400) { // then we are both
             roleSpinner.setSelection(2);
+        } else {    // else are admin, and should update spinner with option and set to option
+            rolesList.add(user.getRole());
+            roleAdapter.notifyDataSetChanged();
+            roleSpinner.setSelection(3);
         }
 
         if (user.getPrivileges() > 100) { // if we are higher than entrant, show facility
@@ -119,9 +129,9 @@ public class EditProfileActivity extends AppCompatActivity {
                     if (role.equals("Entrant")) {
                         privileges = 100;
                         facility = null;    // set facility to null
-                    }
-                    if (role.equals("Organizer")) privileges = 200;
-                    if (role.equals("Both")) privileges = 300;
+                    } else if (role.equals("Organizer")) privileges = 200;
+                    else if (role.equals("Both")) privileges = 300;
+                    else if (role.equals("Admin")) privileges = 700;
 
                     // now we just simply update the user object with the new one in our database
                     User userUpdate = new User(user.getDeviceID(), username, privileges, facility, email, phone);
@@ -146,11 +156,11 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedRole = adapterView.getItemAtPosition(i).toString();
-                if (selectedRole.equals("Organizer") || selectedRole.equals("Both")) {  // if organizer, add facility
+                if (!selectedRole.equals("Entrant")) {  // if not entrant, add facility
                     // show facility options
                     facilityLabel.setVisibility(View.VISIBLE);
                     editFacility.setVisibility(View.VISIBLE);
-                } else {    // we are entrant and should remove facility if added
+                } else {    // else we are entrant and should remove facility if added
                     facilityLabel.setVisibility(View.INVISIBLE);
                     editFacility.setVisibility(View.INVISIBLE);
                 }

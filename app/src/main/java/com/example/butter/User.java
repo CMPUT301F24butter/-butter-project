@@ -54,8 +54,14 @@ public class User implements Serializable {
             return "Organizer";
         } else if (this.privileges < 400) {
             return "Organizer & Entrant";
-        } else {
+        } else if (this.privileges < 500) { // if 400
             return "Admin";
+        } else if (this.privileges < 600) { // if 500
+            return "Admin & Entrant";
+        } else if (this.privileges < 700) { // if 600
+            return "Admin & Organizer";
+        } else {    // else we are max priv at 700
+            return "Admin, Organizer, & Entrant";
         }
     }
 

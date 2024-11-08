@@ -125,8 +125,12 @@ public class ProfileFragment extends Fragment {
         TextView role = view.findViewById(R.id.role_text);
         TextView profileInitial = view.findViewById(R.id.profileText);
 
-        // first lets check if we are higher than entrant, if so, unhide facility
-        if (user.getPrivileges() > 100) { // if we are higher than entrant
+        // first lets check if we are not entrant, if so, unhide facility
+        if (user.getPrivileges() > 100 && user.getPrivileges() < 400) { // if we are org/both
+            facility.setVisibility(View.VISIBLE);
+            facility.setText(user.getFacility());   // set our facility as well
+            facilityLabel.setVisibility(View.VISIBLE);
+        } else if (user.getPrivileges() > 500) {    // if we are admin with org privs
             facility.setVisibility(View.VISIBLE);
             facility.setText(user.getFacility());   // set our facility as well
             facilityLabel.setVisibility(View.VISIBLE);

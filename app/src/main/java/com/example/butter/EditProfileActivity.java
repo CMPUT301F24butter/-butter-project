@@ -83,13 +83,20 @@ public class EditProfileActivity extends AppCompatActivity {
             roleSpinner.setSelection(1);
         } else if (user.getPrivileges() < 400) { // then we are both
             roleSpinner.setSelection(2);
-        } else {    // else are admin, and should update spinner with option and set to option
-            rolesList.add(user.getRole());
+        } else {    // else are admin, and should update spinner based on which admin role we are
+            rolesList.add("Admin"); // add all possible roles for admin
+            rolesList.add("Admin & Entrant");
+            rolesList.add("Admin & Organizer");
+            rolesList.add("Admin, Organizer, & Entrant");
             roleAdapter.notifyDataSetChanged();
-            roleSpinner.setSelection(3);
+            for (int i = 3; i < roleAdapter.getCount(); i++) { // grab index of our role and set to it
+                if (roleAdapter.getItem(i).equals(user.getRole())) {
+                    roleSpinner.setSelection(i);
+                }
+            }
         }
 
-        if (user.getPrivileges() > 100) { // if we are higher than entrant, show facility
+        if (user.getPrivileges() > 100 && user.getPrivileges() != 400 && user.getPrivileges() != 500) { // if we are not admin and/or entrant, show facility
             facilityLabel.setVisibility(View.VISIBLE);
             editFacility.setVisibility(View.VISIBLE);
             editFacility.setText(user.getFacility());
@@ -125,13 +132,33 @@ public class EditProfileActivity extends AppCompatActivity {
                     if (facility.isEmpty()) facility = null;
 
                     // now to set privilege values:
-                    // Entrant = 100, Organizer = 200, both = 300
-                    if (role.equals("Entrant")) {
-                        privileges = 100;
-                        facility = null;    // set facility to null
-                    } else if (role.equals("Organizer")) privileges = 200;
-                    else if (role.equals("Both")) privileges = 300;
-                    else if (role.equals("Admin")) privileges = 700;
+                    // Entrant = 100, Organizer = 200, both = 300, admin = 400, admin & entrant = 500, admin & org = 600, all = 700
+                    switch (role) {
+                        case "Entrant":
+                            privileges = 100;
+                            facility = null;
+                            break;
+                        case "Organizer":
+                            privileges = 200;
+                            break;
+                        case "Both":
+                            privileges = 300;
+                            break;
+                        case "Admin":
+                            privileges = 400;
+                            facility = null;
+                            break;
+                        case "Admin & Entrant":
+                            privileges = 500;
+                            facility = null;
+                            break;
+                        case "Admin & Organizer":
+                            privileges = 600;
+                            break;
+                        case "Admin, Organizer, & Entrant":
+                            privileges = 700;
+                            break;
+                    }
 
                     // now we just simply update the user object with the new one in our database
                     User userUpdate = new User(user.getDeviceID(), username, privileges, facility, email, phone);
@@ -156,7 +183,7 @@ public class EditProfileActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String selectedRole = adapterView.getItemAtPosition(i).toString();
-                if (!selectedRole.equals("Entrant")) {  // if not entrant, add facility
+                if (!selectedRole.equals("Entrant") && !selectedRole.equals("Admin") && !selectedRole.equals("Admin & Entrant")) {  // if not entrant, add facility
                     // show facility options
                     facilityLabel.setVisibility(View.VISIBLE);
                     editFacility.setVisibility(View.VISIBLE);
@@ -184,7 +211,7 @@ public class EditProfileActivity extends AppCompatActivity {
      * @param phone
      * If phone is not empty AND is not a valid phone number, invalid
      * @param facility
-     * If role is not 'Entrant' AND (facility is empty OR more than 20 characters), invalid
+     * If role is not 'Entrant', 'Admin', or 'Admin & Entrant' AND (facility is empty OR more than 20 characters), invalid
      * @param role
      * Role cannot be invalid. Must be passed using "user.getRole()" or a valid role string.
      * @return
@@ -206,7 +233,7 @@ public class EditProfileActivity extends AppCompatActivity {
             returnString = "Invalid Email Address.";
         } else if (!phone.isEmpty() && !Patterns.PHONE.matcher(phone).matches()) {
             returnString = "Invalid Phone Number.";
-        } else if (!role.equals("Entrant")) { // else if we have facility name to eval
+        } else if (!role.equals("Entrant") && !role.equals("Admin") && !role.equals("Admin & Entrant")) { // else if we have facility name to eval
             if (facility.isEmpty()) {
                 returnString = "Invalid Facility.";
             } else if (facility.length() > 20) {    // 20 char cap for facility

@@ -163,7 +163,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/waiting_list_label">
+        app:layout_constraintTop_toBottomOf="@+id/pink_divider">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/waitingListRecyclerView"

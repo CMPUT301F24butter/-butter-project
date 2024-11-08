@@ -2,6 +2,7 @@ package com.example.butter;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -19,6 +20,8 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+
+import java.util.HashMap;
 
 /**
  * This activity shows the details of an event when it is clicked on from the "Events" screen
@@ -38,7 +41,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
     private FirebaseFirestore db;
     private CollectionReference eventRef;
-    private CollectionReference userRef;
+    private CollectionReference userListRef;
 
     private String organizerID;
     private String eventID;
@@ -51,6 +54,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
+        userListRef = db.collection("userList");
 
         deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
@@ -107,7 +111,48 @@ public class EventDetailsActivity extends AppCompatActivity {
         entrantEventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Add in implementation for join waiting list
+                String userListID  = eventID + "-wait";
+
+                userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot doc = task.getResult();
+                            if (doc.exists()) {
+                                HashMap<String, Object> updates = new HashMap<>();
+
+                                String listSizeString = doc.getString("size");
+                                int listSize = Integer.parseInt(listSizeString); // # of entrants in the list
+
+                                // Check if user is already in waiting list
+                                boolean userAlreadyAdded = false;
+                                for (int i = 0; i < listSize; i++) {
+                                    if (deviceID.equals(doc.getString("user" + i))) {
+                                        userAlreadyAdded = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!userAlreadyAdded) {
+                                    // Putting the user into the waiting list for the event
+                                    updates.put("size", String.valueOf(listSize + 1));
+                                    updates.put("type", "waitlist");
+                                    updates.put("user" + listSize, deviceID);
+
+                                    // Update the userlist
+                                    userListRef.document(userListID).update(updates).addOnSuccessListener(aVoid -> {
+                                        Log.d("Firebase", "User added to waiting list!");
+                                        entrantEventButton.setEnabled(false);
+                                        String joinedText = "Joined Waiting List";
+                                        entrantEventButton.setText(joinedText);// temporary until we implement leave waiting list
+                                    });
+                                }
+                            } else {
+                                Log.d("Firebase", "User list doesn't exists.");
+                            }
+                        }
+                    }
+                });
             }
         });
     }

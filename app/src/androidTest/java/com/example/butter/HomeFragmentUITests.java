@@ -28,7 +28,9 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
- * NOTE: Run the app first before the testing file
+ * NOTE: RUN THE APP FIRST BEFORE RUNNING THE TEST FILE
+ *
+ * IN ORDER TO RUN THESE TESTS YOU MUST HAVE ADMIN PRIVILEGES
  *
  * @author Angela
  */

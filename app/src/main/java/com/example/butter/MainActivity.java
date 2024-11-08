@@ -36,11 +36,27 @@ import java.util.Objects;
  * @author Angela
  */
 public class MainActivity extends AppCompatActivity {
+    /**
+     * Used for binding to main activity
+     */
     private ActivityMainBinding binding;
+    /**
+     * Used for accessing the database (privileges specifically)
+     */
     private FirebaseFirestore db;
+    /**
+     * Also used for accessing the database (privileges specifically)
+     */
     private CollectionReference userRef;
-
+    /**
+     * String to store the deviceID for the user in an attribute.
+     * Is later passed to each fragment.
+     */
     private String deviceID;
+    /**
+     * String to store the privileges for the user.
+     * Is updated upon a change to the user in database with "addSnapshotListener".
+     */
     private String privileges;
 
     /**
@@ -132,7 +148,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * @param fragment
+     * replaceFragment simply takes in the fragment to replace,
+     * and changes to the corresponding fragment using fragmentTransaction.commit().
+     * Note that we also create a Bundle to pass arguments,
+     * specifically passing the deviceID for use in other fragments (if needing user info).
      */
     private void replaceFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();

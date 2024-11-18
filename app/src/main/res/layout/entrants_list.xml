@@ -78,7 +78,9 @@
         <ListView
             android:id="@+id/entrants_list"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"
+            android:choiceMode="singleChoice"
+            android:listSelector="@color/secondaryGreyColor"/>
 
 
     </FrameLayout>
@@ -141,6 +143,7 @@
 
     <!-- This add button can only be accessed by organizers -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/delete_entrant_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="328dp"
@@ -152,7 +155,7 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/entrants_container"
-        app:layout_constraintVertical_bias="0.850"
+        app:layout_constraintVertical_bias="0.930"
         app:srcCompat="@android:drawable/ic_menu_delete"
         app:tint="@android:color/white" />
 

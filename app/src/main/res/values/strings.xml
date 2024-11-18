@@ -42,7 +42,7 @@
     <string name="waiting_list_button">Join waiting list</string>
     <string name="event_title">%s</string>
     <string name="generate_entrants">Generate Entrants</string>
-    <string name="draw_replacements">Draw Replacement(s)</string>
+    <string name="draw_replacements">Draw Replacement</string>
     <string name="map">MAP</string>
     <string name="event">%s</string>
     <string name="registration_opens_s">Registration opens: %s</string>

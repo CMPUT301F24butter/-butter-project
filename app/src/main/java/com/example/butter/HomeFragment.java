@@ -1,15 +1,12 @@
 package com.example.butter;
 
-import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.util.Log;
@@ -22,6 +19,7 @@ import android.widget.Button;
 import android.widget.HorizontalScrollView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -32,9 +30,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.google.zxing.client.android.Intents;
-import com.journeyapps.barcodescanner.CaptureActivity;
 import com.journeyapps.barcodescanner.ScanContract;
 import com.journeyapps.barcodescanner.ScanOptions;
 
@@ -52,7 +47,7 @@ import java.util.Objects;
  * Outstanding Issue: When I move to another screen and come back to the admin screen,
  *               the spinner goes back to default option (browse events) instead of the
  *               option user last clicked on
- * @author Angela
+ * @author Angela Dakay (angelcache)
  */
 public class HomeFragment extends Fragment {
 
@@ -65,39 +60,24 @@ public class HomeFragment extends Fragment {
 
     // Need access to all events, users, and posters, deviceID
     private FirebaseFirestore db;
-    private CollectionReference eventRef;
     private CollectionReference userRef;
     private String deviceID;
 
-    // Lists of events, users, and posters
-    private ArrayList<Event> allEvents;
-    private ArrayList<User> allUsers;
-    private ArrayList<User> allFacilities;
-    private ListView adminListView;
-    private EventArrayAdapter eventArrayAdapter;
-    private ArrayAdapter<User> userArrayAdapter;
+    // Variables used for users role
     private Boolean isFacility;
-    ActivityResultLauncher<ScanOptions> barLauncher;
+    HomeEntrantFragment entrantFragment;
+    HomeAdminFragment adminFragment;
 
-    // Entrant waiting and upcoming recycler view
-    private RecyclerView eventsRecyclerView;
-    private RecyclerView waitingListRecyclerView;
-    private HomeAdapter upcomingAdapter;
-    private HomeAdapter waitingListAdapter;
-    private ListenerRegistration upcomingListener;
-    private ListenerRegistration waitingListener;
-
+    // Scanner variables
     Button qrScan;
+    ActivityResultLauncher<ScanOptions> barLauncher;
 
     /**
      * Constructor for Home Fragment.
      */
     public HomeFragment() {
-        allEvents = new ArrayList<>();
-        allUsers = new ArrayList<>();
-        allFacilities = new ArrayList<>();
         db = FirebaseFirestore.getInstance();
-        eventRef = db.collection("event"); // event collection
+        //eventRef = db.collection("event"); // event collection
         userRef = db.collection("user"); // user collection
     }
 
@@ -130,7 +110,6 @@ public class HomeFragment extends Fragment {
         }
         Bundle args = getArguments();
         deviceID = args.getString("deviceID");
-        eventArrayAdapter = new EventArrayAdapter(getContext(), allEvents);
 
         barLauncher = registerForActivityResult(new ScanContract(), result -> {
             if (result.getContents() != null) {
@@ -160,44 +139,78 @@ public class HomeFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
-        //----------------------------------------------------------------------------
-        // Setup RecyclerView for upcoming events
-        eventsRecyclerView = view.findViewById(R.id.eventsRecyclerView);
-        eventsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        upcomingAdapter = new HomeAdapter(new ArrayList<>());
-        eventsRecyclerView.setAdapter(upcomingAdapter);
+        // Instantiates the entrant and admin fragment
+        entrantFragment = new HomeEntrantFragment(deviceID);
+        adminFragment = new HomeAdminFragment("Default");
 
-        // Setup RecyclerView for waiting list
-        waitingListRecyclerView = view.findViewById(R.id.waitingListRecyclerView);
-        waitingListRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        waitingListAdapter = new HomeAdapter(new ArrayList<>());
-        waitingListRecyclerView.setAdapter(waitingListAdapter);
-        //---------------------------------------------------------------------------------
+        checkUserRole(view);
 
+        // Starts the scanner
         qrScan = view.findViewById(R.id.qrScannerButton);
         qrScan.setOnClickListener(v -> {
             scanCode();
         });
 
-        adminListView = (ListView) view.findViewById(R.id.admin_list_view);
-        adminListView.setAdapter(eventArrayAdapter);
-
-        // get access to elements in the xml
-        TextView greetingText = view.findViewById(R.id.greetingText);
-        TextView qrCodeText = view.findViewById(R.id.qrCodeText);
-        TextView upcomingText = view.findViewById(R.id.upcomingText);
-        HorizontalScrollView upcomingScrollView = view.findViewById(R.id.horizontalScrollView);
-        TextView waitingText = view.findViewById(R.id.waiting_list_label);
-        HorizontalScrollView waitingScrollView = view.findViewById(R.id.waitingListScrollView);
-
-        RelativeLayout adminSpinnerLayout = view.findViewById(R.id.admin_spinner_layout);
-        Spinner adminSpinner = view.findViewById(R.id.entrants_spinner);
-
         // Populating the spinner
+        Spinner adminSpinner = view.findViewById(R.id.entrants_spinner);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
                 requireContext(), android.R.layout.simple_spinner_item, new String[]{"Browse Events", "Browse Profiles", "Browse Facilities", "Browse Images", "Entrant's Page"});
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adminSpinner.setAdapter(spinnerAdapter);
+
+        if (adminSpinner.getVisibility() == View.VISIBLE) {
+            changeSpinnerList(adminSpinner);
+        }
+
+        return view;
+    }
+
+    /**
+     * Notifies HomeAdminFragment if there are changes in the spinner
+     * @param adminSpinner used to see the changes that admin fragment needs to be aware of
+     */
+    private void changeSpinnerList(Spinner adminSpinner) {
+        adminSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selection = (String) parent.getItemAtPosition(position);
+                // If user selects a new option in spinner, it will show the right list / text
+                switch (selection) {
+                    case "Browse Events":
+                        adminFragment.spinnerBrowseChange("Browse Events");
+                        switchFragment(adminFragment);
+                        break;
+                    case "Browse Profiles":
+                        adminFragment.spinnerBrowseChange("Browse Profiles");
+                        switchFragment(adminFragment);
+                        break;
+                    case "Browse Facilities":
+                        adminFragment.spinnerBrowseChange("Browse Facilities");
+                        switchFragment(adminFragment);
+                        break;
+                    case "Browse Images":
+                        adminFragment.spinnerBrowseChange("Browse Images");
+                        switchFragment(adminFragment);
+                        break;
+                    case "Entrant's Page":
+                        switchFragment(entrantFragment);
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
+    }
+
+    /**
+     * Checks to see whether the user is an admin or just an entrant. As an entrant they will
+     * see the welcome screen.
+     * @param view used to find xml items (like greetingText and qrCodeText)
+     */
+    private void checkUserRole(View view) {
+        RelativeLayout adminSpinnerLayout = view.findViewById(R.id.admin_spinner_layout);
 
         // depending on users privileges, user sees either browsing or upcoming/waiting list page
         userRef.document(deviceID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -211,64 +224,22 @@ public class HomeFragment extends Fragment {
                         // If a user is an admin + organizer, they get browse abilities + upcoming / waiting list
                         if (Objects.equals(privileges, "400") || Objects.equals(privileges, "500") || Objects.equals(privileges, "600") || Objects.equals(privileges, "700")) {
                             adminSpinnerLayout.setVisibility(View.VISIBLE);
-                            adminListView.setVisibility(View.VISIBLE);
+                            switchFragment(adminFragment);
 
-                        // If user is an entrant / entrant + organizer, only has upcoming / waiting list
+                            // If user is an entrant / entrant + organizer, only has upcoming / waiting list
                         } else if (Objects.equals(privileges, "100") || Objects.equals(privileges, "300")) {
                             String user = doc.getString("userInfo.name");
+                            TextView greetingText = view.findViewById(R.id.greetingText);
+                            TextView qrCodeText = view.findViewById(R.id.qrCodeText);
                             greetingText.setText(String.format("Hey %s!", user));
                             greetingText.setVisibility(View.VISIBLE);
                             qrCodeText.setVisibility(View.VISIBLE);
-                            switchToEntrant(adminListView, upcomingText, upcomingScrollView, waitingText, waitingScrollView);
+                            switchFragment(entrantFragment);
                         }
                     }
                 }
             }
         });
-
-        adminSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String selection = (String) parent.getItemAtPosition(position);
-                // If user selects a new option in spinner, it will show the right list / text
-                switch (selection) {
-                    case "Browse Events":
-                        adminListView.setAdapter(eventArrayAdapter);
-                        switchToAdmin(adminListView, upcomingText, upcomingScrollView, waitingText, waitingScrollView);
-                        showEventsList();
-                        break;
-                    case "Browse Profiles":
-                        isFacility = Boolean.FALSE;
-                        userArrayAdapter = new UserArrayAdapter(getContext(), allUsers, isFacility);
-                        adminListView.setAdapter(userArrayAdapter);
-                        switchToAdmin(adminListView, upcomingText, upcomingScrollView, waitingText, waitingScrollView);
-                        showProfilesList();
-                        break;
-                    case "Browse Facilities":
-                        isFacility = Boolean.TRUE;
-                        userArrayAdapter = new UserArrayAdapter(getContext(), allFacilities, isFacility);
-                        adminListView.setAdapter(userArrayAdapter);
-                        switchToAdmin(adminListView, upcomingText, upcomingScrollView, waitingText, waitingScrollView);
-                        showProfilesList();
-                        break;
-                    case "Browse Images":
-                        adminListView.setAdapter(null);
-                        switchToAdmin(adminListView, upcomingText, upcomingScrollView, waitingText, waitingScrollView);
-                        //showImagesList();
-                        break;
-                    case "Entrant's Page":
-                        eventArrayAdapter.notifyDataSetChanged();
-                        // removes admin list view and adds upcoming and waiting list events
-                        switchToEntrant(adminListView, upcomingText, upcomingScrollView, waitingText, waitingScrollView);
-                        break;
-                }
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        });
-        return view;
     }
 
     /**
@@ -284,220 +255,11 @@ public class HomeFragment extends Fragment {
     }
 
     /**
-     * Sets the xml for entrant actions visible.
-     * @param adminListView - admins list view, will be set to gone
-     * @param upcomingText - entrant textview, will be set to visible
-     * @param upcomingScrollView - entrants upcoming events, will be set visible
-     * @param waitingText - entrant textview, will be set to visible
-     * @param waitingScrollView - entrants waiting list events, will be set visible
+     * Puts Home Admin Fragment / Home Entrants Fragment as the fragment on the home screen
      */
-    private void switchToEntrant(ListView adminListView, TextView upcomingText, HorizontalScrollView upcomingScrollView, TextView waitingText, HorizontalScrollView waitingScrollView) {
-        adminListView.setVisibility(View.GONE);
-        upcomingText.setVisibility(View.VISIBLE);
-        upcomingScrollView.setVisibility(View.VISIBLE);
-        waitingText.setVisibility(View.VISIBLE);
-        waitingScrollView.setVisibility(View.VISIBLE);
-
-        // Sets up the waiting and upcoming events recycler view
-        fetchUpcomingEvents();
-        fetchWaitingList();
-    }
-
-    /**
-     * Sets the xml for admin actions visible.
-     * @param adminListView - admins list view, will be set visible
-     * @param upcomingText - entrant textview, will be set to gone
-     * @param upcomingScrollView - entrants upcoming events, will be set gone
-     * @param waitingText - entrant textview, will be set to gone
-     * @param waitingScrollView - entrants waiting list events, will be set gone
-     *
-     */
-    private void switchToAdmin(ListView adminListView, TextView upcomingText, HorizontalScrollView upcomingScrollView, TextView waitingText, HorizontalScrollView waitingScrollView) {
-        adminListView.setVisibility(View.VISIBLE);
-        upcomingText.setVisibility(View.GONE);
-        upcomingScrollView.setVisibility(View.GONE);
-        waitingText.setVisibility(View.GONE);
-        waitingScrollView.setVisibility(View.GONE);
-    }
-
-    /**
-     * Populates the admin list with all events.
-     */
-    private void showEventsList() {
-        eventRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    allEvents.clear();
-                    for (DocumentSnapshot doc : task.getResult()) {
-                        String eventID = doc.getId();
-                        String eventName = doc.getString("eventInfo.name");
-                        String eventDate = doc.getString("eventInfo.date");
-                        String eventCapacityString = doc.getString("eventInfo.capacityString");
-
-                        if (eventCapacityString != null) {
-                            int eventCapacity = Integer.parseInt(eventCapacityString);
-                            Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                            allEvents.add(event);
-
-                        } else {
-                            Event event = new Event(eventID, eventName, eventDate, -1);
-                            allEvents.add(event);
-                        }
-                    }
-                    eventArrayAdapter.notifyDataSetChanged();
-                } else {
-                    Log.d("Firebase", "Error getting documents: ", task.getException());
-                }
-            }
-        });
-    }
-
-    /**
-     * Show Profiles List method: populates the admin list with all user profiles
-     */
-    private void showProfilesList() {
-        userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    allUsers.clear();
-                    allFacilities.clear();
-                    for (DocumentSnapshot doc : task.getResult()) {
-                        String deviceID = doc.getString("userInfo.deviceID");
-                        String email = doc.getString("userInfo.email");
-                        String facility = doc.getString("userInfo.facility");
-                        String name = doc.getString("userInfo.name");
-                        String phone = doc.getString("userInfo.phoneNumber");
-                        int privileges = Integer.parseInt(doc.getString("userInfo.privilegesString"));
-
-                        User user = new User(deviceID, name, privileges, facility, email, phone);
-                        if (isFacility) {
-                            if (facility != null) {
-                                allFacilities.add(user);
-                            }
-                        } else {
-                            allUsers.add(user);
-                        }
-                    }
-                    userArrayAdapter.notifyDataSetChanged();
-                } else {
-                    Log.d("Firebase", "Error getting documents: ", task.getException());
-                }
-            }
-        });
-    }
-
-    //------------------------------------------------------------------------------------------
-    private void fetchUpcomingEvents() {
-        upcomingListener = db.collection("userList")
-                .whereEqualTo("type", "registered")
-                .addSnapshotListener((queryDocumentSnapshots, error) -> {
-                    if (error != null) {
-                        System.err.println("Listen failed: " + error);
-                        return;
-                    }
-
-                    List<Event> upcomingEvents = new ArrayList<>();
-
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        int size = document.contains("size") ? Integer.parseInt(document.getString("size")) : 0;
-
-                        if (size > 0) {
-                            for (int i = 0; i < size; i++) {
-                                String userKey = "user" + i;
-                                String userId = document.getString(userKey);
-
-                                if (deviceID.equals(userId)) {
-                                    String fullDocumentId = document.getId();
-                                    String eventId = fullDocumentId.contains("-")
-                                            ? fullDocumentId.substring(0, fullDocumentId.lastIndexOf("-"))
-                                            : fullDocumentId;
-
-                                    db.collection("event").document(eventId)
-                                            .get()
-                                            .addOnSuccessListener(eventDocument -> {
-                                                if (eventDocument.exists()) {
-                                                    String name = eventDocument.getString("eventInfo.name");
-                                                    String date = eventDocument.getString("eventInfo.date");
-                                                    int capacity = 0;
-                                                    String capacityString = eventDocument.getString("eventInfo.capacityString");
-                                                    if (capacityString != null) {
-                                                        capacity = Integer.parseInt(capacityString);
-                                                    }
-
-                                                    Event event = new Event(eventId, name, date, capacity);
-                                                    upcomingEvents.add(event);
-                                                    Log.d("HomeFragment", "Upcoming events list size: " + upcomingEvents.size());
-
-                                                    upcomingAdapter.setItemList(upcomingEvents);
-                                                    upcomingAdapter.notifyDataSetChanged();
-                                                }
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                System.err.println("Error fetching event details: " + e.getMessage());
-                                            });
-                                }
-                            }
-                        }
-                    }
-                });
-    }
-
-    private void fetchWaitingList() {
-        waitingListener = db.collection("userList")
-                .whereEqualTo("type", "waitlist")
-                .addSnapshotListener((queryDocumentSnapshots, error) -> {
-                    if (error != null) {
-                        System.err.println("Listen failed: " + error);
-                        return;
-                    }
-
-                    List<Event> waitingEvents = new ArrayList<>();
-
-                    for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
-                        int size = document.contains("size") ? Integer.parseInt(document.getString("size")) : 0;
-
-                        if (size > 0) {
-                            for (int i = 0; i < size; i++) {
-                                String userKey = "user" + i;
-                                String userId = document.getString(userKey);
-
-                                if (deviceID.equals(userId)) {
-                                    String fullDocumentId = document.getId();
-                                    String eventId = fullDocumentId.contains("-")
-                                            ? fullDocumentId.substring(0, fullDocumentId.lastIndexOf("-"))
-                                            : fullDocumentId;
-
-                                    db.collection("event").document(eventId)
-                                            .get()
-                                            .addOnSuccessListener(eventDocument -> {
-                                                if (eventDocument.exists()) {
-                                                    String name = eventDocument.getString("eventInfo.name");
-                                                    String date = eventDocument.getString("eventInfo.date");
-                                                    int capacity = 0;
-                                                    String capacityString = eventDocument.getString("eventInfo.capacityString");
-                                                    if (capacityString != null) {
-                                                        capacity = Integer.parseInt(capacityString);
-                                                    }
-
-                                                    Event event = new Event(eventId, name, date, capacity);
-                                                    waitingEvents.add(event);
-                                                    Log.d("HomeFragment", "Waiting events list size: " + waitingEvents.size());
-
-
-                                                    waitingListAdapter.setItemList(waitingEvents);
-                                                    waitingListAdapter.notifyDataSetChanged();
-                                                }
-                                            })
-                                            .addOnFailureListener(e -> {
-                                                System.err.println("Error fetching event details: " + e.getMessage());
-                                            });
-                                }
-                            }
-                        }
-                    }
-                });
-
+    private void switchFragment(Fragment roleFragment) {
+        FragmentTransaction transaction = getChildFragmentManager().beginTransaction();
+        transaction.replace(R.id.home_frame_layout, roleFragment);
+        transaction.commit();
     }
 }

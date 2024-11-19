@@ -15,6 +15,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -42,6 +43,7 @@ public class EntrantListsActivity extends AppCompatActivity {
     ListView entrantList;
     ArrayList<User> entrantsData;
     EntrantsArrayAdapter adapter;
+    String selectedUserID = null;
 
     String eventID;
     String waitlistID;
@@ -55,6 +57,8 @@ public class EntrantListsActivity extends AppCompatActivity {
     private CollectionReference eventRef;
 
     Button generateEntrants;
+    Button drawReplacement;
+    FloatingActionButton deleteEntrant;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +80,8 @@ public class EntrantListsActivity extends AppCompatActivity {
         eventRef = db.collection("event"); // event collection
 
         generateEntrants = findViewById(R.id.generate_entrants_button);
+        drawReplacement = findViewById(R.id.draw_replacements_button);
+        deleteEntrant = findViewById(R.id.delete_entrant_button);
 
         entrantsData = new ArrayList<>();
         entrantList = findViewById(R.id.entrants_list);
@@ -113,6 +119,16 @@ public class EntrantListsActivity extends AppCompatActivity {
             }
         });
 
+        entrantList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                if (Objects.equals(listSelected, "Draw")) {
+                    entrantList.setItemChecked(position, true);
+                    selectedUserID = entrantsData.get(position).getDeviceID();
+                }
+            }
+        });
+
         // setting a click listener for the back button
         ImageButton backButton = findViewById(R.id.back_button);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -126,7 +142,38 @@ public class EntrantListsActivity extends AppCompatActivity {
         generateEntrants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sampleEntrants();
+                sampleEntrants(1);
+            }
+        });
+
+        // setting a click listener for the draw replacement button
+        drawReplacement.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawReplacementEntrant();
+            }
+        });
+
+        // setting a click listener for the cancel entrant button
+        deleteEntrant.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedUserID != null) { // if a user is selected
+                    UserListDB userListDB = new UserListDB();
+
+                    userListDB.removeFromList(drawlistID, selectedUserID); // remove them from the draw list
+                    userListDB.addToList(cancelledListID, selectedUserID); // add them to the cancelled list
+
+                    try { // sleeping before re-printing the list
+                        Thread.sleep(500);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    selectedUserID = null;
+
+                    displayEntrants(); // re-printing the updated list
+                }
             }
         });
 
@@ -197,15 +244,22 @@ public class EntrantListsActivity extends AppCompatActivity {
     // displays the correct buttons based on the list you have selected
     private void generateButtons() {
         generateEntrants.setVisibility(View.GONE);
+        drawReplacement.setVisibility(View.GONE);
+        deleteEntrant.setVisibility(View.GONE);
 
         if (Objects.equals(listSelected, "Waitlist")) {
             generateEntrants.setVisibility(View.VISIBLE);
         }
+        else if (Objects.equals(listSelected, "Cancelled")) {
+            drawReplacement.setVisibility(View.VISIBLE);
+        }
+        else if (Objects.equals(listSelected, "Draw")) {
+            deleteEntrant.setVisibility(View.VISIBLE);
+        }
     }
 
     // randomly moves users from the waitlist to the draw list
-    private void sampleEntrants() {
-        int sampleSize = 1; // currently only works for 1 user at a time
+    private void sampleEntrants(int sampleSize) {
 
         ArrayList<User> shuffledUsers = new ArrayList<>();
         shuffledUsers.addAll(entrantsData);
@@ -235,5 +289,31 @@ public class EntrantListsActivity extends AppCompatActivity {
         }
 
         displayEntrants(); // re-printing the updated list
+    }
+
+    private void drawReplacementEntrant() {
+
+        // retrieving waitlist data
+        userListRef.document(waitlistID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+                        String listSizeString = doc.getString("size");
+                        int listSize = Integer.parseInt(listSizeString); // # of entrants in the list
+
+                        Random random = new Random();
+                        int randomNumber = random.nextInt(listSize); // picking a random number between 0 and listSize - 1
+
+                        String deviceID = doc.getString("user" + randomNumber); // deviceID of the randomly chosen user
+
+                        UserListDB userListDB = new UserListDB();
+                        userListDB.removeFromList(waitlistID, deviceID); // removing the user from the waitlist
+                        userListDB.addToList(drawlistID, deviceID); // adding the user to the draw list
+                    }
+                }
+            }
+        });
     }
 }

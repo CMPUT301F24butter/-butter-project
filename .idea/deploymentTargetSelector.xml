@@ -4,16 +4,25 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2024-11-08T17:28:48.759302100Z">
+        <DropdownSelection timestamp="2024-11-08T20:51:36.564429Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=34191JEHN18946" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=/Users/natepane/.android/avd/Medium_Phone_API_35.avd" />
             </handle>
           </Target>
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="HomeFragmentUITests">
+      <SelectionState runConfigName="CreateProfileTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="ProfileScreensTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="EventScreenTest">
+        <option name="selectionMode" value="DROPDOWN" />
+      </SelectionState>
+      <SelectionState runConfigName="Tests in 'com.example.butter'">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

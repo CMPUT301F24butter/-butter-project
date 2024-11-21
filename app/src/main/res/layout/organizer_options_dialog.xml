@@ -11,13 +11,15 @@
         android:layout_height="wrap_content"
         android:text="@string/organizer_options"
         android:textColor="@color/black"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:layout_marginBottom="10dp"/>
 
     <TextView
         android:id="@+id/edit_event_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:height="48dp"
+        android:drawablePadding="8dp"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
@@ -30,6 +32,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:height="48dp"
+        android:drawablePadding="8dp"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
@@ -42,6 +45,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:height="48dp"
+        android:drawablePadding="8dp"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
@@ -54,6 +58,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:height="48dp"
+        android:drawablePadding="8dp"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
@@ -66,6 +71,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:height="48dp"
+        android:drawablePadding="8dp"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
@@ -78,23 +84,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:height="48dp"
+        android:drawablePadding="8dp"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
         android:padding="10dp"
         android:text="@string/show_details_code"
         app:drawableStartCompat="@drawable/ic_details" />
-
-    <TextView
-        android:id="@+id/delete_event_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:height="48dp"
-        android:background="?android:attr/selectableItemBackground"
-        android:clickable="true"
-        android:focusable="true"
-        android:padding="10dp"
-        android:text="@string/delete_event"
-        app:drawableStartCompat="@drawable/ic_delete" />
 
 </LinearLayout>

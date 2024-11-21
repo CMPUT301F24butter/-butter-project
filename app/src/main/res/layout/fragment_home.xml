@@ -80,22 +80,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- This upcoming text can only be seen by entrant -->
-    <TextView
-        android:id="@+id/upcomingText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="@string/upcoming_text"
-        android:textColor="@color/black"
-        android:textSize="25sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.058"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/pink_divider" />
-
     <Button
         android:id="@+id/qrScannerButton"
         android:layout_width="60dp"
@@ -115,77 +99,12 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0" />
 
-    <!-- This upcoming events scroll view can only be seen by entrant -->
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/upcomingText">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/eventsRecyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent" />
-
-    </HorizontalScrollView>
-
-    <!-- This waiting list text can only be seen by entrant -->
-    <TextView
-        android:id="@+id/waiting_list_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="200dp"
-        android:paddingTop="20dp"
-        android:paddingBottom="20dp"
-        android:text="@string/waiting_list"
-        android:textColor="@color/black"
-        android:textSize="25sp"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.058"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/upcomingText" />
-
-    <!-- This waiting list scroll view can only be seen by entrants -->
-    <HorizontalScrollView
-        android:id="@+id/waitingListScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:visibility="gone"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/waiting_list_label">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/waitingListRecyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp" />
-    </HorizontalScrollView>
-
-    <!-- This list view can only be accessed by admin, lets them browse-->
-    <ListView
-        android:id="@+id/admin_list_view"
+    <FrameLayout
+        android:id="@+id/home_frame_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:scrollbarThumbVertical="@color/secondaryGreyColor"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pink_divider"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@id/pink_divider"
+        app:layout_constraintBottom_toBottomOf="parent">
+    </FrameLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

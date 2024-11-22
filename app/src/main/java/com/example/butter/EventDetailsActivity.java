@@ -1,11 +1,11 @@
 package com.example.butter;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,7 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
-import androidx.test.espresso.remote.EspressoRemoteMessage;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -92,7 +91,12 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                 eventDescriptionText.setText(doc.getString("eventInfo.description"));
 
                 geolocation = doc.getString("eventInfo.geolocationString");
-                capacity = Integer.parseInt(doc.getString("eventInfo.capacityString"));
+
+                if (doc.getString("eventInfo.capacityString") == null) {
+                    capacity = -1; // there is no capacity limit
+                } else {
+                    capacity = Integer.parseInt(doc.getString("eventInfo.capacityString"));
+                }
 
                 // get the organizers ID to see what the user has access to
                 organizerID = doc.getString("eventInfo.organizerID");
@@ -122,6 +126,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
 
     private void setupAdminOptions() {
         setUpEntrantActions();
+        addAdminDeleteButton();
     }
 
     private void setUpEntrantActions() {
@@ -228,7 +233,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         orgOptions.setVisibility(View.VISIBLE); // making the organizer options button visible to the organizer
 
         // adding click listener for delete button
-        addDeleteButtonActions();
+        addOrganizerDeleteButton();
 
         // adding on click listener for the settings button
         orgOptions.setOnClickListener(new View.OnClickListener() {
@@ -240,9 +245,44 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         });
     }
 
-    private void addDeleteButtonActions() {
+    private void addOrganizerDeleteButton() {
         eventButton.setText("Delete Event");
         eventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String waitlistID = eventID + "-wait";
+                String drawlistID = eventID + "-draw";
+                String registerListID = eventID + "-registered";
+                String cancelledListID = eventID + "-cancelled";
+
+                // deleting all user lists associated with this event
+                UserListDB userListDB = new UserListDB();
+                userListDB.deleteList(waitlistID);
+                userListDB.deleteList(drawlistID);
+                userListDB.deleteList(registerListID);
+                userListDB.deleteList(cancelledListID);
+
+                // deleting the QR code associated with this event
+                QRCodeDB qrCodeDB = new QRCodeDB();
+                qrCodeDB.delete(eventID);
+
+                // deleting the event itself
+                EventDB eventDB = new EventDB();
+                eventDB.delete(eventID);
+                Toast.makeText(EventDetailsActivity.this, "Event successfully deleted.", Toast.LENGTH_SHORT).show();
+
+                finish(); // returning to the previous screen
+            }
+        });
+    }
+
+    private void addAdminDeleteButton() {
+        RelativeLayout privilegesButtons = findViewById(R.id.privileges_layout);
+
+        ImageButton adminButton = privilegesButtons.findViewById(R.id.admin_delete_button);
+        adminButton.setVisibility(View.VISIBLE);
+
+        adminButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String waitlistID = eventID + "-wait";

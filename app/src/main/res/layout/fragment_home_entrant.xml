@@ -18,30 +18,26 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- Horizontal Scroll View for Upcoming Events -->
-    <HorizontalScrollView
-        android:id="@+id/horizontalScrollView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:fillViewport="true"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/upcomingText">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/eventsRecyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp" />
-    </HorizontalScrollView>
+    <!-- RecyclerView for Upcoming Events -->
 
     <!-- Waiting List Label -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/eventsRecyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.051"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/upcomingText" />
+
     <TextView
         android:id="@+id/waiting_list_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="240dp"
+        android:layout_marginTop="40dp"
         android:paddingTop="20dp"
         android:paddingBottom="20dp"
         android:text="@string/waiting_list"
@@ -50,24 +46,19 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.058"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/upcomingText"
-        app:layout_constraintVertical_bias="45"/>
+        app:layout_constraintTop_toBottomOf="@id/eventsRecyclerView"
+        app:layout_constraintVertical_bias="45" />
 
-    <!-- Horizontal Scroll View for Waiting List -->
-    <HorizontalScrollView
-        android:id="@+id/waitingListScrollView"
-        android:layout_width="match_parent"
+    <!-- RecyclerView for Waiting List -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/waitingListRecyclerView"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:fillViewport="true"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.051"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/waiting_list_label">
+        app:layout_constraintTop_toBottomOf="@id/waiting_list_label" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/waitingListRecyclerView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp" />
-    </HorizontalScrollView>
 </androidx.constraintlayout.widget.ConstraintLayout>

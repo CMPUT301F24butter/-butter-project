@@ -12,6 +12,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
+import androidx.test.espresso.remote.EspressoRemoteMessage;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -30,9 +32,9 @@ import java.util.HashMap;
  *
  * Current outstanding issues: need to implement poster images
  *
- * @author Nate Pane (natepane)
+ * @author Nate Pane (natepane) and Angela Dakay (angelcache)
  */
-public class EventDetailsActivity extends AppCompatActivity {
+public class EventDetailsActivity extends AppCompatActivity implements GeolocationDialog.GeolocationDialogListener {
 
     TextView eventNameText;
     TextView registrationOpenText;
@@ -47,7 +49,11 @@ public class EventDetailsActivity extends AppCompatActivity {
     private String organizerID;
     private String eventID;
     private String deviceID;
+    private String geolocation;
+    private int capacity;
     private Boolean adminPrivilege;
+
+    private Button eventButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +74,7 @@ public class EventDetailsActivity extends AppCompatActivity {
         registrationCloseText = findViewById(R.id.register_closes);
         eventDateText = findViewById(R.id.event_date);
         eventDescriptionText = findViewById(R.id.event_description);
+        eventButton = findViewById(R.id.waiting_list_button);
 
         // retrieving event info for this eventID
         DocumentReference docRef = eventRef.document(eventID);
@@ -83,6 +90,9 @@ public class EventDetailsActivity extends AppCompatActivity {
                 String eventDate = doc.getString("eventInfo.date");
                 eventDateText.setText(String.format("Event Date: %s", eventDate));
                 eventDescriptionText.setText(doc.getString("eventInfo.description"));
+
+                geolocation = doc.getString("eventInfo.geolocationString");
+                capacity = Integer.parseInt(doc.getString("eventInfo.capacityString"));
 
                 // get the organizers ID to see what the user has access to
                 organizerID = doc.getString("eventInfo.organizerID");
@@ -111,63 +121,105 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void setupAdminOptions() {
-        addDeleteButtonActions();
+        setUpEntrantActions();
     }
 
     private void setUpEntrantActions() {
-        // adding click listener for waiting list button
-        Button entrantEventButton = findViewById(R.id.waiting_list_button);
-        entrantEventButton.setOnClickListener(new View.OnClickListener() {
+        String userListID  = eventID + "-wait";
+        userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
-            public void onClick(View view) {
-                String userListID  = eventID + "-wait";
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+                        HashMap<String, Object> updates = new HashMap<>();
 
-                userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot doc = task.getResult();
-                            if (doc.exists()) {
-                                HashMap<String, Object> updates = new HashMap<>();
+                        String listSizeString = doc.getString("size");
+                        int listSize = Integer.parseInt(listSizeString); // # of entrants in the list
 
-                                String listSizeString = doc.getString("size");
-                                int listSize = Integer.parseInt(listSizeString); // # of entrants in the list
-
-                                // Check if user is already in waiting list
-                                boolean userAlreadyAdded = false;
-                                for (int i = 0; i < listSize; i++) {
-                                    if (deviceID.equals(doc.getString("user" + i))) {
-                                        userAlreadyAdded = true;
-                                        break;
-                                    }
-                                }
-
-                                if (!userAlreadyAdded) {
-                                    // Putting the user into the waiting list for the event
-                                    updates.put("size", String.valueOf(listSize + 1));
-                                    updates.put("type", "waitlist");
-                                    updates.put("user" + listSize, deviceID);
-
-                                    // Update the userlist
-                                    userListRef.document(userListID).update(updates).addOnSuccessListener(aVoid -> {
-                                        Log.d("Firebase", "User added to waiting list!");
-                                        entrantEventButton.setEnabled(false);
-                                        String joinedText = "Joined Waiting List";
-                                        entrantEventButton.setText(joinedText); // temporary until we implement leave waiting list
-                                    });
-                                } else {
-                                    entrantEventButton.setEnabled(false);
-                                    String alreadyJoinedText = "Already Joined Waiting List"; // temporary until we implement leave waiting list
-                                    entrantEventButton.setText(alreadyJoinedText);
-                                }
-                            } else {
-                                Log.d("Firebase", "User list doesn't exists.");
+                        // Check if user is already in waiting list
+                        boolean userAlreadyAdded = false;
+                        for (int i = 0; i < listSize; i++) {
+                            if (deviceID.equals(doc.getString("user" + i))) {
+                                userAlreadyAdded = true;
+                                break;
                             }
                         }
+                        
+                        if (listSize == capacity) {
+                            String fullText = "Waiting List Full";
+                            eventButton.setText(fullText);
+                            eventButton.setEnabled(Boolean.FALSE);
+                            eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+                        } else if (userAlreadyAdded) {
+                            String leaveText = "Leave Waiting List";
+                            eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.secondaryPurpleColor));
+                            eventButton.setText(leaveText);
+                        } else {
+                            String joinText = "Join Waiting List";
+                            eventButton.setText(joinText);
+                            eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));        
+                        }
+                    } else {
+                        Log.d("Firebase", "User list doesn't exists.");
                     }
-                });
+                }
             }
         });
+
+        // adding click listener for waiting list button
+        eventButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (eventButton.getText() == "Join Waiting List") {
+                    // If there is geolocation, they will confirm whether they join or not
+                    if (geolocation.equals("true")) {
+                        GeolocationDialog locationDialog = new GeolocationDialog(EventDetailsActivity.this, EventDetailsActivity.this);
+                        locationDialog.showDialog();
+                    } else {
+                        joinWaitingList();
+                    }
+                } else {
+                    leaveWaitingList();
+                }
+                
+            }
+        });
+    }
+
+    private void leaveWaitingList() {
+        String userListID  = eventID + "-wait";
+
+        // Generate UserListDB to add new user to the specific user list event
+        UserListDB userList = new UserListDB();
+        userList.removeFromList(userListID, deviceID);
+
+        // Turn it into Leave Waiting List
+        String joinText = "Join Waiting List";
+        eventButton.setText(joinText);
+        eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));
+    }
+
+    @Override
+    public void onJoinEventConfirmed(boolean confirmJoin) {
+        if (confirmJoin) {
+            joinWaitingList();
+        } else {
+            Toast.makeText(EventDetailsActivity.this, "Join waiting list cancelled.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void joinWaitingList() {
+        String userListID  = eventID + "-wait";
+
+        // Generate UserListDB to add new user to the specific user list event
+        UserListDB userList = new UserListDB();
+        userList.addToList(userListID, deviceID);
+
+        // Turn it into Leave Waiting List
+        String leftText = "Leave Waiting List";
+        eventButton.setText(leftText);
+        eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.secondaryPurpleColor));
     }
 
     private void setUpOrganizerOptions() {
@@ -189,9 +241,8 @@ public class EventDetailsActivity extends AppCompatActivity {
     }
 
     private void addDeleteButtonActions() {
-        Button deleteEventButton = findViewById(R.id.waiting_list_button);
-        deleteEventButton.setText("Delete Event");
-        deleteEventButton.setOnClickListener(new View.OnClickListener() {
+        eventButton.setText("Delete Event");
+        eventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 String waitlistID = eventID + "-wait";

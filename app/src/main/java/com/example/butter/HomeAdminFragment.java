@@ -239,8 +239,6 @@ public class HomeAdminFragment extends Fragment {
         deleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                geolocationDialog dialog = new geolocationDialog(getContext());
-                dialog.showDialog();
                 if (browse.equals("Browse Facilities")) {
                     deleteButtonClicked = true;
                     Toast.makeText(getContext(), "Select Facility to Delete.", Toast.LENGTH_SHORT).show();

@@ -1,23 +1,36 @@
 package com.example.butter;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.Objects;
 
-public class geolocationDialog {
+/**
+ * Dialog that informs the user the event requires geolocation and sets up a cancel and yes button
+ * that will determine whether user will join the waiting list or not in EventDetailsActivity.
+ *
+ * @author Angela Dakay (angelcache)
+ */
+
+public class GeolocationDialog {
     private Context context;
+    private Boolean joinEvent;
+    private GeolocationDialogListener listener;
 
     // Constructor
-    public geolocationDialog(Context context) {
+    public GeolocationDialog(Context context, GeolocationDialogListener listener) {
         this.context = context;
+        this.listener = listener;
+    }
+
+    public interface GeolocationDialogListener {
+        void onJoinEventConfirmed(boolean confirmJoin);
     }
 
     // Method to show the dialog
@@ -37,29 +50,31 @@ public class geolocationDialog {
 
         // Find the buttons and set them up
         Button cancelButton = dialogView.findViewById(R.id.cancel_button);
-        Button addButton = dialogView.findViewById(R.id.yes_button);
+        Button yesButton = dialogView.findViewById(R.id.yes_button);
 
         // Build the dialog
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setView(dialogView);
+        AlertDialog dialog = builder.create();
 
         cancelButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                
+                dialog.dismiss();
+                listener.onJoinEventConfirmed(Boolean.FALSE); // Notify activity about cancellation
             }
         });
 
-        addButton.setOnClickListener(new View.OnClickListener() {
+        yesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                dialog.dismiss();
+                listener.onJoinEventConfirmed(Boolean.TRUE); // Notify activity about confirmation
             }
         });
 
         // Show the dialog
-        AlertDialog dialog = builder.create();
-        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent);
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent); // transparent so we only see the customized XML dialogue
         dialog.show();
     }
 }

@@ -8,6 +8,7 @@
     android:padding="16dp">
 
     <TextView
+        android:id="@+id/dialogue_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:drawablePadding="8dp"
@@ -18,7 +19,7 @@
         app:drawableStartCompat="@android:drawable/ic_dialog_info"
         app:drawableTint="@color/primaryPinkColor" />
 
-    <EditText
+    <TextView
         android:id="@+id/dialogue_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,21 +28,8 @@
         android:autofillHints=""
         android:background="@drawable/edit_text_border"
         android:gravity="top"
-        android:hint="@string/notification_message"
-        android:inputType="textMultiLine"
+        android:text="@string/announcement"
         android:lines="3" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/send_to" />
-
-    <Spinner
-        android:id="@+id/notif_entrant_spinner"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:minHeight="48dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -63,12 +51,12 @@
             android:layout_weight="1" />
 
         <Button
-            android:id="@+id/send_button"
+            android:id="@+id/yes_button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:backgroundTint="@color/primaryPurpleColor"
-            android:text="@string/send" />
+            android:text="@string/yes" />
 
     </LinearLayout>
 

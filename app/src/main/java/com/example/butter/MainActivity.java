@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         // Hide the home menu if user is an organizer, or events menu if user is an entrant
         Menu menu = binding.bottomNavigationView.getMenu();
 
-        if (privileges.equals("100")) {
+        if (privileges.equals("100") || privileges.equals("400") || privileges.equals("500")) {
             menu.findItem(R.id.homeIcon).setVisible(true);
             menu.findItem(R.id.eventsIcon).setVisible(false);
 

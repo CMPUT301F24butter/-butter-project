@@ -141,7 +141,7 @@ public class HomeFragment extends Fragment {
 
         // Instantiates the entrant and admin fragment
         entrantFragment = new HomeEntrantFragment(deviceID);
-        adminFragment = new HomeAdminFragment("Default");
+        adminFragment = new HomeAdminFragment("Browse Events", deviceID);
 
         checkUserRole(view);
 
@@ -154,7 +154,7 @@ public class HomeFragment extends Fragment {
         // Populating the spinner
         Spinner adminSpinner = view.findViewById(R.id.entrants_spinner);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, new String[]{"Browse Events", "Browse Profiles", "Browse Facilities", "Browse Images", "Entrant's Page"});
+                requireContext(), android.R.layout.simple_spinner_item, new String[]{"Browse Events", "Browse Profiles", "Browse Facilities", "Browse Event Posters", "Browse QR Codes", "Entrant's Page"});
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adminSpinner.setAdapter(spinnerAdapter);
 
@@ -188,8 +188,12 @@ public class HomeFragment extends Fragment {
                         adminFragment.spinnerBrowseChange("Browse Facilities");
                         switchFragment(adminFragment);
                         break;
-                    case "Browse Images":
-                        adminFragment.spinnerBrowseChange("Browse Images");
+                    case "Browse Event Posters":
+                        adminFragment.spinnerBrowseChange("Browse Event Posters");
+                        switchFragment(adminFragment);
+                        break;
+                    case "Browse QR Codes":
+                        adminFragment.spinnerBrowseChange("Browse QR Codes");
                         switchFragment(adminFragment);
                         break;
                     case "Entrant's Page":

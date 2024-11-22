@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -46,6 +47,7 @@ public class EventDetailsActivity extends AppCompatActivity {
     private String organizerID;
     private String eventID;
     private String deviceID;
+    private Boolean adminPrivilege;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,6 +60,7 @@ public class EventDetailsActivity extends AppCompatActivity {
 
         deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
+        adminPrivilege = getIntent().getExtras().getBoolean("adminPrivilege", Boolean.FALSE); // Default to false if not found
 
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
@@ -89,6 +92,8 @@ public class EventDetailsActivity extends AppCompatActivity {
                 // If the user is the event's organizer, they will see organizer options
                 if (deviceID.equals(organizerID)) {
                     setUpOrganizerOptions();
+                } else if (adminPrivilege) { // user has admin privileges, can see delete button
+                    setupAdminOptions();
                 } else {
                     setUpEntrantActions();
                 }
@@ -103,6 +108,10 @@ public class EventDetailsActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private void setupAdminOptions() {
+        addDeleteButtonActions();
     }
 
     private void setUpEntrantActions() {
@@ -167,6 +176,19 @@ public class EventDetailsActivity extends AppCompatActivity {
         orgOptions.setVisibility(View.VISIBLE); // making the organizer options button visible to the organizer
 
         // adding click listener for delete button
+        addDeleteButtonActions();
+
+        // adding on click listener for the settings button
+        orgOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // open the organizer options dialog box
+                new OrganizerOptions(eventID, deviceID).show(getSupportFragmentManager(), "Organizer Settings");
+            }
+        });
+    }
+
+    private void addDeleteButtonActions() {
         Button deleteEventButton = findViewById(R.id.waiting_list_button);
         deleteEventButton.setText("Delete Event");
         deleteEventButton.setOnClickListener(new View.OnClickListener() {
@@ -191,17 +213,9 @@ public class EventDetailsActivity extends AppCompatActivity {
                 // deleting the event itself
                 EventDB eventDB = new EventDB();
                 eventDB.delete(eventID);
+                Toast.makeText(EventDetailsActivity.this, "Event successfully deleted.", Toast.LENGTH_SHORT).show();
 
                 finish(); // returning to the previous screen
-            }
-        });
-
-        // adding on click listener for the settings button
-        orgOptions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // open the organizer options dialog box
-                new OrganizerOptions(eventID, deviceID).show(getSupportFragmentManager(), "Organizer Settings");
             }
         });
     }

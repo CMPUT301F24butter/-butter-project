@@ -102,6 +102,8 @@
     <string name="delete_my_event">Delete Event</string>
     <string name="empty_phone">No phone given.</string>
     <string name="name_s">%s</string>
+    <string name="announcement">Announcement</string>
+    <string name="yes">Yes</string>
 
     <string-array name="roles_array">
         <item>Entrant</item>

@@ -1,8 +1,13 @@
 package com.example.butter;
 
+import android.annotation.SuppressLint;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,6 +20,11 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -30,6 +40,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import com.bumptech.glide.Glide;
+
 /**
  * This class is for organizers to publish new events
  * A simple activity called from {@link EventsFragment} when the '+' button is clicked.
@@ -43,6 +55,11 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
  */
 public class CreateEventFragment extends AppCompatActivity {
 
+    ImageView eventImage;
+    ImageButton uploadEventImage;
+    ActivityResultLauncher<Intent> resultLauncher;
+
+    Uri uriUploaded = null;
     /**
      * EditText for the event name
      */
@@ -116,6 +133,12 @@ public class CreateEventFragment extends AppCompatActivity {
         description = findViewById(R.id.event_description);
         capacity = findViewById(R.id.max_entrants);
         geolocationSwitch = findViewById(R.id.location_switch);
+
+        eventImage = findViewById(R.id.event_image);
+        uploadEventImage = findViewById(R.id.change_image_button);
+        registerResult();
+
+        uploadEventImage.setOnClickListener(view -> pickImage());
 
         // setting click listener for the create event button
         createButton.setOnClickListener(new View.OnClickListener() {
@@ -193,6 +216,7 @@ public class CreateEventFragment extends AppCompatActivity {
                                     toast.show();
                                 }
                                 else { // otherwise, add the event to firebase and return to the previous page
+
                                     Event event = new Event(name, deviceID, registrationOpenDate, registrationCloseDate, date, cap, geolocation, eventDescription);
 
                                     EventDB eventDB = new EventDB();
@@ -232,5 +256,34 @@ public class CreateEventFragment extends AppCompatActivity {
         } catch (WriterException e) {
             e.printStackTrace();
         }
+    }
+    // https://www.youtube.com/watch?v=nOtlFl1aUCw
+    private void registerResult() {
+        resultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @SuppressLint("WrongConstant")
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        try {
+                            Uri imageUri = result.getData().getData();
+                            final int takeFlags = result.getData().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                            getContentResolver().takePersistableUriPermission(imageUri, takeFlags);
+
+                            Glide.with(getApplicationContext()).load(imageUri).into(eventImage);
+
+                            uriUploaded = imageUri;
+
+                        } catch (Exception e) {
+                            System.out.println("Error");
+                        }
+                    }
+                }
+        );
+    }
+
+    private void pickImage() {
+        Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+        resultLauncher.launch(intent);
     }
 }

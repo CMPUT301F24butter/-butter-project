@@ -22,17 +22,26 @@ public class GeolocationDialog {
     private Context context;
     private GeolocationDialogListener listener;
 
-    // Constructor
+    /**
+     * Geolocation Constructor, intializes context and listener
+     * @param context activity or fragment dialog is being displayed in
+     * @param listener listener that allows dialog to communicate with the activity or fragment
+     */
     public GeolocationDialog(Context context, GeolocationDialogListener listener) {
         this.context = context;
         this.listener = listener;
     }
 
+    /**
+     * Defines the GeolocationDialogListener Interface
+     */
     public interface GeolocationDialogListener {
         void onJoinEventConfirmed(boolean confirmJoin);
     }
 
-    // Method to show the dialog
+    /**
+     * Shows the Geolocation Dialog and asks user if they want to join an event that requires geolocation
+     */
     public void showDialog() {
         // Inflate custom layout
         LayoutInflater inflater = LayoutInflater.from(context);

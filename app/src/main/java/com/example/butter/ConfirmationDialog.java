@@ -21,18 +21,28 @@ public class ConfirmationDialog {
     private ConfirmationDialogListener listener;
     private String deletedItem;
 
-    // Constructor
+    /**
+     * Confirmation Dialog constructor. Intializes the context, listener and deletedItem
+     * @param context activity or fragment dialog is being displayed in
+     * @param listener listener that allows dialog to communicate with the activity or fragment
+     * @param deletedItem is either Event, Facility, QR Code, or Event Poster
+     */
     public ConfirmationDialog(Context context, ConfirmationDialogListener listener, String deletedItem) {
         this.context = context;
         this.listener = listener;
         this.deletedItem = deletedItem;
     }
 
+    /**
+     * Defines Confirmation Dialog Listener Interface
+     */
     public interface ConfirmationDialogListener {
         void deleteConfirmation(boolean confirmDelete, String deletedItem);
     }
 
-    // Method to show the dialog
+    /**
+     * Shows the dialog which asks user if they're sure about deleting the item
+     */
     public void showDialog() {
         // Inflate custom layout
         LayoutInflater inflater = LayoutInflater.from(context);

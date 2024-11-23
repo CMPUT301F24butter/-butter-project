@@ -418,6 +418,12 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         }
     }
 
+    /**
+     * Confirming if the user wants to continue with the deletion, communication between
+     * HomeAdminFragment and ConfirmationDialog
+     * @param confirmDelete boolean confirms if user wants to delete
+     * @param deletedItem has value "Event"
+     */
     @Override
     public void deleteConfirmation(boolean confirmDelete, String deletedItem) {
         if (confirmDelete) {

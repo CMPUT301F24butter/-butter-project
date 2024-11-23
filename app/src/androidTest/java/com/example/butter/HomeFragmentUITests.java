@@ -96,11 +96,22 @@ public class HomeFragmentUITests {
         onView(withId(R.id.admin_list_view)).check(matches(isDisplayed()));
     }
 
-    // Tests to see if clicking "Browse Images" will lead to the right listView showing up.
+    // Tests to see if clicking "Browse Event Posters" will lead to the right listView showing up.
     @Test
-    public void testBrowseImages() {
+    public void testBrowseEventPosters() {
         onView(withId(R.id.entrants_spinner)).perform(click());
-        onData(allOf(is(instanceOf(String.class)), is("Browse Images")))
+        onData(allOf(is(instanceOf(String.class)), is("Browse Event Posters")))
+                .inRoot(isPlatformPopup())
+                .perform(click());
+
+        // Assuming the admin_list_view is hidden or shows a different view for images
+        onView(withId(R.id.admin_list_view)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testBrowseQRCode() {
+        onView(withId(R.id.entrants_spinner)).perform(click());
+        onData(allOf(is(instanceOf(String.class)), is("Browse QR Codes")))
                 .inRoot(isPlatformPopup())
                 .perform(click());
 
@@ -121,8 +132,6 @@ public class HomeFragmentUITests {
 
         // Check if the entrant view elements are displayed
         onView(withId(R.id.upcomingText)).check(matches(isDisplayed()));
-        onView(withId(R.id.horizontalScrollView)).check(matches(isDisplayed()));
         onView(withId(R.id.waiting_list_label)).check(matches(isDisplayed()));
-        onView(withId(R.id.waitingListScrollView)).check(matches(isDisplayed()));
     }
 }

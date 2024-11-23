@@ -49,6 +49,7 @@ import java.util.Objects;
  * Outstanding Issue: When I move to another screen and come back to the admin screen,
  *               the spinner goes back to default option (browse events) instead of the
  *               option user last clicked on
+ *
  * @author Angela Dakay (angelcache)
  */
 public class HomeFragment extends Fragment {

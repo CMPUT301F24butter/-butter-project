@@ -1,6 +1,8 @@
 package com.example.butter;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -47,6 +49,7 @@ import java.util.Objects;
  * Outstanding Issue: When I move to another screen and come back to the admin screen,
  *               the spinner goes back to default option (browse events) instead of the
  *               option user last clicked on
+ *
  * @author Angela Dakay (angelcache)
  */
 public class HomeFragment extends Fragment {
@@ -141,7 +144,7 @@ public class HomeFragment extends Fragment {
 
         // Instantiates the entrant and admin fragment
         entrantFragment = new HomeEntrantFragment(deviceID);
-        adminFragment = new HomeAdminFragment("Default");
+        adminFragment = new HomeAdminFragment("Browse Events", deviceID);
 
         checkUserRole(view);
 
@@ -154,9 +157,14 @@ public class HomeFragment extends Fragment {
         // Populating the spinner
         Spinner adminSpinner = view.findViewById(R.id.entrants_spinner);
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(
-                requireContext(), android.R.layout.simple_spinner_item, new String[]{"Browse Events", "Browse Profiles", "Browse Facilities", "Browse Images", "Entrant's Page"});
+                requireContext(), android.R.layout.simple_spinner_item, new String[]{"Browse Events", "Browse Profiles", "Browse Facilities", "Browse Event Posters", "Browse QR Codes", "Entrant's Page"});
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adminSpinner.setAdapter(spinnerAdapter);
+
+        // Retrieves the saved spinner position from last occurrence
+        SharedPreferences preferences = requireContext().getSharedPreferences("SpinnerPreferences", Context.MODE_PRIVATE);
+        int lastSelectedPosition = preferences.getInt("lastSelectedSpinner", 0); // Defaults to 0 if there was none
+        adminSpinner.setSelection(lastSelectedPosition);
 
         if (adminSpinner.getVisibility() == View.VISIBLE) {
             changeSpinnerList(adminSpinner);
@@ -174,6 +182,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selection = (String) parent.getItemAtPosition(position);
+
+                // Shared Preferences is used to store the last option spinner was on
+                SharedPreferences preferences = requireContext().getSharedPreferences("SpinnerPreferences", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("lastSelectedSpinner", position);
+                editor.apply();
+
                 // If user selects a new option in spinner, it will show the right list / text
                 switch (selection) {
                     case "Browse Events":
@@ -188,8 +203,12 @@ public class HomeFragment extends Fragment {
                         adminFragment.spinnerBrowseChange("Browse Facilities");
                         switchFragment(adminFragment);
                         break;
-                    case "Browse Images":
-                        adminFragment.spinnerBrowseChange("Browse Images");
+                    case "Browse Event Posters":
+                        adminFragment.spinnerBrowseChange("Browse Event Posters");
+                        switchFragment(adminFragment);
+                        break;
+                    case "Browse QR Codes":
+                        adminFragment.spinnerBrowseChange("Browse QR Codes");
                         switchFragment(adminFragment);
                         break;
                     case "Entrant's Page":

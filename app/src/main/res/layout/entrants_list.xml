@@ -96,35 +96,44 @@
         app:layout_constraintTop_toBottomOf="@+id/entrants_spinner_layout" />
 
     <!-- Generate Entrant button, only visible in waiting list entrants -->
+
+    <!-- Draw replacement button, only visible in canceled entrants -->
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/generate_entrants_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="40dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginStart="150dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="16dp"
         android:backgroundTint="@color/primaryPurpleColor"
         android:text="@string/generate_entrants"
         android:textColor="@color/white"
-        android:visibility="gone"
+        android:visibility="invisible"
         app:cornerRadius="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent" />
 
     <EditText
         android:id="@+id/sample_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        app:layout_constraintStart_toEndOf="@+id/generate_entrants_button"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/edit_text_border"
+        android:hint="@string/sample_size"
+        android:textSize="12sp"
+        android:drawableStart="@drawable/max_attendees"
+        android:drawablePadding="8dp"
         android:inputType="number"
-        android:hint="Sample size"
-        android:visibility="gone"
-        />
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/generate_entrants_button"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent" />
 
-    <!-- Draw replacement button, only visible in canceled entrants -->
     <com.google.android.material.button.MaterialButton
         android:id="@+id/draw_replacements_button"
         android:layout_width="match_parent"

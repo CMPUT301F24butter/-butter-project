@@ -56,4 +56,8 @@ public class Notification {
         }
         return "false";
     }
+
+    public void setInvitation(boolean invitation) {
+        this.invitation = invitation;
+    }
 }

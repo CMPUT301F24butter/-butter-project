@@ -55,6 +55,7 @@ public class OrganizerOptions extends DialogFragment {
         TextView editEvent = view.findViewById(R.id.edit_event_text);
         TextView viewEntrants = view.findViewById(R.id.view_entrants_text);
         TextView showDetailsCode = view.findViewById(R.id.show_details_code_text);
+        TextView notifications = view.findViewById(R.id.send_notifications_text);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -66,6 +67,7 @@ public class OrganizerOptions extends DialogFragment {
                 intent.putExtra("deviceID", deviceID);
                 intent.putExtra("eventID", eventID);
                 startActivity(intent);
+                getDialog().dismiss();
             }
         });
 
@@ -77,6 +79,7 @@ public class OrganizerOptions extends DialogFragment {
                 intent.putExtra("deviceID", deviceID);
                 intent.putExtra("eventID", eventID);
                 startActivity(intent);
+                getDialog().dismiss();
             }
         });
 
@@ -88,6 +91,15 @@ public class OrganizerOptions extends DialogFragment {
                 intent.putExtra("deviceID", deviceID);
                 intent.putExtra("eventID", eventID);
                 startActivity(intent);
+                getDialog().dismiss();
+            }
+        });
+
+        notifications.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                new NotificationDialog(eventID).show(getActivity().getSupportFragmentManager(), "Notification");
+                getDialog().dismiss();
             }
         });
 

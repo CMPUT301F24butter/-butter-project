@@ -1,6 +1,8 @@
 package com.example.butter;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -158,6 +160,11 @@ public class HomeFragment extends Fragment {
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adminSpinner.setAdapter(spinnerAdapter);
 
+        // Retrieves the saved spinner position from last occurrence
+        SharedPreferences preferences = requireContext().getSharedPreferences("SpinnerPreferences", Context.MODE_PRIVATE);
+        int lastSelectedPosition = preferences.getInt("lastSelectedSpinner", 0); // Defaults to 0 if there was none
+        adminSpinner.setSelection(lastSelectedPosition);
+
         if (adminSpinner.getVisibility() == View.VISIBLE) {
             changeSpinnerList(adminSpinner);
         }
@@ -174,6 +181,13 @@ public class HomeFragment extends Fragment {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String selection = (String) parent.getItemAtPosition(position);
+
+                // Shared Preferences is used to store the last option spinner was on
+                SharedPreferences preferences = requireContext().getSharedPreferences("SpinnerPreferences", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putInt("lastSelectedSpinner", position);
+                editor.apply();
+
                 // If user selects a new option in spinner, it will show the right list / text
                 switch (selection) {
                     case "Browse Events":

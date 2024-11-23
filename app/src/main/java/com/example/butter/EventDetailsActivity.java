@@ -33,7 +33,7 @@ import java.util.HashMap;
  *
  * @author Nate Pane (natepane) and Angela Dakay (angelcache)
  */
-public class EventDetailsActivity extends AppCompatActivity implements GeolocationDialog.GeolocationDialogListener {
+public class EventDetailsActivity extends AppCompatActivity implements GeolocationDialog.GeolocationDialogListener, ConfirmationDialog.ConfirmationDialogListener {
 
     TextView eventNameText;
     TextView registrationOpenText;
@@ -126,7 +126,18 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
 
     private void setupAdminOptions() {
         setUpEntrantActions();
-        addAdminDeleteButton();
+        RelativeLayout privilegesButtons = findViewById(R.id.privileges_layout);
+
+        ImageButton adminButton = privilegesButtons.findViewById(R.id.admin_delete_button);
+        adminButton.setVisibility(View.VISIBLE);
+
+        adminButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ConfirmationDialog dialog = new ConfirmationDialog(EventDetailsActivity.this, EventDetailsActivity.this, "Event");
+                dialog.showDialog();
+            }
+        });
     }
 
     private void setUpEntrantActions() {
@@ -250,64 +261,43 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String waitlistID = eventID + "-wait";
-                String drawlistID = eventID + "-draw";
-                String registerListID = eventID + "-registered";
-                String cancelledListID = eventID + "-cancelled";
-
-                // deleting all user lists associated with this event
-                UserListDB userListDB = new UserListDB();
-                userListDB.deleteList(waitlistID);
-                userListDB.deleteList(drawlistID);
-                userListDB.deleteList(registerListID);
-                userListDB.deleteList(cancelledListID);
-
-                // deleting the QR code associated with this event
-                QRCodeDB qrCodeDB = new QRCodeDB();
-                qrCodeDB.delete(eventID);
-
-                // deleting the event itself
-                EventDB eventDB = new EventDB();
-                eventDB.delete(eventID);
-                Toast.makeText(EventDetailsActivity.this, "Event successfully deleted.", Toast.LENGTH_SHORT).show();
-
-                finish(); // returning to the previous screen
+                ConfirmationDialog dialog = new ConfirmationDialog(EventDetailsActivity.this, EventDetailsActivity.this, "Event");
+                dialog.showDialog();
             }
         });
     }
 
-    private void addAdminDeleteButton() {
-        RelativeLayout privilegesButtons = findViewById(R.id.privileges_layout);
+    private void deleteEvent() {
+        String waitlistID = eventID + "-wait";
+        String drawlistID = eventID + "-draw";
+        String registerListID = eventID + "-registered";
+        String cancelledListID = eventID + "-cancelled";
 
-        ImageButton adminButton = privilegesButtons.findViewById(R.id.admin_delete_button);
-        adminButton.setVisibility(View.VISIBLE);
+        // deleting all user lists associated with this event
+        UserListDB userListDB = new UserListDB();
+        userListDB.deleteList(waitlistID);
+        userListDB.deleteList(drawlistID);
+        userListDB.deleteList(registerListID);
+        userListDB.deleteList(cancelledListID);
 
-        adminButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String waitlistID = eventID + "-wait";
-                String drawlistID = eventID + "-draw";
-                String registerListID = eventID + "-registered";
-                String cancelledListID = eventID + "-cancelled";
+        // deleting the QR code associated with this event
+        QRCodeDB qrCodeDB = new QRCodeDB();
+        qrCodeDB.delete(eventID);
 
-                // deleting all user lists associated with this event
-                UserListDB userListDB = new UserListDB();
-                userListDB.deleteList(waitlistID);
-                userListDB.deleteList(drawlistID);
-                userListDB.deleteList(registerListID);
-                userListDB.deleteList(cancelledListID);
+        // deleting the event itself
+        EventDB eventDB = new EventDB();
+        eventDB.delete(eventID);
+        Toast.makeText(EventDetailsActivity.this, "Event successfully deleted.", Toast.LENGTH_SHORT).show();
 
-                // deleting the QR code associated with this event
-                QRCodeDB qrCodeDB = new QRCodeDB();
-                qrCodeDB.delete(eventID);
+        finish(); // returning to the previous screen
+    }
 
-                // deleting the event itself
-                EventDB eventDB = new EventDB();
-                eventDB.delete(eventID);
-                Toast.makeText(EventDetailsActivity.this, "Event successfully deleted.", Toast.LENGTH_SHORT).show();
-
-                finish(); // returning to the previous screen
-            }
-        });
+    @Override
+    public void deleteConfirmation(boolean confirmDelete, String deletedItem) {
+        if (confirmDelete) {
+            deleteEvent();
+        } else {
+            Toast.makeText(this, deletedItem + " deletion cancelled.", Toast.LENGTH_SHORT).show();
+        }
     }
 }

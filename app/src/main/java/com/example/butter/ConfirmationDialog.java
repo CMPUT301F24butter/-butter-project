@@ -18,11 +18,18 @@ import java.util.Objects;
 
 public class ConfirmationDialog {
     private Context context;
-    private Boolean joinEvent;
     private ConfirmationDialogListener listener;
+    private String deletedItem;
+
+    // Constructor
+    public ConfirmationDialog(Context context, ConfirmationDialogListener listener, String deletedItem) {
+        this.context = context;
+        this.listener = listener;
+        this.deletedItem = deletedItem;
+    }
 
     public interface ConfirmationDialogListener {
-        void deleteConfirmation(boolean confirmDelete);
+        void deleteConfirmation(boolean confirmDelete, String deletedItem);
     }
 
     // Method to show the dialog
@@ -35,7 +42,7 @@ public class ConfirmationDialog {
         TextView title = dialogView.findViewById(R.id.dialogue_title);
 
         // Customize the dialogue and title
-        String dialogText = "Are you sure you want to delete? You cannot undo your action.";
+        String dialogText = "Are you sure you want to delete this " + deletedItem + "? You cannot undo your action.";
         dialogue.setText(dialogText);
         String dialogTitle = "Delete";
         title.setText(dialogTitle);
@@ -53,7 +60,7 @@ public class ConfirmationDialog {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                listener.deleteConfirmation(Boolean.FALSE); // Notify activity about cancellation
+                listener.deleteConfirmation(Boolean.FALSE, deletedItem); // Notify activity about cancellation
             }
         });
 
@@ -61,7 +68,7 @@ public class ConfirmationDialog {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
-                listener.deleteConfirmation(Boolean.TRUE); // Notify activity about confirmation
+                listener.deleteConfirmation(Boolean.TRUE, deletedItem); // Notify activity about confirmation
             }
         });
 

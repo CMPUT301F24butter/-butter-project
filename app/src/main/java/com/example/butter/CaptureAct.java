@@ -1,5 +1,7 @@
 package com.example.butter;
 
+import android.os.Bundle;
+
 import com.journeyapps.barcodescanner.CaptureActivity;
 
 /**

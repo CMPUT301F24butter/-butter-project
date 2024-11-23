@@ -35,7 +35,7 @@ import java.util.ArrayList;
  * @author Angela Dakay (angelcache)
  */
 
-public class HomeAdminFragment extends Fragment {
+public class HomeAdminFragment extends Fragment implements ConfirmationDialog.ConfirmationDialogListener {
     // Need access to all events, users, posters + device ID
     private FirebaseFirestore db;
     private CollectionReference eventRef;
@@ -129,6 +129,7 @@ public class HomeAdminFragment extends Fragment {
                 break;
         }
 
+        // Used to delete Organizer, QR Code or Posters
         adminListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -141,10 +142,12 @@ public class HomeAdminFragment extends Fragment {
                     startActivity(intent);
                 } else if (deleteButtonClicked && browse.equals("Browse Facilities")) {
                     selectedOrganizer = allFacilities.get(position);
-                    deleteSelectedFacility();
+                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "Facility");
+                    dialog.showDialog();
                 } else if (deleteButtonClicked && browse.equals("Browse QR Codes")) {
                     selectedImageEvent = allImagesEventID.get(position);
-                    deleteSelectedQRCode();
+                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "QR Code");
+                    dialog.showDialog();
                 }
             }
         });
@@ -227,7 +230,9 @@ public class HomeAdminFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        showEventsList(); // Refresh the event list whenever the fragment is resumed
+        if (browse.equals("Browse Events")) {
+            showEventsList(); // Refresh the event list whenever the fragment is resumed
+        }
     }
 
     /**
@@ -393,6 +398,7 @@ public class HomeAdminFragment extends Fragment {
      */
     public void spinnerBrowseChange(String browse) {
         this.browse = browse;
+        deleteButtonClicked = false;
         switch (browse) {
             case "Browse Events":
                 showEventsList();
@@ -409,6 +415,27 @@ public class HomeAdminFragment extends Fragment {
             case "Browse QR Codes":
                 showQRCodesList();;
                 break;
+        }
+    }
+
+    @Override
+    public void deleteConfirmation(boolean confirmDelete, String deletedItem) {
+        if (confirmDelete) {
+            switch (deletedItem){
+                case "Facility":
+                    deleteSelectedFacility();
+                    break;
+                case "QR Code":
+                    deleteSelectedQRCode();
+                    break;
+                case "Event Poster":
+                    break;
+            }
+
+
+        } else {
+            Toast.makeText(getContext(), deletedItem + " deletion cancelled.", Toast.LENGTH_SHORT).show();
+            deleteButtonClicked = Boolean.FALSE;
         }
     }
 }

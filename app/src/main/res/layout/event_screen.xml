@@ -93,7 +93,7 @@
                     android:backgroundTint="@color/white"
                     android:contentDescription="@string/delete_event_admin"
                     android:visibility="gone"
-                    app:srcCompat="@android:drawable/ic_menu_delete"
+                    app:srcCompat="@drawable/x"
                     app:tint="@color/primaryPinkColor" />
             </RelativeLayout>
 

@@ -20,7 +20,6 @@ import java.util.Objects;
 
 public class GeolocationDialog {
     private Context context;
-    private Boolean joinEvent;
     private GeolocationDialogListener listener;
 
     // Constructor

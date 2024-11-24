@@ -41,7 +41,7 @@
     <string name="edit_event_poster">edit event poster</string>
     <string name="waiting_list_button">Join waiting list</string>
     <string name="event_title">%s</string>
-    <string name="generate_entrants">Generate Entrants</string>
+    <string name="generate_entrants">Run Lottery</string>
     <string name="draw_replacements">Draw Replacement</string>
     <string name="map">MAP</string>
     <string name="event">%s</string>

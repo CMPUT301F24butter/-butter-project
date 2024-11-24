@@ -9,21 +9,28 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
@@ -59,6 +66,7 @@ public class EntrantListsActivity extends AppCompatActivity {
     Button generateEntrants;
     Button drawReplacement;
     FloatingActionButton deleteEntrant;
+    EditText sampleSize;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +90,7 @@ public class EntrantListsActivity extends AppCompatActivity {
         generateEntrants = findViewById(R.id.generate_entrants_button);
         drawReplacement = findViewById(R.id.draw_replacements_button);
         deleteEntrant = findViewById(R.id.delete_entrant_button);
+        sampleSize =findViewById(R.id.sample_size);
 
         entrantsData = new ArrayList<>();
         entrantList = findViewById(R.id.entrants_list);
@@ -142,7 +151,27 @@ public class EntrantListsActivity extends AppCompatActivity {
         generateEntrants.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sampleEntrants(1);
+                String sampleSizeString = sampleSize.getText().toString();
+                if (sampleSizeString.isEmpty()) {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Choose the number of entrants to sample.", Toast.LENGTH_LONG);
+                    toast.show();
+                    return;
+                }
+
+                int sampleSizeInt = Integer.parseInt(sampleSizeString);
+
+                if (sampleSizeInt > entrantsData.size()) {
+                    Toast toast = Toast.makeText(getApplicationContext(), "Sample size too large.", Toast.LENGTH_LONG);
+                    toast.show();
+                    return;
+                }
+                
+                if (sampleSizeInt == 0) {
+                    return;
+                }
+                
+                sampleEntrants(sampleSizeInt);
+                sampleSize.setText("");
             }
         });
 
@@ -246,9 +275,11 @@ public class EntrantListsActivity extends AppCompatActivity {
         generateEntrants.setVisibility(View.GONE);
         drawReplacement.setVisibility(View.GONE);
         deleteEntrant.setVisibility(View.GONE);
+        sampleSize.setVisibility(View.GONE);
 
         if (Objects.equals(listSelected, "Waitlist")) {
             generateEntrants.setVisibility(View.VISIBLE);
+            sampleSize.setVisibility(View.VISIBLE);
         }
         else if (Objects.equals(listSelected, "Cancelled")) {
             drawReplacement.setVisibility(View.VISIBLE);
@@ -273,14 +304,58 @@ public class EntrantListsActivity extends AppCompatActivity {
         } else {
             selectedList = shuffledUsers.subList(0, shuffledUsers.size());
         }
+        ArrayList<String> selectedIDList = new ArrayList<>();
+        for (User user : selectedList) {
+            selectedIDList.add(user.getDeviceID());
+        }
 
         UserListDB userListDB = new UserListDB();
 
-        for (User user : selectedList) {
-            String deviceID = user.getDeviceID(); // selected user's deviceID
-            userListDB.removeFromList(waitlistID, deviceID); // removing the user from the waitlist
-            userListDB.addToList(drawlistID, deviceID); // adding the user to the draw list
-        }
+        userListRef.document(waitlistID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot doc) {
+                int size = Integer.parseInt(doc.getString("size"));
+
+                ArrayList<String> stillInWaitlist = new ArrayList<>();
+                HashMap<String, Object> updates = new HashMap<>();
+
+                for (int i = 0; i < size; i++) {
+                    String deviceID = doc.getString("user" + i);
+                    if (!selectedIDList.contains(deviceID)) {
+                        stillInWaitlist.add(deviceID);
+                    }
+
+                    updates.put("user" + i, FieldValue.delete());
+                }
+
+                int new_size = size - sampleSize;
+                updates.put("size", String.valueOf(new_size));
+
+                for (int i = 0; i < stillInWaitlist.size(); i++) {
+                    updates.put("user" + i, stillInWaitlist.get(i));
+                }
+
+                userListRef.document(waitlistID).update(updates);
+            }
+        });
+
+        userListRef.document(drawlistID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot doc) {
+                int size = Integer.parseInt(doc.getString("size"));
+
+                HashMap<String, Object> updates = new HashMap<>();
+
+                for (int i = size; i < size + sampleSize; i++) {
+                    updates.put("user" + i, selectedIDList.get(i - size));
+                }
+
+                int new_size = size + sampleSize;
+                updates.put("size", String.valueOf(new_size));
+
+                userListRef.document(drawlistID).update(updates);
+            }
+        });
 
         try { // sleeping before re-printing the list
             Thread.sleep(500);
@@ -293,6 +368,12 @@ public class EntrantListsActivity extends AppCompatActivity {
 
     private void drawReplacementEntrant() {
 
+        if (entrantsData.size() == 0) {
+            Toast toast = Toast.makeText(getApplicationContext(), "There are no cancelled entrants.", Toast.LENGTH_LONG);
+            toast.show();
+            return;
+        }
+
         // retrieving waitlist data
         userListRef.document(waitlistID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -302,6 +383,12 @@ public class EntrantListsActivity extends AppCompatActivity {
                     if (doc.exists()) {
                         String listSizeString = doc.getString("size");
                         int listSize = Integer.parseInt(listSizeString); // # of entrants in the list
+
+                        if (listSize == 0) {
+                            Toast toast = Toast.makeText(getApplicationContext(), "No entrants in the waitlist.", Toast.LENGTH_LONG);
+                            toast.show();
+                            return;
+                        }
 
                         Random random = new Random();
                         int randomNumber = random.nextInt(listSize); // picking a random number between 0 and listSize - 1

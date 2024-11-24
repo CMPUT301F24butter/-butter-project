@@ -105,6 +105,7 @@
     <string name="announcement">Announcement</string>
     <string name="yes">Yes</string>
     <string name="sample_size">Sample size</string>
+    <string name="ok">OK</string>
 
     <string-array name="roles_array">
         <item>Entrant</item>

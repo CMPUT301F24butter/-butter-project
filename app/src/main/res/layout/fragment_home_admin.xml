@@ -2,8 +2,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@drawable/item_selector">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- This list view can only be accessed by admin, lets them browse-->
     <ListView
@@ -17,7 +16,9 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintVertical_bias="1.0"
+        android:choiceMode="singleChoice"
+        android:listSelector="@color/secondaryGreyColor"/>
 
     <!-- This add button can only be accessed by admin -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton

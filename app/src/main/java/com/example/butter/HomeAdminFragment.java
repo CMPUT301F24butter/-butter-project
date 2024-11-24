@@ -59,7 +59,6 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     private FloatingActionButton deleteButton;
     User selectedOrganizer;
     String selectedImageEvent;
-    Boolean deleteButtonClicked;
 
     /**
      * Constructor for HomeAdminFragment, initializes array lists and reference to database
@@ -79,7 +78,6 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         QRCodeRef = db.collection("QRCode");
         this.browse = browse;
         this.deviceID = deviceID;
-        deleteButtonClicked = false;
     }
 
     /**
@@ -133,6 +131,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         adminListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                adminListView.setItemChecked(position, true);
+
                 if (browse.equals("Browse Events")) {
                     String selectedEventID = allEvents.get(position).getEventID();
                     Intent intent = new Intent(getContext(), EventDetailsActivity.class);
@@ -140,14 +140,11 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                     intent.putExtra("eventID", selectedEventID);
                     intent.putExtra("adminPrivilege", Boolean.TRUE); // User has admin priviliges, used in eventDetailsActivity for special priviliges
                     startActivity(intent);
-                } else if (deleteButtonClicked && browse.equals("Browse Facilities")) {
+                } else if (browse.equals("Browse Facilities")) {
+
                     selectedOrganizer = allFacilities.get(position);
-                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "Facility");
-                    dialog.showDialog();
-                } else if (deleteButtonClicked && browse.equals("Browse QR Codes")) {
+                } else if (browse.equals("Browse QR Codes")) {
                     selectedImageEvent = allImagesEventID.get(position);
-                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "QR Code");
-                    dialog.showDialog();
                 }
             }
         });
@@ -176,7 +173,6 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             selectedImageEvent = null;
 
             Toast.makeText(getContext(), "The QR code has been successfully deleted.", Toast.LENGTH_SHORT).show();
-            deleteButtonClicked = Boolean.FALSE; // Disables ability to delete since already deleted one
         }
     }
 
@@ -219,7 +215,6 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             selectedOrganizer = null;
 
             Toast.makeText(getContext(), deletedFacility + " deleted.", Toast.LENGTH_SHORT).show();
-            deleteButtonClicked = Boolean.FALSE;
         }
     }
 
@@ -245,11 +240,11 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             @Override
             public void onClick(View view) {
                 if (browse.equals("Browse Facilities")) {
-                    deleteButtonClicked = true;
-                    Toast.makeText(getContext(), "Select Facility to Delete.", Toast.LENGTH_SHORT).show();
+                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "Facility");
+                    dialog.showDialog();
                 } else if (browse.equals("Browse QR Codes")) {
-                    deleteButtonClicked = true;
-                    Toast.makeText(getContext(), "Select QR Code to delete.", Toast.LENGTH_SHORT).show();
+                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "QR Code");
+                    dialog.showDialog();
                 }
             }
         });
@@ -398,7 +393,6 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
      */
     public void spinnerBrowseChange(String browse) {
         this.browse = browse;
-        deleteButtonClicked = false;
         switch (browse) {
             case "Browse Events":
                 showEventsList();
@@ -441,7 +435,6 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
 
         } else {
             Toast.makeText(getContext(), deletedItem + " deletion cancelled.", Toast.LENGTH_SHORT).show();
-            deleteButtonClicked = Boolean.FALSE;
         }
     }
 }

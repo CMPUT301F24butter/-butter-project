@@ -7,11 +7,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+
+import java.util.Objects;
 
 /**
  * This is the dialog box for organizer options
@@ -56,6 +59,7 @@ public class OrganizerOptions extends DialogFragment {
         TextView viewEntrants = view.findViewById(R.id.view_entrants_text);
         TextView showDetailsCode = view.findViewById(R.id.show_details_code_text);
         TextView notifications = view.findViewById(R.id.send_notifications_text);
+        TextView okText = view.findViewById(R.id.ok_text);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
 
@@ -103,9 +107,15 @@ public class OrganizerOptions extends DialogFragment {
             }
         });
 
-        return builder
-                .setView(view)
-                .setNeutralButton("Ok", null)
-                .create();
+        okText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getDialog().dismiss();
+            }
+        });
+
+        AlertDialog dialog = builder.setView(view).create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent); // makes dialogue background transparent
+        return dialog;
     }
 }

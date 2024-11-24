@@ -23,6 +23,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.UUID;
 
 public class NotificationDialog extends DialogFragment {
@@ -140,7 +141,9 @@ public class NotificationDialog extends DialogFragment {
             }
         });
 
-        return builder.setView(view).create();
+        AlertDialog dialog = builder.setView(view).create();
+        Objects.requireNonNull(dialog.getWindow()).setBackgroundDrawableResource(android.R.color.transparent); // makes dialogue background transparent
+        return dialog;
     }
 }
 

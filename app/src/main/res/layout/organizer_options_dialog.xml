@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:padding="16dp">
+    android:padding="16dp"
+    android:background="@drawable/edit_text_border">
 
     <TextView
         android:layout_width="wrap_content"
@@ -23,7 +24,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:padding="10dp"
+        android:padding="14dp"
         android:text="@string/edit_event"
         app:drawableStartCompat="@drawable/event_name" />
 
@@ -36,7 +37,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:padding="10dp"
+        android:padding="14dp"
         android:text="@string/view_entrants"
         app:drawableStartCompat="@drawable/max_attendees" />
 
@@ -49,7 +50,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:padding="10dp"
+        android:padding="14dp"
         android:text="@string/view_map"
         app:drawableStartCompat="@drawable/ic_map" />
 
@@ -62,7 +63,7 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:padding="10dp"
+        android:padding="14dp"
         android:text="@string/send_notifications"
         app:drawableStartCompat="@drawable/description" />
 
@@ -75,8 +76,23 @@
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
         android:focusable="true"
-        android:padding="10dp"
+        android:padding="14dp"
         android:text="@string/show_details_code"
-        app:drawableStartCompat="@drawable/ic_details" />
+        app:drawableStartCompat="@drawable/ic_qrcode" />
+
+    <TextView
+        android:id="@+id/ok_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/ok"
+        android:textColor="@color/primaryGreyColor"
+        android:paddingStart="16dp"
+        android:textSize="15sp"
+        android:paddingEnd="12dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="5dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="?android:attr/selectableItemBackground"/>
 
 </LinearLayout>

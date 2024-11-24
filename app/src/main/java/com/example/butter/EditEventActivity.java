@@ -70,7 +70,7 @@ public class EditEventActivity extends AppCompatActivity {
     /**
      * EditText for capacity of event
      */
-    EditText capacityText;
+    TextView capacityText;
     /**
      * SwitchCompat for the geolocation switch
      */
@@ -131,7 +131,7 @@ public class EditEventActivity extends AppCompatActivity {
                         if (capacity != null) {
                             capacityText.setText(capacity);
                         } else {
-                            capacityText.setText("");
+                            capacityText.setText("N/A");
                         }
 
                         // setting the geolocation switch
@@ -168,13 +168,8 @@ public class EditEventActivity extends AppCompatActivity {
                 Boolean geolocation = geolocationSwitch.isChecked();
 
                 int maxCapacity = -1; // default capacity if capacity isn't set
-                if (!maxCapacityString.isEmpty()) { // if a max capacity was inputted
+                if (maxCapacityString.equals("N/A")) { // if a max capacity was inputted
                     maxCapacity = Integer.parseInt(maxCapacityString);
-                    if (maxCapacity < 1) { // max capacity cannot be 0
-                        validDetails = false;
-                        Toast toast = Toast.makeText(getApplicationContext(), "Capacity cannot be 0.", Toast.LENGTH_LONG);
-                        toast.show();
-                    }
                 }
 
                 if (eventDescription.isEmpty()) { // event description cannot be empty

@@ -159,7 +159,8 @@
                 android:drawableStart="@drawable/max_attendees"
                 android:drawablePadding="8dp"
                 android:text="N/A"
-                android:textSize="12sp" />
+                android:textSize="12sp"
+                android:layout_marginBottom="10dp"/>
 
             <androidx.appcompat.widget.SwitchCompat
                 android:id="@+id/location_switch"

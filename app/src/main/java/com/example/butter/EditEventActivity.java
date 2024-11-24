@@ -168,7 +168,7 @@ public class EditEventActivity extends AppCompatActivity {
                 Boolean geolocation = geolocationSwitch.isChecked();
 
                 int maxCapacity = -1; // default capacity if capacity isn't set
-                if (maxCapacityString.equals("N/A")) { // if a max capacity was inputted
+                if (!maxCapacityString.equals("N/A")) { // if a max capacity was inputted
                     maxCapacity = Integer.parseInt(maxCapacityString);
                 }
 

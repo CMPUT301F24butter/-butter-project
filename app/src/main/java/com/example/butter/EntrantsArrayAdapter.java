@@ -48,6 +48,9 @@ public class EntrantsArrayAdapter extends ArrayAdapter<User> {
         TextView email = view.findViewById(R.id.user_info);
         email.setText(user.getEmail());
 
+        TextView initial = view.findViewById(R.id.user_initial);
+        initial.setText(user.getName().substring(0, 1));
+
         return view;
     }
 }

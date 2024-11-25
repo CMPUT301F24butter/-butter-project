@@ -41,12 +41,14 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference eventRef;
     private CollectionReference userRef;
+    private CollectionReference imageRef;
 
     TextView eventNameText;
     TextView registrationOpenText;
     TextView registrationCloseText;
     TextView eventDateText;
     TextView facilityText;
+    ImageView posterImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +62,7 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
         userRef = db.collection("user"); // user collection
+        imageRef = db.collection("image");
 
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
@@ -67,6 +70,7 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         registrationCloseText = findViewById(R.id.reg_close_text);
         eventDateText = findViewById(R.id.event_date);
         facilityText = findViewById(R.id.event_place);
+        posterImage = findViewById(R.id.qr_code_image);
 
         // retrieving event info from firebase
         eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -80,6 +84,23 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
                 registrationCloseText.setText(String.format("Registration Closes: %s", closeDate));
                 String date = doc.getString("eventInfo.date");
                 eventDateText.setText(String.format("Event Date: %s", date));
+            }
+        });
+
+        // retrieving image data from firebase
+        imageRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) { // if there is image data associated with this event
+                        String base64string = doc.getString("imageData"); // retrieving the image's string data
+                        ImageDB imageDB = new ImageDB();
+                        Bitmap bitmap = imageDB.stringToBitmap(base64string); // converting the string data into a bitmap
+
+                        posterImage.setImageBitmap(bitmap); // displaying the image
+                    }
+                }
             }
         });
 

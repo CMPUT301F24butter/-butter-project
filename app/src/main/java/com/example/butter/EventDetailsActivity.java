@@ -1,10 +1,14 @@
 package com.example.butter;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -15,6 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -40,10 +45,12 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     TextView registrationCloseText;
     TextView eventDateText;
     TextView eventDescriptionText;
+    ImageView posterImage;
 
     private FirebaseFirestore db;
     private CollectionReference eventRef;
     private CollectionReference userListRef;
+    private CollectionReference imageRef;
 
     private String organizerID;
     private String eventID;
@@ -62,6 +69,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
         userListRef = db.collection("userList");
+        imageRef = db.collection("image");
 
         deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
@@ -74,6 +82,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventDateText = findViewById(R.id.event_date);
         eventDescriptionText = findViewById(R.id.event_description);
         eventButton = findViewById(R.id.waiting_list_button);
+        posterImage = findViewById(R.id.event_screen_image);
 
         // retrieving event info for this eventID
         DocumentReference docRef = eventRef.document(eventID);
@@ -110,6 +119,21 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                     setupAdminOptions();
                 } else {
                     setUpEntrantActions();
+                }
+            }
+        });
+
+        // retrieving image data for this eventID
+        DocumentReference imageDocRef = imageRef.document(eventID);
+        imageDocRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot doc, @Nullable FirebaseFirestoreException error) {
+                if (doc.exists()) { // if there is image data associated with this event
+                    String base64string = doc.getString("imageData"); // retrieving the image's string data
+                    ImageDB imageDB = new ImageDB();
+                    Bitmap bitmap = imageDB.stringToBitmap(base64string); // converting string data into a bitmap
+
+                    posterImage.setImageBitmap(bitmap); // displaying the image
                 }
             }
         });
@@ -283,6 +307,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         // deleting the QR code associated with this event
         QRCodeDB qrCodeDB = new QRCodeDB();
         qrCodeDB.delete(eventID);
+
+        ImageDB imageDB = new ImageDB();
+        imageDB.delete(eventID);
 
         // deleting the event itself
         EventDB eventDB = new EventDB();

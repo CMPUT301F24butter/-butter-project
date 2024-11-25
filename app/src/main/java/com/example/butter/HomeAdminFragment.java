@@ -115,6 +115,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                 break;
             case "Browse Facilities":
                 adminListView.setAdapter(facilitiesArrayAdapter);
+                deleteButton.setVisibility(VISIBLE);
                 break;
             case "Browse Profiles":
                 adminListView.setAdapter(profileArrayAdapter);
@@ -124,6 +125,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                 break;
             case "Browse QR Codes":
                 adminListView.setAdapter(QRCodeArrayAdapter);
+                deleteButton.setVisibility(VISIBLE);
                 break;
         }
 
@@ -354,6 +356,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
      */
     private void showPostersList() {
         adminListView.setAdapter(null);
+        deleteButton.setVisibility(View.INVISIBLE);
     }
 
     /**

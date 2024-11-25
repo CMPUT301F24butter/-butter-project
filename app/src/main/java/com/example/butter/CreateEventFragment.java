@@ -1,13 +1,16 @@
 package com.example.butter;
 
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,10 +18,15 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.HashMap;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -58,7 +66,6 @@ public class CreateEventFragment extends AppCompatActivity {
     ImageView eventImage;
     ImageButton uploadEventImage;
     ActivityResultLauncher<Intent> resultLauncher;
-
     Uri uriUploaded = null;
     /**
      * EditText for the event name
@@ -133,12 +140,11 @@ public class CreateEventFragment extends AppCompatActivity {
         description = findViewById(R.id.event_description);
         capacity = findViewById(R.id.max_entrants);
         geolocationSwitch = findViewById(R.id.location_switch);
-
         eventImage = findViewById(R.id.event_image);
         uploadEventImage = findViewById(R.id.change_image_button);
-        registerResult();
 
         uploadEventImage.setOnClickListener(view -> pickImage());
+        registerResult();
 
         // setting click listener for the create event button
         createButton.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +160,18 @@ public class CreateEventFragment extends AppCompatActivity {
                 String eventDescription = description.getText().toString();
                 String maxCapacityString = capacity.getText().toString();
                 Boolean geolocation = geolocationSwitch.isChecked();
+
+                if (name.isEmpty()) {
+                    validDetails = false;
+                    Toast toast = Toast.makeText(getApplicationContext(), "Must enter an event name.", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+
+                if (name.indexOf('-') != -1 || name.indexOf('_') != -1) {
+                    validDetails = false;
+                    Toast toast = Toast.makeText(getApplicationContext(), "Event name cannot contain '-' or '_'", Toast.LENGTH_LONG);
+                    toast.show();
+                }
 
                 int maxCapacity = -1; // default capacity if capacity isn't set
                 if (!maxCapacityString.isEmpty()) { // if a max capacity was inputted
@@ -222,6 +240,11 @@ public class CreateEventFragment extends AppCompatActivity {
                                     EventDB eventDB = new EventDB();
                                     eventDB.add(event);
 
+                                    if (uriUploaded != null) { // if the user uploaded an image
+                                        ImageDB imageDB = new ImageDB();
+                                        imageDB.add(uriUploaded, event.getEventID(), getApplicationContext()); // add the image to firebase
+                                    }
+
                                     generateQRCode(eventID); // generating the QR code for this event
 
                                     finish();
@@ -257,7 +280,7 @@ public class CreateEventFragment extends AppCompatActivity {
             e.printStackTrace();
         }
     }
-    // https://www.youtube.com/watch?v=nOtlFl1aUCw
+
     private void registerResult() {
         resultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -266,11 +289,8 @@ public class CreateEventFragment extends AppCompatActivity {
                     @Override
                     public void onActivityResult(ActivityResult result) {
                         try {
-                            Uri imageUri = result.getData().getData();
-                            final int takeFlags = result.getData().getFlags() & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                            getContentResolver().takePersistableUriPermission(imageUri, takeFlags);
-
-                            Glide.with(getApplicationContext()).load(imageUri).into(eventImage);
+                            Uri imageUri = result.getData().getData(); // getting the Uri of the selected image
+                            eventImage.setImageURI(imageUri); // displaying the image
 
                             uriUploaded = imageUri;
 

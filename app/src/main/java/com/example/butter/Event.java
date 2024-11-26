@@ -16,6 +16,7 @@ public class Event {
     private int capacity;
     private boolean geolocation;
     private String description;
+    private String imageString;
 
     private final String waitlistID;
     private final String drawListID;
@@ -149,5 +150,13 @@ public class Event {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public String getImageString() {
+        return imageString;
+    }
+
+    public void setImageString(String imageString) {
+        this.imageString = imageString;
     }
 }

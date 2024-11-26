@@ -2,20 +2,23 @@ package com.example.butter;
 
 import android.content.Intent;
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
-import android.os.Handler;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -41,6 +44,14 @@ public class ProfileFragment extends Fragment {
      * Used for solving a bug with onDestroyView.
      */
     private ListenerRegistration userListener;
+    /**
+     * An imageDB object used for parsing string to bitmap
+     */
+    private ImageDB imageDB;
+    /**
+     * A base64Image string to be displayed as pfp
+     */
+    private String base64Image;
 
     public ProfileFragment() {
         // empty constructor
@@ -76,6 +87,24 @@ public class ProfileFragment extends Fragment {
                 user = new User(getArguments().getString("deviceID"), name, privileges, facility, email, phone);
 
                 // now update the UI with the user (or new) user data
+                updateUserDataInView();
+            }
+        });
+
+        // setup another listener for getting the profile picture
+        DocumentReference imageRef = db.collection("image").document(getArguments().getString("deviceID"));
+        // init our imageDB object
+        imageDB = new ImageDB();
+        imageRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot doc, @Nullable FirebaseFirestoreException error) {
+                if (doc.exists()) { // if we have an image
+                    base64Image = doc.getString("imageData");
+                    // update the views with the new image attribute
+                } else {    // else set to null
+                    base64Image = null;
+                }
+                // finally update our view with new image
                 updateUserDataInView();
             }
         });
@@ -124,6 +153,7 @@ public class ProfileFragment extends Fragment {
         TextView phone = view.findViewById(R.id.password_text);
         TextView role = view.findViewById(R.id.role_text);
         TextView profileInitial = view.findViewById(R.id.profileText);
+        CircleImageView profileImage = view.findViewById(R.id.profileImage); // profile image
 
         // first lets check if we are not entrant, if so, unhide facility
         if (user.getPrivileges() > 100 && user.getPrivileges() < 400) { // if we are org/both
@@ -145,8 +175,17 @@ public class ProfileFragment extends Fragment {
             phone.setText(user.getPhoneNumber());
         }
 
+        // now to update profile picture
+        if (base64Image != null) {  // if our string for our image is not null, set image & hide initial
+            profileImage.setImageBitmap(imageDB.stringToBitmap(base64Image));
+            profileInitial.setVisibility(View.INVISIBLE);
+        } else {    // else show initial and update
+            profileImage.setImageResource(R.drawable.profile_circle);
+            profileInitial.setText(user.getName().substring(0, 1));
+            profileInitial.setVisibility(View.VISIBLE);
+        }
+
         // now to update the text with ours given from database
-        profileInitial.setText(user.getName().substring(0, 1));
         name.setText(user.getName());
         email.setText(user.getEmail());
         role.setText(user.getRole());
@@ -159,6 +198,7 @@ public class ProfileFragment extends Fragment {
                 // simply pass the user object to our EditProfile activity
                 Intent toEditProfile = new Intent(getContext(), EditProfileActivity.class);
                 toEditProfile.putExtra("user", user);
+                toEditProfile.putExtra("base64Image", base64Image); // pass pfp as an arg
                 startActivity(toEditProfile);
             }
         });

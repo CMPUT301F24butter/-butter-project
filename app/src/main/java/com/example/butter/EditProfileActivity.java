@@ -1,21 +1,32 @@
 package com.example.butter;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple activity called from {@link ProfileFragment}
@@ -30,6 +41,32 @@ public class EditProfileActivity extends AppCompatActivity {
      * Used specifically for updating the user in the database after editing and verifying for validity.
      */
     private UserDB users; // interact with userDB
+    /**
+     * ActivityResultLauncher object
+     * Used to receive image from gallery to set it up as a profile picture.
+     */
+    private ActivityResultLauncher<Intent> getImageLauncher; // init image launcher
+    /**
+     * Uri object containing an image
+     * Used to store the image, and for notifying if an image is/was stored.
+     */
+    private Uri imageUri;
+    /**
+     * newPFP boolean
+     * Used to determine when submitting image to db, whether a pfp existed before or not
+     */
+    private boolean newPFP;
+    /**
+     * removed boolean
+     * Used to determine if a profile picture existing has been removed
+     */
+    private boolean removed;
+    /**
+     * ImageDB Image database object
+     * Used for adding, updating, and deleting images in the database
+     * Includes helper functions to convert image datatypes
+     */
+    private ImageDB imageDB;
 
     /**
      * onCreate contains firstly setting up the views and editable options on screen for specific user,
@@ -47,7 +84,10 @@ public class EditProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         users = new UserDB(); // init the userDB object
-        User user = (User) getIntent().getSerializableExtra("user");
+        imageDB = new ImageDB(); // init imageDB object
+        // get args
+        User user = (User) getIntent().getSerializableExtra("user");    // set user object
+        String base64Image = getIntent().getStringExtra("base64Image"); // set image str (could be null)
 
         setContentView(R.layout.edit_profile);    // set view to create profile screen
 
@@ -60,6 +100,12 @@ public class EditProfileActivity extends AppCompatActivity {
         roleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         roleSpinner.setAdapter(roleAdapter);
 
+        CircleImageView profileImage = findViewById(R.id.profileImage); // profile image view
+
+        // setup our various buttons
+        ImageButton backButton = findViewById(R.id.back_button);
+        ImageButton addImageButton = findViewById(R.id.add_image_button);
+        ImageButton removeImageButton = findViewById(R.id.remove_image_button);
         Button saveButton = findViewById(R.id.save_changes_button);    // create button on profile screen
 
         TextView facilityLabel = findViewById(R.id.facility_label); // view to show facility, used to hide/unhide text
@@ -102,11 +148,75 @@ public class EditProfileActivity extends AppCompatActivity {
             editFacility.setText(user.getFacility());
         }
 
+        // setup profile picture if exists
+        if (base64Image != null) {  // if we have an existing image, lets set it up
+            profileImage.setImageBitmap(imageDB.stringToBitmap(base64Image));
+            editInitial.setVisibility(View.INVISIBLE);    // hide initial
+            newPFP = false; // if we already have a pfp (to update)
+        } else {
+            newPFP = true;  // else we are adding for first
+        }
+        imageUri = null;    // init uri to null (determines if a photo existed
+        removed = false;    // init our removed bool (determines if we have deleted the current photo or not)
+
         // now that we are here, we should have all data put in.
-        // simply set an onClickListener for the save changes button.
+        // simply set up our onClick/onSelected listeners
 
+        // setup our addImage listener
+        // if we receive a result, update our image with result
+        getImageLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @SuppressLint("WrongConstant")
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        try {
+                            imageUri = result.getData().getData();  // getting the Uri of the selected image
+                            profileImage.setImageURI(imageUri);     // displaying the image
+                            // if not hidden yet, hide our initial
+                            editInitial.setVisibility(View.INVISIBLE);
+                        } catch (Exception e) {
+                            System.out.println("Error");
+                        }
+                    }
+                }
+        );
 
-        // on click listener for the create button
+        // on click listener for the back button
+        // finish and go back from this activity
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // if clicked, finish and go back (no updates made)
+                finish();
+            }
+        });
+
+        // on click listener for adding a profile picture
+        // add profile pic as attribute
+        addImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // if clicked, show image and add as attribute
+                Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+                getImageLauncher.launch(intent);
+            }
+        });
+
+        // @drawable/profile_circle
+        // on click listener for removing the current profile picture
+        removeImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // if clicked, set image to null and set initial to visible
+                profileImage.setImageResource(R.drawable.profile_circle);
+                editInitial.setVisibility(View.VISIBLE);
+                imageUri = null;    // set image to null
+                removed = true;     // set value to know we want to remove our current img (no going back)
+            }
+        });
+
+        // on click listener for the save changes button
         // must perform validity checks first
         // if checks pass, add user to database and go to MainActivity
         saveButton.setOnClickListener(new View.OnClickListener() {
@@ -164,6 +274,23 @@ public class EditProfileActivity extends AppCompatActivity {
                     User userUpdate = new User(user.getDeviceID(), username, privileges, facility, email, phone);
                     users.update(userUpdate);
 
+                    // now to update our profile pic in db
+                    // if we have a non null uri, update uri as well
+                    if (imageUri != null) { // if we have a new image
+                        if (newPFP) {   // if our new image is just new
+                            // add new image to db
+                            imageDB.add(imageUri, user.getDeviceID(), getApplicationContext());
+                        } else { // else we are updating existing
+                            imageDB.update(imageUri, user.getDeviceID(), getApplicationContext());
+                        }
+                    } else {    // else then we are simply removing the current pfp or doing nothing
+                        if (removed && !newPFP) {  // if we had a pfp & want to remove, remove it
+                            // remove current pfp
+                            imageDB.delete(user.getDeviceID());
+                        }
+                        // else we do nothing (no updated pfp, no updates in db)
+                    }
+
                     // now our updated user should be in the database, and we can return
                     finish();
                 } else {    // else then show dialogue message and continue
@@ -191,7 +318,6 @@ public class EditProfileActivity extends AppCompatActivity {
                     facilityLabel.setVisibility(View.INVISIBLE);
                     editFacility.setVisibility(View.INVISIBLE);
                 }
-
             }
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
@@ -246,6 +372,4 @@ public class EditProfileActivity extends AppCompatActivity {
         // else our info is valid
         return returnString;
     }
-
-
 }

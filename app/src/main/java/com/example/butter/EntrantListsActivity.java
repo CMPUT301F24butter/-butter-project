@@ -1,5 +1,6 @@
 package com.example.butter;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -61,7 +62,7 @@ public class EntrantListsActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference userRef;
     private CollectionReference userListRef;
-    private CollectionReference eventRef;
+    private CollectionReference imageRef;
 
     Button generateEntrants;
     Button drawReplacement;
@@ -85,7 +86,7 @@ public class EntrantListsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         userRef = db.collection("user"); // user collection
         userListRef = db.collection("userList"); // userList collection
-        eventRef = db.collection("event"); // event collection
+        imageRef = db.collection("image");
 
         generateEntrants = findViewById(R.id.generate_entrants_button);
         drawReplacement = findViewById(R.id.draw_replacements_button);
@@ -257,8 +258,21 @@ public class EntrantListsActivity extends AppCompatActivity {
                                             // creating User object
                                             User user = new User(deviceID, name, privileges, facility, email, phone);
 
-                                            entrantsData.add(user); // adding the user to the list
-                                            adapter.notifyDataSetChanged();
+                                            // retrieving image data for this user
+                                            imageRef.document(user.getDeviceID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<DocumentSnapshot> imageTask) {
+                                                    if (imageTask.isSuccessful()) {
+                                                        DocumentSnapshot imageDoc = imageTask.getResult();
+                                                        if (imageDoc.exists()) { // if there is image data for this user
+                                                            String base64string = imageDoc.getString("imageData"); // fetching image string data
+                                                            user.setProfilePicString(base64string);
+                                                        }
+                                                        entrantsData.add(user); // adding the user to the list
+                                                        adapter.notifyDataSetChanged();
+                                                    }
+                                                }
+                                            });
                                         }
                                     }
                                 }

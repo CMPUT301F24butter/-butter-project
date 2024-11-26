@@ -24,6 +24,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageButton
+            android:id="@+id/remove_image_button"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:contentDescription="@string/remove_profile"
@@ -38,6 +39,7 @@
             app:tint="@android:color/white" />
 
         <ImageButton
+            android:id="@+id/add_image_button"
             android:layout_width="50dp"
             android:layout_height="50dp"
             android:contentDescription="@string/add_image"

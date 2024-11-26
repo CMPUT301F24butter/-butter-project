@@ -21,6 +21,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -97,6 +98,7 @@ public class EditEventActivity extends AppCompatActivity {
     ImageView eventImage;
     Uri uriSelected = null;
     ImageButton uploadImageButton;
+    ImageButton deleteImageButton;
 
     /**
      * onCreate method performs everything here.
@@ -132,6 +134,7 @@ public class EditEventActivity extends AppCompatActivity {
         geolocationSwitch = findViewById(R.id.location_switch);
         eventImage = findViewById(R.id.event_image);
         uploadImageButton = findViewById(R.id.change_image_button);
+        deleteImageButton = findViewById(R.id.delete_image);
 
         uploadImageButton.setOnClickListener(view -> pickImage());
         registerResult();
@@ -190,6 +193,18 @@ public class EditEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish(); // returning to the previous page
+            }
+        });
+
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                int color = ContextCompat.getColor(getApplicationContext(), R.color.secondaryGreyColor);
+                eventImage.setBackgroundColor(color);
+                eventImage.setImageDrawable(null);
+
+                uriSelected = null;
             }
         });
 
@@ -259,6 +274,8 @@ public class EditEventActivity extends AppCompatActivity {
                                 if (doc.exists()) { // if there is image data associated with this event
                                     if (uriSelected != null) { // if the user selected a new image
                                         imageDB.update(uriSelected, eventID, getApplicationContext()); // update the image in firebase
+                                    } else {
+                                        imageDB.delete(eventID);
                                     }
 
                                     EventDB eventDB = new EventDB();

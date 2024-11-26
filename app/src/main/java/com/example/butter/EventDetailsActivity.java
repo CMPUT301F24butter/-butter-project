@@ -132,8 +132,13 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                     String base64string = doc.getString("imageData"); // retrieving the image's string data
                     ImageDB imageDB = new ImageDB();
                     Bitmap bitmap = imageDB.stringToBitmap(base64string); // converting string data into a bitmap
-
+                    int color = ContextCompat.getColor(getApplicationContext(), R.color.white);
+                    posterImage.setBackgroundColor(color);
                     posterImage.setImageBitmap(bitmap); // displaying the image
+                } else {
+                    int color = ContextCompat.getColor(getApplicationContext(), R.color.secondaryGreyColor);
+                    posterImage.setBackgroundColor(color);
+                    posterImage.setImageDrawable(null);
                 }
             }
         });

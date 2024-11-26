@@ -35,12 +35,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // return super.getView(position, convertView, parent);
-        View view = convertView;
-
-        if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.event_content, parent,false);
-        }
+        View view = LayoutInflater.from(context).inflate(R.layout.event_content, parent,false);
 
         Event event = events.get(position);
 

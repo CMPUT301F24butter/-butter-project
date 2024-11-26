@@ -2,11 +2,13 @@ package com.example.butter;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +28,10 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * This activity displays the QR code for this activity
@@ -49,6 +55,7 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
     TextView eventDateText;
     TextView facilityText;
     ImageView posterImage;
+    ImageView qrCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +78,7 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         eventDateText = findViewById(R.id.event_date);
         facilityText = findViewById(R.id.event_place);
         posterImage = findViewById(R.id.qr_code_image);
+        qrCode = findViewById(R.id.details_barcode_image);
 
         // retrieving event info from firebase
         eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -124,7 +132,6 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
                 finish();
             }
         });
-
     }
 
     // displays the QR Code for this event
@@ -143,7 +150,6 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
 
                         Bitmap bitmap = stringToBitmap(base64String); // turning the string into a bitmap
 
-                        ImageView qrCode = findViewById(R.id.details_barcode_image);
                         qrCode.setImageBitmap(bitmap); // displaying the bitmap
                     }
                 }

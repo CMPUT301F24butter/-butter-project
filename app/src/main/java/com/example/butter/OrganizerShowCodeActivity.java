@@ -151,6 +151,8 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
                         Bitmap bitmap = stringToBitmap(base64String); // turning the string into a bitmap
 
                         qrCode.setImageBitmap(bitmap); // displaying the bitmap
+                    } else {
+                        generateQRCode(eventID);
                     }
                 }
             }
@@ -162,5 +164,23 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
         return bitmap;
+    }
+
+    private void generateQRCode(String eventID) {
+        MultiFormatWriter writer = new MultiFormatWriter();
+        try {
+            BitMatrix matrix = writer.encode(eventID, BarcodeFormat.QR_CODE, 600, 600);
+
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            Bitmap bitmap = encoder.createBitmap(matrix); // generating the bitmap
+
+            qrCode.setImageBitmap(bitmap);
+
+            QRCodeDB qrCodeDB = new QRCodeDB();
+            qrCodeDB.add(bitmap, eventID); // adding this QR Code to firebase
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
     }
 }

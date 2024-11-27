@@ -99,6 +99,7 @@ public class EditEventActivity extends AppCompatActivity {
     Uri uriSelected = null;
     ImageButton uploadImageButton;
     ImageButton deleteImageButton;
+    boolean deletedImage = false;
 
     /**
      * onCreate method performs everything here.
@@ -166,6 +167,7 @@ public class EditEventActivity extends AppCompatActivity {
                         if (Objects.equals(geolocation, "true")) {
                             geolocationSwitch.setChecked(true);
                         }
+                        geolocationSwitch.setEnabled(false);
                     }
                 }
             }
@@ -205,6 +207,7 @@ public class EditEventActivity extends AppCompatActivity {
                 eventImage.setImageDrawable(null);
 
                 uriSelected = null;
+                deletedImage = true;
             }
         });
 
@@ -274,7 +277,7 @@ public class EditEventActivity extends AppCompatActivity {
                                 if (doc.exists()) { // if there is image data associated with this event
                                     if (uriSelected != null) { // if the user selected a new image
                                         imageDB.update(uriSelected, eventID, getApplicationContext()); // update the image in firebase
-                                    } else {
+                                    } else if (deletedImage) {
                                         imageDB.delete(eventID);
                                     }
 

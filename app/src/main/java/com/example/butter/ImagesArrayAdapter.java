@@ -93,7 +93,7 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
         // EventIds always have - to seperate the event name + ID
         if (sourceID.contains("-")) {
             imageType.setText(name); // tells us which event image is from
-            String type = "Event Poster";
+            String type = "Event";
             imageSource.setText(type);
         } else { // if it doesn't have this then it is a profile picture
             usersref.document(sourceID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {

@@ -58,6 +58,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     private String geolocation;
     private int capacity;
     private Boolean adminPrivilege;
+    private String listType;
 
     private Button eventButton;
 
@@ -73,6 +74,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
 
         deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
+        listType = getIntent().getExtras().getString("listType"); // clicked even from register or event list
         adminPrivilege = getIntent().getExtras().getBoolean("adminPrivilege", Boolean.FALSE); // Default to false if not found
 
         // getting all text boxes
@@ -170,7 +172,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     }
 
     private void setUpEntrantActions() {
-        String userListID  = eventID + "-wait";
+        String userListID  = eventID + "-" + listType;
         userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -191,16 +193,27 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                             }
                         }
                         
-                        if (listSize == capacity) {
+                        if ((listSize == capacity) && (listType.equals("wait"))) {
                             String fullText = "Waiting List Full";
                             eventButton.setText(fullText);
                             eventButton.setEnabled(Boolean.FALSE);
                             eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
-                        } else if (userAlreadyAdded) {
-                            String leaveText = "Leave Waiting List";
-                            eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.secondaryPurpleColor));
+                        }
+                        else if (userAlreadyAdded) {
+                            String leaveText ="";
+                            if (listType.equals("wait")) {
+                                leaveText = "Leave Waiting List";
+                                eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+                            } else if (listType.equals("registered")) {
+                                leaveText = "Decline Invitation";
+                                eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+                            } else if (listType.equals("draw")) {
+                                leaveText = "Accept Invitation";
+                                eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));
+                            }
                             eventButton.setText(leaveText);
-                        } else {
+                        }
+                        else {
                             String joinText = "Join Waiting List";
                             eventButton.setText(joinText);
                             eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));        
@@ -224,6 +237,14 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                     } else {
                         joinWaitingList();
                     }
+                } else if (eventButton.getText() == "Accept Invitation") {
+                    leaveDrawList();
+                    joinRegisteredList();
+
+                }
+                else if (eventButton.getText() == "Decline Invitation") {
+                    leaveRegisteredList();
+                    joinCancelList();
                 } else {
                     leaveWaitingList();
                 }
@@ -232,13 +253,53 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         });
     }
 
-    private void leaveWaitingList() {
-        String userListID  = eventID + "-wait";
+    private void joinCancelList() {
+        String userListID  = eventID + "-cancelled";
+        // Generate UserListDB to add new user to the specific user list event
+        UserListDB userList = new UserListDB();
+        userList.addToList(userListID, deviceID);
+    }
 
+    private void leaveRegisteredList() {
+        String userListID  = eventID + "-registered";
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.removeFromList(userListID, deviceID);
+        // Turn it into Leave Waiting List
+        String joinText = "Invitation Declined Successfully";
+        eventButton.setText(joinText);
+        eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+        eventButton.setEnabled(Boolean.FALSE);
+    }
 
+    private void leaveDrawList() {
+        String userListID  = eventID + "-draw";
+        // Generate UserListDB to add new user to the specific user list event
+        UserListDB userList = new UserListDB();
+        userList.removeFromList(userListID, deviceID);
+    }
+
+    private void joinRegisteredList() {
+        String userListID  = eventID + "-registered";
+
+        // Generate UserListDB to add new user to the specific user list event
+        UserListDB userList = new UserListDB();
+        userList.addToList(userListID, deviceID);
+
+        // Turn it into Leave Waiting List
+        String leftText = "Decline Invitation";
+        eventButton.setText(leftText);
+        eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+    }
+
+
+
+
+    private void leaveWaitingList() {
+        String userListID  = eventID + "-wait";
+        // Generate UserListDB to add new user to the specific user list event
+        UserListDB userList = new UserListDB();
+        userList.removeFromList(userListID, deviceID);
         // Turn it into Leave Waiting List
         String joinText = "Join Waiting List";
         eventButton.setText(joinText);

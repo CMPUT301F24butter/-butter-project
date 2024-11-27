@@ -25,6 +25,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This fragment is used to set up the home screen on the admins side. Admins have access to a spinner
@@ -268,13 +270,16 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     public void showEventsList() {
         deleteButton.setVisibility(View.INVISIBLE);
         adminListView.setAdapter(eventArrayAdapter);
-        ArrayList<Event> events = new ArrayList<>();
 
         eventRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     allEvents.clear();
+                    int numEvents = task.getResult().size();
+                    final AtomicInteger completedTasks = new AtomicInteger(0); // tracks amount of images completed
+
+                    // Loop through the documents and create Event objects
                     for (DocumentSnapshot doc : task.getResult()) {
                         String eventID = doc.getId();
                         String eventName = doc.getString("eventInfo.name");
@@ -282,17 +287,16 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                         String eventCapacityString = doc.getString("eventInfo.capacityString");
 
                         Event event = null;
-
                         if (eventCapacityString != null) {
                             int eventCapacity = Integer.parseInt(eventCapacityString);
-                            events.add(new Event(eventID, eventName, eventDate, eventCapacity));
+                            event = new Event(eventID, eventName, eventDate, eventCapacity);
                         } else {
-                            events.add(new Event(eventID, eventName, eventDate, -1));
+                            event = new Event(eventID, eventName, eventDate, -1);
                         }
-                    }
 
-                    // finding potential events with posters
-                    for (Event event: events) {
+                        Event finalEvent = event;
+
+                        // Fetch poster image for event
                         posterRef.document(event.getEventID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> imageTask) {
@@ -300,18 +304,20 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                                     DocumentSnapshot imageDoc = imageTask.getResult();
                                     if (imageDoc.exists()) {
                                         String base64string = imageDoc.getString("imageData");
-                                        event.setImageString(base64string); // setting the poster
+                                        finalEvent.setImageString(base64string); // setting the poster
                                     }
+                                }
+                                // increment counter after each image task completed
+                                int completedCount = completedTasks.incrementAndGet();
+
+                                // If all tasks completed, update list
+                                if (completedCount == numEvents) {
+                                    eventArrayAdapter.notifyDataSetChanged();
                                 }
                             }
                         });
+                        allEvents.add(finalEvent);
                     }
-                    for (Event event: events) {
-                        allEvents.add(event);
-                        eventArrayAdapter.notifyDataSetChanged();
-                    }
-                } else {
-                    Log.d("Firebase", "Error getting documents: ", task.getException());
                 }
             }
         });

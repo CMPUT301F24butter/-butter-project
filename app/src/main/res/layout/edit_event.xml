@@ -42,43 +42,57 @@
 
         </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/delete_image"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:contentDescription="@string/remove_profile"
-            app:backgroundTint="@color/primaryPinkColor"
-            app:layout_constraintEnd_toStartOf="@+id/event_image"
-            app:layout_constraintHorizontal_bias="0.443"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.100"
-            app:srcCompat="@drawable/ic_delete"
-            app:tint="@android:color/white" />
-
-        <FrameLayout
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:orientation="horizontal"
             android:layout_marginBottom="20dp">
 
-            <ImageView
-                android:id="@+id/event_image"
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:contentDescription="@string/event_poster"
-                android:src="@color/secondaryGreyColor" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
 
-            <ImageButton
-                android:id="@+id/change_image_button"
+            <FrameLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:background="?android:attr/selectableItemBackgroundBorderless"
-                android:contentDescription="@string/edit_event_poster"
-                android:src="@drawable/camera" />
+                android:layout_marginEnd="20dp">
 
-        </FrameLayout>
+                <ImageView
+                    android:id="@+id/event_image"
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:contentDescription="@string/event_poster"
+                    android:src="@color/secondaryGreyColor" />
+
+                <ImageButton
+                    android:id="@+id/change_image_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="@string/edit_event_poster"
+                    android:src="@drawable/camera" />
+
+            </FrameLayout>
+
+            <ImageButton
+                android:id="@+id/delete_image"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:contentDescription="@string/remove_profile"
+                app:backgroundTint="@color/primaryPinkColor"
+                app:srcCompat="@drawable/ic_delete"
+                app:tint="@android:color/white"
+                android:layout_gravity="bottom" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="0.4"/>
+
+
+        </LinearLayout>
 
         <TextView
             android:id="@+id/event_name"

@@ -1,6 +1,9 @@
 package com.example.butter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * This is an array adapter for User objects
@@ -53,7 +58,7 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View view = convertView;
+        View view = null;
         if(view == null){
             view = LayoutInflater.from(context).inflate(R.layout.users_content, parent,false);
         }
@@ -62,6 +67,7 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
         TextView userInitial = view.findViewById(R.id.user_initial);
         TextView userTitle = view.findViewById(R.id.user_title);
         TextView userInfo = view.findViewById(R.id.user_info);
+        CircleImageView userImage = view.findViewById(R.id.profileImage);
 
         if (isFacility) {
             userTitle.setText(user.getFacility());
@@ -73,6 +79,23 @@ public class UserArrayAdapter extends ArrayAdapter<User> {
             userInitial.setText(user.getName().substring(0,1));
         }
 
+        if (user.getProfilePicString() != null) {
+            Bitmap bitmap = stringToBitmap(user.getProfilePicString());
+            userImage.setImageBitmap(bitmap);
+            userInitial.setText(""); // no text as the user has a profile picture
+        }
+
         return view;
+    }
+
+    /**
+     * Converts a string into a bitmap.
+     * @param base64String the string version of the image that will be converted into bitmap
+     * @return Bitmap
+     */
+    private Bitmap stringToBitmap(String base64String) {
+        byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
+        Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
+        return bitmap;
     }
 }

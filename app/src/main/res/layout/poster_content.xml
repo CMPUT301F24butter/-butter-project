@@ -29,4 +29,16 @@
         android:textSize="15sp"
         android:textStyle="bold" />
 
+    <TextView
+        android:id="@+id/poster_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/poster_name"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_toEndOf="@id/poster_image"
+        android:text=""
+        android:textColor="@color/primaryGreyColor"
+        android:textSize="15sp" />
+
 </RelativeLayout>

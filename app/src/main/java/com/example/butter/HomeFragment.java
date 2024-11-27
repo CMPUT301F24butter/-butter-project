@@ -1,11 +1,16 @@
 package com.example.butter;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -24,6 +29,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -73,7 +79,7 @@ public class HomeFragment extends Fragment {
 
     // Scanner variables
     Button qrScan;
-    ActivityResultLauncher<ScanOptions> barLauncher;
+    private ActivityResultLauncher<Intent> scanActivityResultLauncher;
 
     /**
      * Constructor for Home Fragment.
@@ -114,14 +120,22 @@ public class HomeFragment extends Fragment {
         Bundle args = getArguments();
         deviceID = args.getString("deviceID");
 
-        barLauncher = registerForActivityResult(new ScanContract(), result -> {
-            if (result.getContents() != null) {
-                Intent intent = new Intent(requireContext(), EventDetailsActivity.class);
-                intent.putExtra("deviceID", deviceID);
-                intent.putExtra("eventID", result.getContents());
-                startActivity(intent);
-            }
-        });
+        scanActivityResultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                o -> {
+                    if (o.getResultCode() == RESULT_OK && o.getData() != null) {
+                        String eventID = o.getData().getStringExtra("eventID");
+
+                        if (eventID != null) {
+                            // Use the eventID to start EventDetailsActivity
+                            Intent intent = new Intent(requireContext(), EventDetailsActivity.class);
+                            intent.putExtra("deviceID", deviceID);
+                            intent.putExtra("eventID", eventID);
+                            intent.putExtra("listType", "wait");
+                            startActivity(intent);
+                        }
+                    }
+                });
     }
 
     /**
@@ -265,12 +279,8 @@ public class HomeFragment extends Fragment {
      * Sets up the QR code scanner.
      */
     private void scanCode() {
-        ScanOptions options = new ScanOptions();
-        options.setPrompt("Volume up to flash on");
-        options.setBeepEnabled(true);
-        options.setOrientationLocked(true);
-        options.setCaptureActivity(CaptureAct.class);
-        barLauncher.launch(options);
+        Intent intent = new Intent(requireContext(), CaptureAct.class);
+        scanActivityResultLauncher.launch(intent);
     }
 
     /**

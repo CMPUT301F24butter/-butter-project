@@ -3,6 +3,7 @@ package com.example.butter;
 import static android.view.View.VISIBLE;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,18 +42,22 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     private CollectionReference eventRef;
     private CollectionReference userRef;
     private CollectionReference QRCodeRef;
+    private CollectionReference posterRef;
 
     // Lists of events, users, and posters
     private ArrayList<Event> allEvents;
     private ArrayList<User> allUsers;
     private ArrayList<User> allFacilities;
-    private ArrayList<String> allImages;
-    private ArrayList<String> allImagesEventID; // References the event ID image is attached to
+    private ArrayList<String> allQrCodes;
+    private ArrayList<String> allQrCodesEventID; // References the event ID image is attached to
+    private ArrayList<String> allPosters;
+    private ArrayList<String> allPostersEventID; // References the event ID image is attached to
     private ListView adminListView;
     private EventArrayAdapter eventArrayAdapter;
     private UserArrayAdapter profileArrayAdapter;
     private UserArrayAdapter facilitiesArrayAdapter;
     private ImagesArrayAdapter QRCodeArrayAdapter;
+    private ImagesArrayAdapter posterArrayAdapter;
     private Boolean isFacility;
     private String browse;
     private String deviceID;
@@ -69,13 +74,16 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         allEvents = new ArrayList<>();
         allUsers = new ArrayList<>();
         allFacilities = new ArrayList<>();
-        allImages = new ArrayList<>();
-        allImagesEventID = new ArrayList<>();
+        allQrCodes = new ArrayList<>();
+        allQrCodesEventID = new ArrayList<>();
+        allPosters = new ArrayList<>();
+        allPostersEventID = new ArrayList<>();
 
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
         userRef = db.collection("user"); // user collection
         QRCodeRef = db.collection("QRCode");
+        posterRef = db.collection("image");
         this.browse = browse;
         this.deviceID = deviceID;
     }
@@ -106,7 +114,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         eventArrayAdapter = new EventArrayAdapter(getContext(), allEvents);
         profileArrayAdapter = new UserArrayAdapter(getContext(), allUsers, Boolean.FALSE);
         facilitiesArrayAdapter = new UserArrayAdapter(getContext(), allFacilities, Boolean.TRUE);
-        QRCodeArrayAdapter = new ImagesArrayAdapter(getContext(), allImages, allImagesEventID);
+        QRCodeArrayAdapter = new ImagesArrayAdapter(getContext(), allQrCodes, allQrCodesEventID);
+        posterArrayAdapter = new ImagesArrayAdapter(getContext(), allPosters, allPostersEventID);
 
         // Used to set the right adapter when the user changes the spinner option
         switch (browse) {
@@ -121,7 +130,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                 adminListView.setAdapter(profileArrayAdapter);
                 break;
             case "Browse Event Posters":
-                adminListView.setAdapter(null);
+                adminListView.setAdapter(posterArrayAdapter);
+                deleteButton.setVisibility(VISIBLE);
                 break;
             case "Browse QR Codes":
                 adminListView.setAdapter(QRCodeArrayAdapter);
@@ -146,7 +156,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
 
                     selectedOrganizer = allFacilities.get(position);
                 } else if (browse.equals("Browse QR Codes")) {
-                    selectedImageEvent = allImagesEventID.get(position);
+                    selectedImageEvent = allQrCodesEventID.get(position);
                 }
             }
         });
@@ -163,14 +173,14 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     private void deleteSelectedQRCode() {
         if (selectedImageEvent != null) {
 
-            int QRIndex = allImagesEventID.indexOf(selectedImageEvent);
+            int QRIndex = allQrCodesEventID.indexOf(selectedImageEvent);
 
             QRCodeDB QRCode = new QRCodeDB();
             QRCode.delete(selectedImageEvent);
 
             // Remove the QR Code from the list and notifies adapter
-            allImages.remove(QRIndex);
-            allImagesEventID.remove(QRIndex);
+            allQrCodes.remove(QRIndex);
+            allQrCodesEventID.remove(QRIndex);
             QRCodeArrayAdapter.notifyDataSetChanged();
             selectedImageEvent = null;
 
@@ -258,6 +268,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     public void showEventsList() {
         deleteButton.setVisibility(View.INVISIBLE);
         adminListView.setAdapter(eventArrayAdapter);
+        ArrayList<Event> events = new ArrayList<>();
+
         eventRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -269,22 +281,39 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                         String eventDate = doc.getString("eventInfo.date");
                         String eventCapacityString = doc.getString("eventInfo.capacityString");
 
+                        Event event = null;
+
                         if (eventCapacityString != null) {
                             int eventCapacity = Integer.parseInt(eventCapacityString);
-                            Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                            allEvents.add(event);
-
+                            events.add(new Event(eventID, eventName, eventDate, eventCapacity));
                         } else {
-                            Event event = new Event(eventID, eventName, eventDate, -1);
-                            allEvents.add(event);
+                            events.add(new Event(eventID, eventName, eventDate, -1));
                         }
                     }
-                    eventArrayAdapter.notifyDataSetChanged();
+
+                    // finding potential events with posters
+                    for (Event event: events) {
+                        posterRef.document(event.getEventID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> imageTask) {
+                                if (imageTask.isSuccessful()) {
+                                    DocumentSnapshot imageDoc = imageTask.getResult();
+                                    if (imageDoc.exists()) {
+                                        String base64string = imageDoc.getString("imageData");
+                                        event.setImageString(base64string); // setting the poster
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    for (Event event: events) {
+                        allEvents.add(event);
+                        eventArrayAdapter.notifyDataSetChanged();
+                    }
                 } else {
                     Log.d("Firebase", "Error getting documents: ", task.getException());
                 }
             }
-
         });
     }
 
@@ -355,8 +384,27 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
      * Show Posters List method: populates the admin list with event posters
      */
     private void showPostersList() {
-        adminListView.setAdapter(null);
-        deleteButton.setVisibility(View.INVISIBLE);
+        deleteButton.setVisibility(VISIBLE);
+        adminListView.setAdapter(posterArrayAdapter);
+        posterRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    allPosters.clear();
+                    for (DocumentSnapshot doc : task.getResult()) {
+                        String posterString = doc.getString("imageData");
+                        String posterEvent = doc.getId();
+                        if (posterString != null) {
+                            allPosters.add(posterString);
+                            allPostersEventID.add(posterEvent);
+                        }
+                        posterArrayAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    Log.d("Firebase", "Error getting documents: ", task.getException());
+                }
+            }
+        });
     }
 
     /**
@@ -371,13 +419,13 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    allImages.clear();
+                    allQrCodes.clear();
                     for (DocumentSnapshot doc : task.getResult()) {
                         String QRCodeString = doc.getString("QRCodeString");
                         String QRCodeEvent = doc.getId(); // Gets the name of doc which is the event id
                         if (QRCodeString != null) {
-                            allImages.add(QRCodeString);
-                            allImagesEventID.add(QRCodeEvent);
+                            allQrCodes.add(QRCodeString);
+                            allQrCodesEventID.add(QRCodeEvent);
                         }
                     }
                     QRCodeArrayAdapter.notifyDataSetChanged();
@@ -434,8 +482,6 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                 case "Event Poster":
                     break;
             }
-
-
         } else {
             Toast.makeText(getContext(), deletedItem + " deletion cancelled.", Toast.LENGTH_SHORT).show();
         }

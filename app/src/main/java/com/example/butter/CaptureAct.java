@@ -15,8 +15,8 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 /**
  * This class allows us to customize the scanning functionality and add a back button
  * in AndroidManifest.xml
- *
- * @Author Angela Dakay (angelcache)
+ * 
+ * @author Angela Dakay (angelcache)
  */
 public class CaptureAct extends CaptureActivity {
     private static final String TAG = "CaptureAct";

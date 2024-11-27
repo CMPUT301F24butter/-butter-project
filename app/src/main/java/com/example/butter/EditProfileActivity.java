@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,10 +21,18 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -67,6 +76,15 @@ public class EditProfileActivity extends AppCompatActivity {
      * Includes helper functions to convert image datatypes
      */
     private ImageDB imageDB;
+    /**
+     * Firebase database object
+     * Used for querying user facilities
+     */
+    private FirebaseFirestore db;
+
+    private interface OnFacilitiesLoadedCallback {
+        void checkForFacility(List<String> facilities);
+    }
 
     /**
      * onCreate contains firstly setting up the views and editable options on screen for specific user,
@@ -85,6 +103,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
         users = new UserDB(); // init the userDB object
         imageDB = new ImageDB(); // init imageDB object
+        db = FirebaseFirestore.getInstance();
         // get args
         User user = (User) getIntent().getSerializableExtra("user");    // set user object
         String base64Image = getIntent().getStringExtra("base64Image"); // set image str (could be null)
@@ -231,7 +250,8 @@ public class EditProfileActivity extends AppCompatActivity {
                 String facility = editFacility.getText().toString(); // will be empty if entrant
                 String role = roleSpinner.getSelectedItem().toString();
 
-                String validRet = validityCheck(username, email, phone, facility, role);
+                // pass to validity check to get t/f (and trim username & facility)
+                String validRet = validityCheck(username.trim(), email, phone, facility.trim(), role);
 
                 if (validRet.equals("true")) {
                     // if valid, add to database
@@ -240,6 +260,7 @@ public class EditProfileActivity extends AppCompatActivity {
                     if (phone.isEmpty()) phone = null;
                     // if facility is empty (i.e, we are entrant), set to null
                     if (facility.isEmpty()) facility = null;
+                    if (facility != null) facility = facility.trim();   // else trim the facility
 
                     // now to set privilege values:
                     // Entrant = 100, Organizer = 200, both = 300, admin = 400, admin & entrant = 500, admin & org = 600, all = 700
@@ -271,28 +292,47 @@ public class EditProfileActivity extends AppCompatActivity {
                     }
 
                     // now we just simply update the user object with the new one in our database
-                    User userUpdate = new User(user.getDeviceID(), username, privileges, facility, email, phone);
-                    users.update(userUpdate);
+                    User userUpdate = new User(user.getDeviceID(), username.trim(), privileges, facility, email, phone);
 
-                    // now to update our profile pic in db
-                    // if we have a non null uri, update uri as well
-                    if (imageUri != null) { // if we have a new image
-                        if (newPFP) {   // if our new image is just new
-                            // add new image to db
-                            imageDB.add(imageUri, user.getDeviceID(), getApplicationContext());
-                        } else { // else we are updating existing
-                            imageDB.update(imageUri, user.getDeviceID(), getApplicationContext());
-                        }
-                    } else {    // else then we are simply removing the current pfp or doing nothing
-                        if (removed && !newPFP) {  // if we had a pfp & want to remove, remove it
-                            // remove current pfp
-                            imageDB.delete(user.getDeviceID());
-                        }
-                        // else we do nothing (no updated pfp, no updates in db)
-                    }
+                    // run a final check for conflicting facility
+                    String finalFacility = facility;
+                    // load our callback function to fetch a list of facilities
+                    fetchFacilities(new OnFacilitiesLoadedCallback() {
+                        @Override
+                        public void checkForFacility(List<String> facilities) {
+                            // check if facility is in our fetched facility list from db
+                            if (!facilities.contains(finalFacility) || finalFacility.equals(user.getFacility())) { // if the facility is not in db or is the original facility
+                                // update user in db and finish
+                                users.update(userUpdate);
 
-                    // now our updated user should be in the database, and we can return
-                    finish();
+                                // update our profile pic in db first
+                                // if we have a non null uri, update uri as well
+                                if (imageUri != null) { // if we have a new image
+                                    if (newPFP) {   // if our new image is just new
+                                        // add new image to db
+                                        imageDB.add(imageUri, user.getDeviceID(), getApplicationContext());
+                                    } else { // else we are updating existing
+                                        imageDB.update(imageUri, user.getDeviceID(), getApplicationContext());
+                                    }
+                                } else {    // else then we are simply removing the current pfp or doing nothing
+                                    if (removed && !newPFP) {  // if we had a pfp & want to remove, remove it
+                                        // remove current pfp
+                                        imageDB.delete(user.getDeviceID());
+                                    }
+                                    // else we do nothing (no updated pfp, no updates in db)
+                                }
+
+                                // now our updated user should be in the database and pfp updated, and we can return
+                                finish();
+                            } else {    // else create builder and conflicting facility error
+                                AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
+                                builder.setTitle("Invalid Signup");
+                                builder.setMessage("Conflicting Facility Name.\nPlease try again.");
+                                builder.setPositiveButton("OK", null);
+                                builder.show();
+                            }
+                        }
+                    });
                 } else {    // else then show dialogue message and continue
                     AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
                     builder.setTitle("Invalid Signup");
@@ -335,7 +375,7 @@ public class EditProfileActivity extends AppCompatActivity {
      * @param email
      * If email is empty OR is not a valid email address (formatting wise), invalid
      * @param phone
-     * If phone is not empty AND is not a valid phone number, invalid
+     * If phone is not empty AND is not a valid phone number, invalid. Also checks for len > 15
      * @param facility
      * If role is not 'Entrant', 'Admin', or 'Admin & Entrant' AND (facility is empty OR more than 20 characters), invalid
      * @param role
@@ -359,6 +399,8 @@ public class EditProfileActivity extends AppCompatActivity {
             returnString = "Invalid Email Address.";
         } else if (!phone.isEmpty() && !Patterns.PHONE.matcher(phone).matches()) {
             returnString = "Invalid Phone Number.";
+        } else if (phone.length() > 15) {   // max phone len 15
+            returnString = "Max Phone length is 15 numbers.";
         } else if (!role.equals("Entrant") && !role.equals("Admin") && !role.equals("Admin & Entrant")) { // else if we have facility name to eval
             if (facility.isEmpty()) {
                 returnString = "Invalid Facility.";
@@ -372,4 +414,28 @@ public class EditProfileActivity extends AppCompatActivity {
         // else our info is valid
         return returnString;
     }
+
+    /**
+     * Creates and fetches a list of strings for all facilities in the database.
+     * This returns to a callback rather than a simple return.
+     * The callback handles what to do with this list.
+     */
+    private void fetchFacilities(OnFacilitiesLoadedCallback callback) {
+        db.collection("user").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {  // get facility for all users
+                    List<String> facilities = new ArrayList<>();
+                    for (DocumentSnapshot doc : task.getResult()) {
+                        facilities.add(doc.getString("userInfo.facility"));
+                    }
+                    callback.checkForFacility(facilities);
+                } else {
+                    Log.e("Firebase Error", "Error getting documents in EditProfileActivity", task.getException());
+                    callback.checkForFacility(Collections.emptyList()); // return empty list on failure
+                }
+            }
+        });
+    }
+
 }

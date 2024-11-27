@@ -147,6 +147,7 @@ public class UserListDB {
                     if (doc.exists()) { // if there is data associated with this userListID
                         String listSize = doc.getString("size");
                         int listSizeInt = Integer.parseInt(listSize);
+                        String listType = doc.getString("type");
 
                         ArrayList<String> updatedUsers = new ArrayList<>();
                         int found = 0;
@@ -163,6 +164,7 @@ public class UserListDB {
                             listSizeInt--; // decrement the list size
                             HashMap<String, Object> data = new HashMap<>();
                             data.put("size", String.valueOf(listSizeInt)); // update the size of the list
+                            data.put("type", listType);
 
                             for (int i = 0; i < updatedUsers.size(); i++) { // putting back all the remaining users with updated indexes
                                 data.put("user" + i, updatedUsers.get(i));

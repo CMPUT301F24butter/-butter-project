@@ -35,7 +35,6 @@
         <activity android:name=".EntrantListsActivity"/>
         <activity android:name=".OrganizerShowCodeActivity"/>
         <activity android:name=".CaptureAct"
-            android:stateNotNeeded="true"
             android:theme="@style/zxing_CaptureTheme"/>
     </application>
 

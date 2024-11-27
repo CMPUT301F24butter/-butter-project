@@ -87,11 +87,14 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
         ImageView bitmapImage = view.findViewById(R.id.poster_image);
         bitmapImage.setImageBitmap(bitmap); // displaying the bitmap
 
-        TextView imageInfo = view.findViewById(R.id.poster_name);
+        TextView imageType = view.findViewById(R.id.poster_name);
+        TextView imageSource = view.findViewById(R.id.poster_detail);
 
         // EventIds always have - to seperate the event name + ID
         if (sourceID.contains("-")) {
-            imageInfo.setText(String.format("From Event: %s", name)); // tells us which event image is from
+            imageType.setText(name); // tells us which event image is from
+            String type = "Event Poster";
+            imageSource.setText(type);
         } else { // if it doesn't have this then it is a profile picture
             usersref.document(sourceID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
@@ -104,7 +107,9 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
                         }
                     }
                     // Sets text after username retrieved
-                    imageInfo.setText(String.format("Profile From: %s", username));
+                    imageType.setText(username);
+                    String type = "Profile Picture";
+                    imageSource.setText(type);
                 }
             });
         }

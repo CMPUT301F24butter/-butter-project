@@ -3,7 +3,6 @@ package com.example.butter;
 import static android.view.View.VISIBLE;
 
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,7 +24,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -44,7 +42,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     private CollectionReference eventRef;
     private CollectionReference userRef;
     private CollectionReference QRCodeRef;
-    private CollectionReference posterRef;
+    private CollectionReference imagesRef;
 
     // Lists of events, users, and posters
     private ArrayList<Event> allEvents;
@@ -52,20 +50,21 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     private ArrayList<User> allFacilities;
     private ArrayList<String> allQrCodes;
     private ArrayList<String> allQrCodesEventID; // References the event ID image is attached to
-    private ArrayList<String> allPosters;
-    private ArrayList<String> allPostersEventID; // References the event ID image is attached to
+    private ArrayList<String> allImages;
+    private ArrayList<String> allImagesID; // References the event ID image is attached to
     private ListView adminListView;
     private EventArrayAdapter eventArrayAdapter;
     private UserArrayAdapter profileArrayAdapter;
     private UserArrayAdapter facilitiesArrayAdapter;
     private ImagesArrayAdapter QRCodeArrayAdapter;
-    private ImagesArrayAdapter posterArrayAdapter;
+    private ImagesArrayAdapter imageArrayAdapter;
     private Boolean isFacility;
     private String browse;
     private String deviceID;
     private FloatingActionButton deleteButton;
     User selectedOrganizer;
-    String selectedImageEvent;
+    String selectedQRCode;
+    String selectedImage;
 
     /**
      * Constructor for HomeAdminFragment, initializes array lists and reference to database
@@ -78,14 +77,14 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         allFacilities = new ArrayList<>();
         allQrCodes = new ArrayList<>();
         allQrCodesEventID = new ArrayList<>();
-        allPosters = new ArrayList<>();
-        allPostersEventID = new ArrayList<>();
+        allImages = new ArrayList<>();
+        allImagesID = new ArrayList<>();
 
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
         userRef = db.collection("user"); // user collection
         QRCodeRef = db.collection("QRCode");
-        posterRef = db.collection("image");
+        imagesRef = db.collection("image");
         this.browse = browse;
         this.deviceID = deviceID;
     }
@@ -117,7 +116,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         profileArrayAdapter = new UserArrayAdapter(getContext(), allUsers, Boolean.FALSE);
         facilitiesArrayAdapter = new UserArrayAdapter(getContext(), allFacilities, Boolean.TRUE);
         QRCodeArrayAdapter = new ImagesArrayAdapter(getContext(), allQrCodes, allQrCodesEventID);
-        posterArrayAdapter = new ImagesArrayAdapter(getContext(), allPosters, allPostersEventID);
+        imageArrayAdapter = new ImagesArrayAdapter(getContext(), allImages, allImagesID);
 
         // Used to set the right adapter when the user changes the spinner option
         switch (browse) {
@@ -131,8 +130,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             case "Browse Profiles":
                 adminListView.setAdapter(profileArrayAdapter);
                 break;
-            case "Browse Event Posters":
-                adminListView.setAdapter(posterArrayAdapter);
+            case "Browse Images":
+                adminListView.setAdapter(imageArrayAdapter);
                 deleteButton.setVisibility(VISIBLE);
                 break;
             case "Browse QR Codes":
@@ -154,11 +153,14 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                     intent.putExtra("eventID", selectedEventID);
                     intent.putExtra("adminPrivilege", Boolean.TRUE); // User has admin priviliges, used in eventDetailsActivity for special priviliges
                     startActivity(intent);
-                } else if (browse.equals("Browse Facilities")) {
+                } else if (browse.equals("Browse Profiles")) {
 
+                } else if (browse.equals("Browse Facilities")) {
                     selectedOrganizer = allFacilities.get(position);
                 } else if (browse.equals("Browse QR Codes")) {
-                    selectedImageEvent = allQrCodesEventID.get(position);
+                    selectedQRCode = allQrCodesEventID.get(position);
+                } else if (browse.equals("Browse Images")) {
+                    selectedImage = allImagesID.get(position);
                 }
             }
         });
@@ -170,21 +172,41 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     }
 
     /**
+     * Deletes Selected Image
+     */
+    private void deleteSelectedImage() {
+        if (selectedImage != null) {
+            int imageIndex = allImagesID.indexOf(selectedImage);
+
+            ImageDB imageDB = new ImageDB();
+            imageDB.delete(selectedImage);
+
+            // Remove the ImageDB from the list and notifies adapter
+            allImages.remove(imageIndex);
+            allImagesID.remove(imageIndex);
+            imageArrayAdapter.notifyDataSetChanged();
+            selectedImage = null;
+
+            Toast.makeText(getContext(), "The Image has been succesfully deleted.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
      * Deletes Selected QR Code
      */
     private void deleteSelectedQRCode() {
-        if (selectedImageEvent != null) {
+        if (selectedQRCode != null) {
 
-            int QRIndex = allQrCodesEventID.indexOf(selectedImageEvent);
+            int QRIndex = allQrCodesEventID.indexOf(selectedQRCode);
 
             QRCodeDB QRCode = new QRCodeDB();
-            QRCode.delete(selectedImageEvent);
+            QRCode.delete(selectedQRCode);
 
             // Remove the QR Code from the list and notifies adapter
             allQrCodes.remove(QRIndex);
             allQrCodesEventID.remove(QRIndex);
             QRCodeArrayAdapter.notifyDataSetChanged();
-            selectedImageEvent = null;
+            selectedQRCode = null;
 
             Toast.makeText(getContext(), "The QR code has been successfully deleted.", Toast.LENGTH_SHORT).show();
         }
@@ -259,6 +281,9 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                 } else if (browse.equals("Browse QR Codes")) {
                     ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "QR Code");
                     dialog.showDialog();
+                } else if (browse.equals("Browse Images")) {
+                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "Image");
+                    dialog.showDialog();
                 }
             }
         });
@@ -295,9 +320,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                         }
 
                         Event finalEvent = event;
-
                         // Fetch poster image for event
-                        posterRef.document(event.getEventID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        imagesRef.document(event.getEventID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                             @Override
                             public void onComplete(@NonNull Task<DocumentSnapshot> imageTask) {
                                 if (imageTask.isSuccessful()) {
@@ -329,11 +353,15 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     public void showProfilesList() {
         deleteButton.setVisibility(View.INVISIBLE);
         adminListView.setAdapter(profileArrayAdapter);
+
         userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     allUsers.clear();
+                    int totalUsers = task.getResult().size();
+                    final AtomicInteger completedTasks = new AtomicInteger(0); // To track how many users have been fully loaded
+
                     for (DocumentSnapshot doc : task.getResult()) {
                         String deviceID = doc.getString("userInfo.deviceID");
                         String email = doc.getString("userInfo.email");
@@ -343,9 +371,29 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                         int privileges = Integer.parseInt(doc.getString("userInfo.privilegesString"));
 
                         User user = new User(deviceID, name, privileges, facility, email, phone);
-                        allUsers.add(user);
+
+                        // Retrieve image data for this user
+                        imagesRef.document(user.getDeviceID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> imageTask) {
+                                if (imageTask.isSuccessful()) {
+                                    DocumentSnapshot imageDoc = imageTask.getResult();
+                                    if (imageDoc.exists()) { // If image data exists for this user
+                                        String base64string = imageDoc.getString("imageData");
+                                        user.setProfilePicString(base64string);
+                                    }
+                                }
+                                // Add the user to the list after image data is fetched
+                                allUsers.add(user);
+
+                                // Increment the counter for each loaded user
+                                if (completedTasks.incrementAndGet() == totalUsers) {
+                                    // Once all users are loaded, update the list in the adapter
+                                    profileArrayAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
                     }
-                    profileArrayAdapter.notifyDataSetChanged();
                 } else {
                     Log.d("Firebase", "Error getting documents: ", task.getException());
                 }
@@ -364,6 +412,9 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
                     allFacilities.clear();
+                    int totalFacilities = task.getResult().size();
+                    final AtomicInteger completedTasks = new AtomicInteger(0); // To track how many facilities loaded
+
                     for (DocumentSnapshot doc : task.getResult()) {
                         String deviceID = doc.getString("userInfo.deviceID");
                         String email = doc.getString("userInfo.email");
@@ -374,11 +425,30 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
 
                         User user = new User(deviceID, name, privileges, facility, email, phone);
 
-                        if (facility != null) {
-                            allFacilities.add(user);
-                        }
+                        // Retrieve image data for this user
+                        imagesRef.document(user.getDeviceID()).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> imageTask) {
+                                if (imageTask.isSuccessful()) {
+                                    DocumentSnapshot imageDoc = imageTask.getResult();
+                                    if (imageDoc.exists()) { // If image data exists for this user
+                                        String base64string = imageDoc.getString("imageData");
+                                        user.setProfilePicString(base64string);
+                                    }
+                                }
+
+                                if (facility != null) {
+                                    // Add the user to the list after image data is fetched
+                                    allFacilities.add(user);
+                                }
+                                // Increment the counter for each loaded user
+                                if (completedTasks.incrementAndGet() == totalFacilities) {
+                                    // Once all users are loaded, update the list in the adapter
+                                    facilitiesArrayAdapter.notifyDataSetChanged();
+                                }
+                            }
+                        });
                     }
-                    facilitiesArrayAdapter.notifyDataSetChanged();
                 } else {
                     Log.d("Firebase", "Error getting documents: ", task.getException());
                 }
@@ -389,22 +459,22 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     /**
      * Show Posters List method: populates the admin list with event posters
      */
-    private void showPostersList() {
+    private void showImagesList() {
         deleteButton.setVisibility(VISIBLE);
-        adminListView.setAdapter(posterArrayAdapter);
-        posterRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+        adminListView.setAdapter(imageArrayAdapter);
+        imagesRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if (task.isSuccessful()) {
-                    allPosters.clear();
+                    allImages.clear();
                     for (DocumentSnapshot doc : task.getResult()) {
                         String posterString = doc.getString("imageData");
                         String posterEvent = doc.getId();
                         if (posterString != null) {
-                            allPosters.add(posterString);
-                            allPostersEventID.add(posterEvent);
+                            allImages.add(posterString);
+                            allImagesID.add(posterEvent);
                         }
-                        posterArrayAdapter.notifyDataSetChanged();
+                        imageArrayAdapter.notifyDataSetChanged();
                     }
                 } else {
                     Log.d("Firebase", "Error getting documents: ", task.getException());
@@ -460,8 +530,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             case "Browse Profiles":
                 showProfilesList();
                 break;
-            case "Browse Event Posters":
-                showPostersList();
+            case "Browse Images":
+                showImagesList();
                 break;
             case "Browse QR Codes":
                 showQRCodesList();;
@@ -485,7 +555,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                 case "QR Code":
                     deleteSelectedQRCode();
                     break;
-                case "Event Poster":
+                case "Image":
+                    deleteSelectedImage();
                     break;
             }
         } else {

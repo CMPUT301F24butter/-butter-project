@@ -15,7 +15,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import org.w3c.dom.Text;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import org.w3c.dom.Document;
 
 import java.util.ArrayList;
 
@@ -29,6 +35,9 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
     private ArrayList<String> images;
     private final Context context;
     private ArrayList<String> events;
+    private FirebaseFirestore db;
+    private CollectionReference usersref;
+    String username;
 
     /**
      * Constructor for ImagesArrayAdapter, instantiates images, context, and events variables.
@@ -41,6 +50,8 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
         this.images = images;
         this.context = context;
         this.events = events;
+        db = FirebaseFirestore.getInstance();
+        usersref = db.collection("user");
     }
 
     /**
@@ -59,7 +70,7 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        View view = convertView;
+        View view = null;
         if(view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.poster_content, parent,false);
         }
@@ -68,7 +79,8 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
         System.out.println("Event: " + events.get(position));
 
         String image = images.get(position);
-        String eventName = getEventName(events.get(position));
+        String sourceID = events.get(position); // source could either be event or user profile
+        String name = getName(sourceID);
 
         Bitmap bitmap = stringToBitmap(image); // turning the string into a bitmap
 
@@ -76,7 +88,26 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
         bitmapImage.setImageBitmap(bitmap); // displaying the bitmap
 
         TextView imageInfo = view.findViewById(R.id.poster_name);
-        imageInfo.setText(String.format("From Event: %s", eventName)); // tells us which event image is from
+
+        // EventIds always have - to seperate the event name + ID
+        if (sourceID.contains("-")) {
+            imageInfo.setText(String.format("From Event: %s", name)); // tells us which event image is from
+        } else { // if it doesn't have this then it is a profile picture
+            usersref.document(sourceID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    if (task.isSuccessful()) {
+                        DocumentSnapshot document = task.getResult();
+                        if (document.exists()) {
+                            // Get username from document
+                            username = document.getString("userInfo.name");
+                        }
+                    }
+                    // Sets text after username retrieved
+                    imageInfo.setText(String.format("Profile From: %s", username));
+                }
+            });
+        }
 
         return view;
     }
@@ -87,7 +118,7 @@ public class ImagesArrayAdapter extends ArrayAdapter<String> {
      * @param eventID the event ID that wil be cleaned up to get the event name
      * @return Event Name
      */
-    private String getEventName(String eventID) {
+    private String getName(String eventID) {
         int dashIndex = eventID.indexOf("-");
         if (dashIndex != -1) {
             eventID = eventID.substring(0, dashIndex);

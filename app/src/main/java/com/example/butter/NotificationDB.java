@@ -10,10 +10,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.UUID;
 
 public class NotificationDB {
@@ -66,6 +68,36 @@ public class NotificationDB {
                                 });
                     } else {
                         Log.d("Firebase", "Notification with this ID does not exist");
+                    }
+                }
+            }
+        });
+    }
+
+    public void deleteNotificationsFromEvent(String eventID) {
+        notificationRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                for (DocumentSnapshot doc : querySnapshot) {
+                    String eventSenderID = doc.getString("notificationInfo.eventSenderID");
+                    if (Objects.equals(eventSenderID, eventID)) {
+                        String notificationID = doc.getString("notificationInfo.notificationID");
+                        delete(notificationID);
+                    }
+                }
+            }
+        });
+    }
+
+    public void deleteNotificationsToUser(String deviceID) {
+        notificationRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                for (DocumentSnapshot doc : querySnapshot) {
+                    String recipientID = doc.getString("notificationInfo.recipientDeviceID");
+                    if (Objects.equals(recipientID, deviceID)) {
+                        String notificationID = doc.getString("notificationInfo.notificationID");
+                        delete(notificationID);
                     }
                 }
             }

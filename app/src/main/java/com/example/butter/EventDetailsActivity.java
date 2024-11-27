@@ -323,19 +323,8 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         MapDB mapDB = new MapDB();
         mapDB.deleteMap(eventID);
 
-        notificationRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-            @Override
-            public void onSuccess(QuerySnapshot querySnapshot) {
-                for (DocumentSnapshot doc : querySnapshot) {
-                    String eventSenderID = doc.getString("notificationInfo.eventSenderID");
-                    if (Objects.equals(eventSenderID, eventID)) {
-                        NotificationDB notificationDB = new NotificationDB();
-                        String notificationID = doc.getString("notificationInfo.notificationID");
-                        notificationDB.delete(notificationID);
-                    }
-                }
-            }
-        });
+        NotificationDB notificationDB = new NotificationDB();
+        notificationDB.deleteNotificationsFromEvent(eventID);
 
         // deleting the event itself
         EventDB eventDB = new EventDB();

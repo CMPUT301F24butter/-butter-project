@@ -27,8 +27,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * This activity shows the details of an event when it is clicked on from the "Events" screen
@@ -51,6 +53,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     private CollectionReference eventRef;
     private CollectionReference userListRef;
     private CollectionReference imageRef;
+    private CollectionReference notificationRef;
 
     private String organizerID;
     private String eventID;
@@ -70,6 +73,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventRef = db.collection("event"); // event collection
         userListRef = db.collection("userList");
         imageRef = db.collection("image");
+        notificationRef = db.collection("notification");
 
         deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
@@ -316,10 +320,33 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         ImageDB imageDB = new ImageDB();
         imageDB.delete(eventID);
 
+        MapDB mapDB = new MapDB();
+        mapDB.deleteMap(eventID);
+
+        notificationRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                for (DocumentSnapshot doc : querySnapshot) {
+                    String eventSenderID = doc.getString("notificationInfo.eventSenderID");
+                    if (Objects.equals(eventSenderID, eventID)) {
+                        NotificationDB notificationDB = new NotificationDB();
+                        String notificationID = doc.getString("notificationInfo.notificationID");
+                        notificationDB.delete(notificationID);
+                    }
+                }
+            }
+        });
+
         // deleting the event itself
         EventDB eventDB = new EventDB();
         eventDB.delete(eventID);
         Toast.makeText(EventDetailsActivity.this, "Event successfully deleted.", Toast.LENGTH_SHORT).show();
+
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         finish(); // returning to the previous screen
     }

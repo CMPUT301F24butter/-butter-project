@@ -245,7 +245,18 @@ public class CreateEventFragment extends AppCompatActivity {
                                         imageDB.add(uriUploaded, event.getEventID(), getApplicationContext()); // add the image to firebase
                                     }
 
+                                    if (event.isGeolocation()) {
+                                        MapDB mapDB = new MapDB();
+                                        mapDB.createMap(event.getEventID());
+                                    }
+
                                     generateQRCode(eventID); // generating the QR code for this event
+
+                                    try {
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
 
                                     finish();
                                 }

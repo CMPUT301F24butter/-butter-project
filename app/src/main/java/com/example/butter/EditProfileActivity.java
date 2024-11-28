@@ -323,6 +323,13 @@ public class EditProfileActivity extends AppCompatActivity {
                                         // else we do nothing (no updated pfp, no updates in db)
                                     }
 
+                                    // run a quick sleep to ensure that all items have been fetched/updated in db
+                                    try {
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
                                     // now our updated user should be in the database and pfp updated, and we can return
                                     finish();
                                 } else {    // else create builder and conflicting facility error
@@ -353,6 +360,13 @@ public class EditProfileActivity extends AppCompatActivity {
                                 imageDB.delete(user.getDeviceID());
                             }
                             // else we do nothing (no updated pfp, no updates in db)
+                        }
+
+                        // run a quick sleep to ensure that all items have been fetched/updated in db
+                        try {
+                            Thread.sleep(300);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
                         }
 
                         // now our updated user should be in the database and pfp updated, and we can return

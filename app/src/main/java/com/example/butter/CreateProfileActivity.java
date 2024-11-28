@@ -139,6 +139,13 @@ public class CreateProfileActivity extends AppCompatActivity {
                                     // add the user to the db, and go to main
                                     users.add(user);
 
+                                    // run a quick sleep to ensure that all items have been fetched/updated in db
+                                    try {
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
                                     // now our new user should be in the database, and go to MainActivity
                                     Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);
                                     startActivity(toMainActivity);
@@ -155,6 +162,13 @@ public class CreateProfileActivity extends AppCompatActivity {
                     } else {    // else we are not an org, and should just add in db
                         // add the user to the db, and go to main
                         users.add(user);
+
+                        // run a quick sleep to ensure that all items have been fetched/updated in db
+                        try {
+                            Thread.sleep(300);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
 
                         // now our new user should be in the database, and go to MainActivity
                         Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);

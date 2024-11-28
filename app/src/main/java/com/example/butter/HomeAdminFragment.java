@@ -278,26 +278,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                                 String eventID = doc.getId();   // get event id
                                 String eventOID = doc.getString("eventInfo.organizerID"); // get org id
                                 if (userID.equals(eventOID)) {  // if our user is the same, delete this event and all associated data
-                                    // setup calls to various userLists
-                                    String waitListID = eventID + "-wait";
-                                    String drawListID = eventID + "-draw";
-                                    String registerListID = eventID + "-registered";
-                                    String cancelledListID = eventID + "-cancelled";
-
-                                    // delete from various user lists
-                                    userListDB.deleteList(waitListID);
-                                    userListDB.deleteList(drawListID);
-                                    userListDB.deleteList(registerListID);
-                                    userListDB.deleteList(cancelledListID);
-
-                                    // delete all other attributes associated with event
-                                    qrcodeDB.delete(eventID);
-                                    imageDB.delete(eventID);
-                                    mapDB.deleteMap(eventID);
-                                    notificationDB.deleteNotificationsFromEvent(eventID);
-
-                                    // finally, delete the event
-                                    eventDB.delete(eventID);
+                                    // call to deleteEvent with the corresponding eventID to delete
+                                    deleteEvent(eventID);
                                 }
                             }
                         } else {    // else we failed to get the doc
@@ -331,6 +313,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
 
             // keep deleted facility to use in a toast
             String deletedFacility = selectedOrganizer.getFacility();
+            String userID = selectedOrganizer.getDeviceID();    // get deviceID to delete events
 
             // Nullify the user's facility
             selectedOrganizer.setFacility(null);
@@ -342,6 +325,28 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             } else {
                 selectedOrganizer.setPrivileges(100); // Organizer + entrant / organizer only will become entrant only
             }
+
+            // remove and delete all events associated with the facility
+            // delete all facilities associated with this user
+            eventRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {  // if we found the ref
+                        // lets go over all events and search for one with corresponding org id
+                        for (DocumentSnapshot doc : task.getResult()) {
+                            String eventID = doc.getId();   // get event id
+                            String eventOID = doc.getString("eventInfo.organizerID"); // get org id
+                            if (userID.equals(eventOID)) {  // if our user is the same, delete this event and all associated data
+                                // call to deleteEvent with the corresponding eventID to delete
+                                deleteEvent(eventID);
+                            }
+                        }
+                    } else {    // else we failed to get the doc
+                        Log.d("Firebase", "Error getting documents: ", task.getException());
+                    }
+                }
+            });
+
 
             // Update the user in the database
             try {
@@ -673,6 +678,47 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             }
         } else {
             Toast.makeText(getContext(), deletedItem + " deletion cancelled.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Takes in an eventID, and deletes all associated items in the database with said event.
+     * @param eventID contains the ID for the corresponding event to be deleted
+     */
+    private void deleteEvent(String eventID) {
+        // init db objects
+        QRCodeDB qrCodeDB = new QRCodeDB();
+        ImageDB imageDB = new ImageDB();
+        MapDB mapDB = new MapDB();
+        NotificationDB notificationDB = new NotificationDB();
+        EventDB eventDB = new EventDB();
+        UserListDB userListDB = new UserListDB();
+
+        // init event list IDs
+        String waitListID = eventID + "-wait";
+        String drawListID = eventID + "-draw";
+        String registerListID = eventID + "-registered";
+        String cancelledListID = eventID + "-cancelled";
+
+        // deleting all user lists associated with this event
+        userListDB.deleteList(waitListID);
+        userListDB.deleteList(drawListID);
+        userListDB.deleteList(registerListID);
+        userListDB.deleteList(cancelledListID);
+
+        // deleting db items associated with event
+        qrCodeDB.delete(eventID);
+        imageDB.delete(eventID);
+        mapDB.deleteMap(eventID);
+        notificationDB.deleteNotificationsFromEvent(eventID);
+
+        // deleting the event itself
+        eventDB.delete(eventID);
+
+        try {   // sleep to avoid crashes
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }

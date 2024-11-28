@@ -58,6 +58,7 @@ public class OrganizerOptions extends DialogFragment {
         TextView editEvent = view.findViewById(R.id.edit_event_text);
         TextView viewEntrants = view.findViewById(R.id.view_entrants_text);
         TextView showDetailsCode = view.findViewById(R.id.show_details_code_text);
+        TextView viewMap = view.findViewById(R.id.view_map_text);
         TextView notifications = view.findViewById(R.id.send_notifications_text);
         TextView okText = view.findViewById(R.id.ok_text);
 
@@ -96,6 +97,17 @@ public class OrganizerOptions extends DialogFragment {
                 intent.putExtra("eventID", eventID);
                 startActivity(intent);
                 getDialog().dismiss();
+            }
+        });
+
+        // setting click listener for 'view map' text
+        viewMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), ViewMap.class);
+                intent.putExtra("deviceID", deviceID);
+                intent.putExtra("eventID", eventID);
+                startActivity(intent);
             }
         });
 

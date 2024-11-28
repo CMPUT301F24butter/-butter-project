@@ -41,6 +41,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     private FirebaseFirestore db;
     private CollectionReference eventRef;
     private CollectionReference userRef;
+    private CollectionReference userListRef;
     private CollectionReference QRCodeRef;
     private CollectionReference imagesRef;
 
@@ -65,6 +66,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
     User selectedOrganizer;
     String selectedQRCode;
     String selectedImage;
+    User selectedUser;
 
     /**
      * Constructor for HomeAdminFragment, initializes array lists and reference to database
@@ -83,6 +85,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
         userRef = db.collection("user"); // user collection
+        userListRef = db.collection("userList");
         QRCodeRef = db.collection("QRCode");
         imagesRef = db.collection("image");
         this.browse = browse;
@@ -129,6 +132,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                 break;
             case "Browse Profiles":
                 adminListView.setAdapter(profileArrayAdapter);
+                deleteButton.setVisibility(VISIBLE);
                 break;
             case "Browse Images":
                 adminListView.setAdapter(imageArrayAdapter);
@@ -154,7 +158,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                     intent.putExtra("adminPrivilege", Boolean.TRUE); // User has admin priviliges, used in eventDetailsActivity for special priviliges
                     startActivity(intent);
                 } else if (browse.equals("Browse Profiles")) {
-
+                    selectedUser = allUsers.get(position);
                 } else if (browse.equals("Browse Facilities")) {
                     selectedOrganizer = allFacilities.get(position);
                 } else if (browse.equals("Browse QR Codes")) {
@@ -187,7 +191,9 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             imageArrayAdapter.notifyDataSetChanged();
             selectedImage = null;
 
-            Toast.makeText(getContext(), "The Image has been succesfully deleted.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Image successfully deleted.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "No Image selected.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -208,7 +214,105 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             QRCodeArrayAdapter.notifyDataSetChanged();
             selectedQRCode = null;
 
-            Toast.makeText(getContext(), "The QR code has been successfully deleted.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "QR code successfully deleted.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "No QR code selected.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    /**
+     * Deletes Selected User Profile
+     * @author Soopyman
+     */
+    private void deleteSelectedUser() {
+        if (selectedUser != null) { // if we have a user
+            // first grab user id
+            String userID = selectedUser.getDeviceID();
+
+            // setup db objects
+            UserDB userDB = new UserDB();
+            EventDB eventDB = new EventDB();
+            UserListDB userListDB = new UserListDB();
+            ImageDB imageDB = new ImageDB();
+            NotificationDB notificationDB = new NotificationDB();
+            MapDB mapDB = new MapDB();
+            QRCodeDB qrcodeDB = new QRCodeDB();
+
+            // then lets remove all data associated with the user
+
+            // remove the user from all event lists
+            userListRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                    if (task.isSuccessful()) {  // if we have a doc
+                        // lets loop over all the docs and call to delete in userListDB
+                        for (DocumentSnapshot doc : task.getResult()) {
+                            String listID = doc.getId();
+
+                            // delete user from list if exists
+                            userListDB.removeFromList(listID, userID);
+                        }
+                    } else {
+                        Log.d("Firebase", "Error getting documents: ", task.getException());
+                    }
+                }
+            });
+
+            // remove user pfp from imageDB
+            imageDB.delete(userID);
+            // delete notifications sent to user
+            notificationDB.deleteNotificationsToUser(userID);
+
+            // finally, lets check if they are an organizer. if so, delete all events associated with user
+            if (selectedUser.getPrivileges() != 100 && selectedUser.getPrivileges() != 400 && selectedUser.getPrivileges() != 500) { // if our user is an organizer
+                // if so, we are an organizer and may have existing events
+                // delete these events and all items associated with them
+
+                // first lets query for event, search for "eventInfo.organizerID"
+                eventRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {  // if we found the ref
+                            // lets go over all events and search for one with corresponding org id
+                            for (DocumentSnapshot doc : task.getResult()) {
+                                String eventID = doc.getId();   // get event id
+                                String eventOID = doc.getString("eventInfo.organizerID"); // get org id
+                                if (userID.equals(eventOID)) {  // if our user is the same, delete this event and all associated data
+                                    // setup calls to various userLists
+                                    String waitListID = eventID + "-wait";
+                                    String drawListID = eventID + "-draw";
+                                    String registerListID = eventID + "-registered";
+                                    String cancelledListID = eventID + "-cancelled";
+
+                                    // delete from various user lists
+                                    userListDB.deleteList(waitListID);
+                                    userListDB.deleteList(drawListID);
+                                    userListDB.deleteList(registerListID);
+                                    userListDB.deleteList(cancelledListID);
+
+                                    // delete all other attributes associated with event
+                                    qrcodeDB.delete(eventID);
+                                    imageDB.delete(eventID);
+                                    mapDB.deleteMap(eventID);
+                                    notificationDB.deleteNotificationsFromEvent(eventID);
+
+                                    // finally, delete the event
+                                    eventDB.delete(eventID);
+                                }
+                            }
+                        } else {    // else we failed to get the doc
+                            Log.d("Firebase", "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+            }
+
+            // finally, we delete the user from the user database
+            userDB.delete(userID);
+
+            Toast.makeText(getContext(), "User Profile successfully deleted.", Toast.LENGTH_SHORT).show();
+        } else { // else, we do not currently have a user selected
+            Toast.makeText(getContext(), "No User Profile selected.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -251,6 +355,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             selectedOrganizer = null;
 
             Toast.makeText(getContext(), deletedFacility + " deleted.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(getContext(), "No Facility selected.", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -283,6 +389,9 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                     dialog.showDialog();
                 } else if (browse.equals("Browse Images")) {
                     ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "Image");
+                    dialog.showDialog();
+                } else if (browse.equals("Browse Profiles")) {
+                    ConfirmationDialog dialog = new ConfirmationDialog(getContext(), HomeAdminFragment.this, "User Profile");
                     dialog.showDialog();
                 }
             }
@@ -351,7 +460,7 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
      * Show Profiles List method: populates the admin list with all user profiles
      */
     public void showProfilesList() {
-        deleteButton.setVisibility(View.INVISIBLE);
+        deleteButton.setVisibility(VISIBLE);
         adminListView.setAdapter(profileArrayAdapter);
 
         userRef.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -557,6 +666,9 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                     break;
                 case "Image":
                     deleteSelectedImage();
+                    break;
+                case "User Profile":
+                    deleteSelectedUser();
                     break;
             }
         } else {

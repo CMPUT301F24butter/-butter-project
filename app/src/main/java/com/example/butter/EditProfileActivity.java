@@ -294,45 +294,70 @@ public class EditProfileActivity extends AppCompatActivity {
                     // now we just simply update the user object with the new one in our database
                     User userUpdate = new User(user.getDeviceID(), username.trim(), privileges, facility, email, phone);
 
-                    // run a final check for conflicting facility
-                    String finalFacility = facility;
-                    // load our callback function to fetch a list of facilities
-                    fetchFacilities(new OnFacilitiesLoadedCallback() {
-                        @Override
-                        public void checkForFacility(List<String> facilities) {
-                            // check if facility is in our fetched facility list from db
-                            if (!facilities.contains(finalFacility) || finalFacility.equals(user.getFacility())) { // if the facility is not in db or is the original facility
-                                // update user in db and finish
-                                users.update(userUpdate);
+                    if (facility != null) { // if we are an org, check for conflicting facility
+                        // run a final check for conflicting facility
+                        String finalFacility = facility;
+                        // load our callback function to fetch a list of facilities
+                        fetchFacilities(new OnFacilitiesLoadedCallback() {
+                            @Override
+                            public void checkForFacility(List<String> facilities) {
+                                // check if facility is in our fetched facility list from db
+                                if (!facilities.contains(finalFacility) || finalFacility.equals(user.getFacility())) { // if the facility is not in db or is the original facility
+                                    // update user in db and finish
+                                    users.update(userUpdate);
 
-                                // update our profile pic in db first
-                                // if we have a non null uri, update uri as well
-                                if (imageUri != null) { // if we have a new image
-                                    if (newPFP) {   // if our new image is just new
-                                        // add new image to db
-                                        imageDB.add(imageUri, user.getDeviceID(), getApplicationContext());
-                                    } else { // else we are updating existing
-                                        imageDB.update(imageUri, user.getDeviceID(), getApplicationContext());
+                                    // update our profile pic in db first
+                                    // if we have a non null uri, update uri as well
+                                    if (imageUri != null) { // if we have a new image
+                                        if (newPFP) {   // if our new image is just new
+                                            // add new image to db
+                                            imageDB.add(imageUri, user.getDeviceID(), getApplicationContext());
+                                        } else { // else we are updating existing
+                                            imageDB.update(imageUri, user.getDeviceID(), getApplicationContext());
+                                        }
+                                    } else {    // else then we are simply removing the current pfp or doing nothing
+                                        if (removed && !newPFP) {  // if we had a pfp & want to remove, remove it
+                                            // remove current pfp
+                                            imageDB.delete(user.getDeviceID());
+                                        }
+                                        // else we do nothing (no updated pfp, no updates in db)
                                     }
-                                } else {    // else then we are simply removing the current pfp or doing nothing
-                                    if (removed && !newPFP) {  // if we had a pfp & want to remove, remove it
-                                        // remove current pfp
-                                        imageDB.delete(user.getDeviceID());
-                                    }
-                                    // else we do nothing (no updated pfp, no updates in db)
+
+                                    // now our updated user should be in the database and pfp updated, and we can return
+                                    finish();
+                                } else {    // else create builder and conflicting facility error
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
+                                    builder.setTitle("Invalid Signup");
+                                    builder.setMessage("Conflicting Facility Name.\nPlease try again.");
+                                    builder.setPositiveButton("OK", null);
+                                    builder.show();
                                 }
-
-                                // now our updated user should be in the database and pfp updated, and we can return
-                                finish();
-                            } else {    // else create builder and conflicting facility error
-                                AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
-                                builder.setTitle("Invalid Signup");
-                                builder.setMessage("Conflicting Facility Name.\nPlease try again.");
-                                builder.setPositiveButton("OK", null);
-                                builder.show();
                             }
+                        });
+                    } else {    // else we are not an org and should be valid
+                        // update user in db and finish
+                        users.update(userUpdate);
+
+                        // update our profile pic in db first
+                        // if we have a non null uri, update uri as well
+                        if (imageUri != null) { // if we have a new image
+                            if (newPFP) {   // if our new image is just new
+                                // add new image to db
+                                imageDB.add(imageUri, user.getDeviceID(), getApplicationContext());
+                            } else { // else we are updating existing
+                                imageDB.update(imageUri, user.getDeviceID(), getApplicationContext());
+                            }
+                        } else {    // else then we are simply removing the current pfp or doing nothing
+                            if (removed && !newPFP) {  // if we had a pfp & want to remove, remove it
+                                // remove current pfp
+                                imageDB.delete(user.getDeviceID());
+                            }
+                            // else we do nothing (no updated pfp, no updates in db)
                         }
-                    });
+
+                        // now our updated user should be in the database and pfp updated, and we can return
+                        finish();
+                    }
                 } else {    // else then show dialogue message and continue
                     AlertDialog.Builder builder = new AlertDialog.Builder(EditProfileActivity.this);
                     builder.setTitle("Invalid Signup");

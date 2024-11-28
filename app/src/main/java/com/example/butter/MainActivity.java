@@ -33,7 +33,7 @@ import java.util.Objects;
  * This activity is used to implement the navigation bar of the app with menu icons that
  * will have constraints depending on a users privileges.
  * User info is taken from firebase using a collection reference to the user document.
- * @author Angela
+ * @author Angela Dakay (angelcache)
  */
 public class MainActivity extends AppCompatActivity {
     /**
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         // Hide the home menu if user is an organizer, or events menu if user is an entrant
         Menu menu = binding.bottomNavigationView.getMenu();
 
-        if (privileges.equals("100")) {
+        if (privileges.equals("100") || privileges.equals("400") || privileges.equals("500")) {
             menu.findItem(R.id.homeIcon).setVisible(true);
             menu.findItem(R.id.eventsIcon).setVisible(false);
 

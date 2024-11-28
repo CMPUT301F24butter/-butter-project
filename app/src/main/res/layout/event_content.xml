@@ -1,9 +1,10 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:padding="16dp">
 
-    <ImageView
+    <com.makeramen.roundedimageview.RoundedImageView
         android:id="@+id/event_image"
         android:layout_width="120dp"
         android:layout_height="100dp"
@@ -12,7 +13,8 @@
         android:layout_marginEnd="16dp"
         android:background="@drawable/curved_image"
         android:contentDescription="@string/event_title_list"
-        android:scaleType="centerCrop" />
+        android:scaleType="centerCrop"
+        app:riv_corner_radius="20dp"/>
 
     <TextView
         android:id="@+id/event_name"

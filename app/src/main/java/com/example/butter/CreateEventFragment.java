@@ -1,8 +1,16 @@
 package com.example.butter;
 
+import android.annotation.SuppressLint;
+import android.content.ContentResolver;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -10,11 +18,21 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Date;
+import java.util.HashMap;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -30,6 +48,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import com.bumptech.glide.Glide;
+
 /**
  * This class is for organizers to publish new events
  * A simple activity called from {@link EventsFragment} when the '+' button is clicked.
@@ -43,6 +63,10 @@ import com.journeyapps.barcodescanner.BarcodeEncoder;
  */
 public class CreateEventFragment extends AppCompatActivity {
 
+    ImageView eventImage;
+    ImageButton uploadEventImage;
+    ActivityResultLauncher<Intent> resultLauncher;
+    Uri uriUploaded = null;
     /**
      * EditText for the event name
      */
@@ -116,6 +140,11 @@ public class CreateEventFragment extends AppCompatActivity {
         description = findViewById(R.id.event_description);
         capacity = findViewById(R.id.max_entrants);
         geolocationSwitch = findViewById(R.id.location_switch);
+        eventImage = findViewById(R.id.event_image);
+        uploadEventImage = findViewById(R.id.change_image_button);
+
+        uploadEventImage.setOnClickListener(view -> pickImage());
+        registerResult();
 
         // setting click listener for the create event button
         createButton.setOnClickListener(new View.OnClickListener() {
@@ -131,6 +160,18 @@ public class CreateEventFragment extends AppCompatActivity {
                 String eventDescription = description.getText().toString();
                 String maxCapacityString = capacity.getText().toString();
                 Boolean geolocation = geolocationSwitch.isChecked();
+
+                if (name.isEmpty()) {
+                    validDetails = false;
+                    Toast toast = Toast.makeText(getApplicationContext(), "Must enter an event name.", Toast.LENGTH_LONG);
+                    toast.show();
+                }
+
+                if (name.indexOf('-') != -1 || name.indexOf('_') != -1) {
+                    validDetails = false;
+                    Toast toast = Toast.makeText(getApplicationContext(), "Event name cannot contain '-' or '_'", Toast.LENGTH_LONG);
+                    toast.show();
+                }
 
                 int maxCapacity = -1; // default capacity if capacity isn't set
                 if (!maxCapacityString.isEmpty()) { // if a max capacity was inputted
@@ -193,12 +234,29 @@ public class CreateEventFragment extends AppCompatActivity {
                                     toast.show();
                                 }
                                 else { // otherwise, add the event to firebase and return to the previous page
+
                                     Event event = new Event(name, deviceID, registrationOpenDate, registrationCloseDate, date, cap, geolocation, eventDescription);
 
                                     EventDB eventDB = new EventDB();
                                     eventDB.add(event);
 
+                                    if (uriUploaded != null) { // if the user uploaded an image
+                                        ImageDB imageDB = new ImageDB();
+                                        imageDB.add(uriUploaded, event.getEventID(), getApplicationContext()); // add the image to firebase
+                                    }
+
+                                    if (event.isGeolocation()) {
+                                        MapDB mapDB = new MapDB();
+                                        mapDB.createMap(event.getEventID());
+                                    }
+
                                     generateQRCode(eventID); // generating the QR code for this event
+
+                                    try {
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
 
                                     finish();
                                 }
@@ -232,5 +290,31 @@ public class CreateEventFragment extends AppCompatActivity {
         } catch (WriterException e) {
             e.printStackTrace();
         }
+    }
+
+    private void registerResult() {
+        resultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @SuppressLint("WrongConstant")
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        try {
+                            Uri imageUri = result.getData().getData(); // getting the Uri of the selected image
+                            eventImage.setImageURI(imageUri); // displaying the image
+
+                            uriUploaded = imageUri;
+
+                        } catch (Exception e) {
+                            System.out.println("Error");
+                        }
+                    }
+                }
+        );
+    }
+
+    private void pickImage() {
+        Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+        resultLauncher.launch(intent);
     }
 }

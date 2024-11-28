@@ -78,6 +78,10 @@ public class EventsFragment extends Fragment {
      */
     private CollectionReference userRef;
     /**
+     * Reference to the image collection in the database.
+     */
+    private CollectionReference imageRef;
+    /**
      * Adding a new event button.
      */
     private FloatingActionButton fab;
@@ -94,6 +98,7 @@ public class EventsFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
         userRef = db.collection("user"); // user collection
+        imageRef = db.collection("image"); // image collection
     }
 
     /**
@@ -131,42 +136,48 @@ public class EventsFragment extends Fragment {
         deviceID = args.getString("deviceID"); // logged in deviceID
 
         eventArrayAdapter = new EventArrayAdapter(getContext(), userEvents);
+    }
 
-        // retrieving all event info from the database
-        eventRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
-            @Override
-            public void onEvent(@Nullable QuerySnapshot querySnapshots, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                    Log.e("Firestore", error.toString());
-                    return;
-                }
-                if (querySnapshots != null) {
-                    userEvents.clear(); // clearing the userEvents array
-                    for (QueryDocumentSnapshot doc : querySnapshots) { // iterating over all events in the database
-                        String organizerID = doc.getString("eventInfo.organizerID");
+    private void updateEventList(QuerySnapshot querySnapshots) {
+        if (querySnapshots != null) {
+            userEvents.clear(); // clearing the userEvents array
+            for (QueryDocumentSnapshot doc : querySnapshots) { // iterating over all events in the database
+                String organizerID = doc.getString("eventInfo.organizerID");
 
-                        if (Objects.equals(organizerID, deviceID)) { // if this event is published by the logged in organizer
-                            // retrieving event details
-                            String eventID = doc.getId();
-                            String eventName = doc.getString("eventInfo.name");
-                            String eventDate = doc.getString("eventInfo.date");
-                            String eventCapacityString = doc.getString("eventInfo.capacityString");
+                if (Objects.equals(organizerID, deviceID)) { // if this event is published by the logged in organizer
+                    // retrieving event details
+                    String eventID = doc.getId();
+                    String eventName = doc.getString("eventInfo.name");
+                    String eventDate = doc.getString("eventInfo.date");
+                    String eventCapacityString = doc.getString("eventInfo.capacityString");
 
-                            if (eventCapacityString != null) {
-                                int eventCapacity = Integer.parseInt(eventCapacityString);
-                                Event event = new Event(eventID, eventName, eventDate, eventCapacity);
-                                userEvents.add(event); // adding the event to the list
+                    Event event;
+                    if (eventCapacityString != null) {
+                        int eventCapacity = Integer.parseInt(eventCapacityString);
+                        event = new Event(eventID, eventName, eventDate, eventCapacity);
 
-                            } else {
-                                Event event = new Event(eventID, eventName, eventDate, -1);
-                                userEvents.add(event); // adding the event to the list
-                            }
-                        }
+                    } else {
+                        event = new Event(eventID, eventName, eventDate, -1);
                     }
-                    eventArrayAdapter.notifyDataSetChanged(); // notifying a change in the list
+
+                    // fetching a potential image associated with this event
+                    imageRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> imageTask) {
+                            if (imageTask.isSuccessful()) {
+                                DocumentSnapshot imageDoc = imageTask.getResult();
+                                if (imageDoc.exists()) { // if there is an image for this event
+                                    String base64string = imageDoc.getString("imageData");
+                                    event.setImageString(base64string); // setting this attribute for the Event object
+                                }
+                                userEvents.add(event);
+                            }
+                            eventArrayAdapter.notifyDataSetChanged(); // notifying a change in the list
+                        }
+                    });
                 }
             }
-        });
+        }
     }
 
     /**
@@ -202,31 +213,28 @@ public class EventsFragment extends Fragment {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // first, retrieving user info for the logged in user
-                userRef.document(deviceID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                        if (task.isSuccessful()) {
-                            DocumentSnapshot doc = task.getResult();
-                            if (doc.exists()) {
-                                String privileges = doc.getString("userInfo.privilegesString");
-                                String facility = doc.getString("userInfo.facility");
 
-                                // checking that the user has organizational privileges before allowing them to add an event
-                                if (Objects.equals(privileges, "200") || Objects.equals(privileges, "300") || Objects.equals(privileges, "600") || Objects.equals(privileges, "700")) {
-                                    if (facility != null) {
-                                        Intent intent = new Intent(getContext(), CreateEventFragment.class);
-                                        intent.putExtra("deviceID", deviceID);
-                                        startActivity(intent);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                });
+                Intent intent = new Intent(getContext(), CreateEventFragment.class);
+                intent.putExtra("deviceID", deviceID);
+                startActivity(intent);
             }
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        userEvents.clear();
+        eventArrayAdapter.notifyDataSetChanged();
+
+        eventRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot querySnapshot) {
+                updateEventList(querySnapshot); // updating the displayed event list everytime this screen enters the foreground
+            }
+        });
     }
 }

@@ -37,6 +37,7 @@ android {
 }
 
 dependencies {
+    implementation("com.makeramen:roundedimageview:2.3.0")
     implementation("com.google.zxing:core:3.3.3")
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     implementation("de.hdodenhof:circleimageview:3.1.0")
@@ -55,4 +56,8 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+
+    implementation("com.github.bumptech.glide:glide:4.15.0")  // Add Glide dependency
+    annotationProcessor("com.github.bumptech.glide:compiler:4.15.0")  // Add annotation processor (for Glide)
+    implementation("com.google.firebase:firebase-storage:20.1.0")
 }

@@ -41,6 +41,7 @@
             app:layout_constraintTop_toBottomOf="@+id/event_screen_image">
 
             <RelativeLayout
+                android:id="@+id/privileges_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -92,7 +93,7 @@
                     android:backgroundTint="@color/white"
                     android:contentDescription="@string/delete_event_admin"
                     android:visibility="gone"
-                    app:srcCompat="@android:drawable/ic_menu_delete"
+                    app:srcCompat="@drawable/x"
                     app:tint="@color/primaryPinkColor" />
             </RelativeLayout>
 

@@ -1,17 +1,27 @@
 package com.example.butter;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -48,6 +58,10 @@ public class EditEventActivity extends AppCompatActivity {
      */
     private CollectionReference eventRef;
     /**
+     * Collection reference from the database for images.
+     */
+    private CollectionReference imageRef;
+    /**
      * TextView for event name (since this cannot be changed)
      */
     TextView eventNameText;
@@ -70,7 +84,7 @@ public class EditEventActivity extends AppCompatActivity {
     /**
      * EditText for capacity of event
      */
-    EditText capacityText;
+    TextView capacityText;
     /**
      * SwitchCompat for the geolocation switch
      */
@@ -79,6 +93,13 @@ public class EditEventActivity extends AppCompatActivity {
      * A string for the event name itself
      */
     String eventName;
+
+    ActivityResultLauncher<Intent> resultLauncher;
+    ImageView eventImage;
+    Uri uriSelected = null;
+    ImageButton uploadImageButton;
+    ImageButton deleteImageButton;
+    boolean deletedImage = false;
 
     /**
      * onCreate method performs everything here.
@@ -99,6 +120,7 @@ public class EditEventActivity extends AppCompatActivity {
 
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
+        imageRef = db.collection("image"); // image collection
 
         String deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         String eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
@@ -111,6 +133,12 @@ public class EditEventActivity extends AppCompatActivity {
         descriptionText = findViewById(R.id.event_description);
         capacityText = findViewById(R.id.max_entrants);
         geolocationSwitch = findViewById(R.id.location_switch);
+        eventImage = findViewById(R.id.event_image);
+        uploadImageButton = findViewById(R.id.change_image_button);
+        deleteImageButton = findViewById(R.id.delete_image);
+
+        uploadImageButton.setOnClickListener(view -> pickImage());
+        registerResult();
 
         // retrieving data for this event
         eventRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -131,7 +159,7 @@ public class EditEventActivity extends AppCompatActivity {
                         if (capacity != null) {
                             capacityText.setText(capacity);
                         } else {
-                            capacityText.setText("");
+                            capacityText.setText("N/A");
                         }
 
                         // setting the geolocation switch
@@ -139,6 +167,23 @@ public class EditEventActivity extends AppCompatActivity {
                         if (Objects.equals(geolocation, "true")) {
                             geolocationSwitch.setChecked(true);
                         }
+                        geolocationSwitch.setEnabled(false);
+                    }
+                }
+            }
+        });
+
+        // retrieving image data for this event
+        imageRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) {
+                        String base64string = doc.getString("imageData"); // fetching image string data
+                        ImageDB imageDB = new ImageDB();
+                        Bitmap bitmap = imageDB.stringToBitmap(base64string); // turning string data into a bitmap
+                        eventImage.setImageBitmap(bitmap); // displaying the image
                     }
                 }
             }
@@ -150,6 +195,19 @@ public class EditEventActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 finish(); // returning to the previous page
+            }
+        });
+
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                int color = ContextCompat.getColor(getApplicationContext(), R.color.secondaryGreyColor);
+                eventImage.setBackgroundColor(color);
+                eventImage.setImageDrawable(null);
+
+                uriSelected = null;
+                deletedImage = true;
             }
         });
 
@@ -168,13 +226,8 @@ public class EditEventActivity extends AppCompatActivity {
                 Boolean geolocation = geolocationSwitch.isChecked();
 
                 int maxCapacity = -1; // default capacity if capacity isn't set
-                if (!maxCapacityString.isEmpty()) { // if a max capacity was inputted
+                if (!maxCapacityString.equals("N/A")) { // if a max capacity was inputted
                     maxCapacity = Integer.parseInt(maxCapacityString);
-                    if (maxCapacity < 1) { // max capacity cannot be 0
-                        validDetails = false;
-                        Toast toast = Toast.makeText(getApplicationContext(), "Capacity cannot be 0.", Toast.LENGTH_LONG);
-                        toast.show();
-                    }
                 }
 
                 if (eventDescription.isEmpty()) { // event description cannot be empty
@@ -214,13 +267,65 @@ public class EditEventActivity extends AppCompatActivity {
                 if (validDetails) { // if the event details are valid, update the event in the database
                     Event event = new Event(eventName, deviceID, registrationOpenDate, registrationCloseDate, date, maxCapacity, geolocation, eventDescription);
 
-                    EventDB eventDB = new EventDB();
-                    eventDB.update(event);
+                    // retrieving image data associated with this event
+                    imageRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                            if (task.isSuccessful()) {
+                                DocumentSnapshot doc = task.getResult();
+                                ImageDB imageDB = new ImageDB();
+                                if (doc.exists()) { // if there is image data associated with this event
+                                    if (uriSelected != null) { // if the user selected a new image
+                                        imageDB.update(uriSelected, eventID, getApplicationContext()); // update the image in firebase
+                                    } else if (deletedImage) {
+                                        imageDB.delete(eventID);
+                                    }
 
-                    finish(); // returning to the previous screen
+                                    EventDB eventDB = new EventDB();
+                                    eventDB.update(event);
+
+                                    finish(); // returning to the previous screen
+                                } else { // if there is no image data associated with this event
+                                    if (uriSelected != null) { // if the user selected a new image
+                                        imageDB.add(uriSelected, eventID, getApplicationContext()); // add the image in firebase
+                                    }
+
+                                    EventDB eventDB = new EventDB();
+                                    eventDB.update(event);
+
+                                    finish(); // returning to the previous screen
+                                }
+                            }
+                        }
+                    });
                 }
             }
         });
+    }
 
+    private void registerResult() {
+        resultLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                new ActivityResultCallback<ActivityResult>() {
+                    @SuppressLint("WrongConstant")
+                    @Override
+                    public void onActivityResult(ActivityResult result) {
+                        try {
+                            Uri imageUri = result.getData().getData(); // getting the Uri of the selected image
+                            eventImage.setImageURI(imageUri); // displaying the image
+
+                            uriSelected = imageUri; // marking that this is the most recently selected image Uri
+
+                        } catch (Exception e) {
+                            System.out.println("Error");
+                        }
+                    }
+                }
+        );
+    }
+
+    private void pickImage() {
+        Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
+        resultLauncher.launch(intent);
     }
 }

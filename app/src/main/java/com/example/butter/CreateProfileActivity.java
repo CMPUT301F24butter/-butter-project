@@ -3,6 +3,7 @@ package com.example.butter;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,7 +13,18 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A simple activity called from {@link SplashActivity}
@@ -28,6 +40,20 @@ public class CreateProfileActivity extends AppCompatActivity {
      * Used for adding the user to the database once validity checks are passed.
      */
     private UserDB users; // interact with userDB
+    /**
+     * Firebase database object
+     * Used for querying user facilities
+     */
+    private FirebaseFirestore db;   // fetch data for facilities
+
+    /**
+     * Callback interface used to callbacks after an asynchronous query on the database.
+     * checkForFacility will be used for a final facilities check
+     */
+    private interface OnFacilitiesLoadedCallback {
+        void checkForFacility(List<String> facilities);
+    }
+    
 
     /**
      * onCreate contains all of the guts for this activity.
@@ -46,6 +72,7 @@ public class CreateProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         users = new UserDB(); // init the userDB object
+        db = FirebaseFirestore.getInstance();   // init Firebase db
 
         setContentView(R.layout.create_profile);    // set view to create profile screen
 
@@ -80,7 +107,8 @@ public class CreateProfileActivity extends AppCompatActivity {
                 String facility = editFacility.getText().toString(); // will be empty if entrant
                 String role = roleSpinner.getSelectedItem().toString();
 
-                String validRet = validityCheck(username, email, phone, facility, role);
+                // pass to validity check to get t/f (and trim username & facility)
+                String validRet = validityCheck(username.trim(), email, phone, facility.trim(), role);
 
                 if (validRet.equals("true")) {
                     // if valid, add to database
@@ -89,22 +117,64 @@ public class CreateProfileActivity extends AppCompatActivity {
                     if (phone.isEmpty()) phone = null;
                     // if facility is empty (i.e, we are entrant), set to null
                     if (facility.isEmpty()) facility = null;
+                    if (facility != null) facility = facility.trim();   // else trim the facility
 
                     // now to set privilege values:
                     // Entrant = 100, Organizer = 200, both = 300
-                    if (role.equals("Entrant")) privileges = 100;
+                    if (role.equals("Entrant")) {privileges = 100; facility = null;}
                     if (role.equals("Organizer")) privileges = 200;
                     if (role.equals("Both")) privileges = 300;
 
-                    // now we just simply create a user object, and pass it to our database
-                    User user = new User(getIntent().getExtras().getString("deviceID"), username, privileges, facility, email, phone);
-                    users.add(user);
+                    // create the user obj
+                    User user = new User(getIntent().getExtras().getString("deviceID"), username.trim(), privileges, facility, email, phone);
 
-                    // now our new user should be in the database, and go to MainActivity
+                    if (facility != null) { // if we are an org
+                        // finally, lets check if this facility conflicts with another in the db.
+                        String finalFacility = facility;
+                        fetchFacilities(new OnFacilitiesLoadedCallback() {
+                            @Override
+                            public void checkForFacility(List<String> facilities) {
+                                // check if the facility is in our facility list fetch from db
+                                if (!facilities.contains(finalFacility)) { // if the facility is not in db
+                                    // add the user to the db, and go to main
+                                    users.add(user);
 
-                    Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);
-                    startActivity(toMainActivity);
-                    finish();
+                                    // run a quick sleep to ensure that all items have been fetched/updated in db
+                                    try {
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+                                    // now our new user should be in the database, and go to MainActivity
+                                    Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);
+                                    startActivity(toMainActivity);
+                                    finish();
+                                } else {    // else create builder and conflicting facility error
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(CreateProfileActivity.this);
+                                    builder.setTitle("Invalid Signup");
+                                    builder.setMessage("Conflicting Facility Name.\nPlease try again.");
+                                    builder.setPositiveButton("OK", null);
+                                    builder.show();
+                                }
+                            }
+                        });
+                    } else {    // else we are not an org, and should just add in db
+                        // add the user to the db, and go to main
+                        users.add(user);
+
+                        // run a quick sleep to ensure that all items have been fetched/updated in db
+                        try {
+                            Thread.sleep(300);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+
+                        // now our new user should be in the database, and go to MainActivity
+                        Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);
+                        startActivity(toMainActivity);
+                        finish();
+                    }
                 } else {    // else then show dialogue message and continue
                     AlertDialog.Builder builder = new AlertDialog.Builder(CreateProfileActivity.this);
                     builder.setTitle("Invalid Signup");
@@ -147,7 +217,7 @@ public class CreateProfileActivity extends AppCompatActivity {
      * @param email
      * If email is empty OR is not a valid email address (formatting wise), invalid
      * @param phone
-     * If phone is not empty AND is not a valid phone number, invalid
+     * If phone is not empty AND is not a valid phone number, invalid. Also checks for len > 15
      * @param facility
      * If role is not 'Entrant' AND (facility is empty OR more than 20 characters), invalid
      * @param role
@@ -170,6 +240,8 @@ public class CreateProfileActivity extends AppCompatActivity {
             returnString = "Invalid Email Address.";
         } else if (!phone.isEmpty() && !Patterns.PHONE.matcher(phone).matches()) {
             returnString = "Invalid Phone Number.";
+        } else if (phone.length() > 15) {   // max phone len 15
+            returnString = "Max Phone length is 15 numbers.";
         } else if (!role.equals("Entrant")) { // else if we have facility name to eval
             if (facility.isEmpty()) {
                 returnString = "Invalid Facility.";
@@ -182,6 +254,29 @@ public class CreateProfileActivity extends AppCompatActivity {
         }
         // else our info is valid
         return returnString;
+    }
+
+    /**
+     * Creates and fetches a list of strings for all facilities in the database.
+     * This returns to a callback rather than a simple return.
+     * The callback handles what to do with this list.
+     */
+    private void fetchFacilities(OnFacilitiesLoadedCallback callback) {
+        db.collection("user").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                if (task.isSuccessful()) {
+                    List<String> facilities = new ArrayList<String>();
+                    for (DocumentSnapshot doc : task.getResult()) {
+                        facilities.add(doc.getString("userInfo.facility"));
+                    }
+                    callback.checkForFacility(facilities);
+                } else {
+                    Log.e("Firebase Error", "Error getting documents in CreateProfileActivity: ", task.getException());
+                    callback.checkForFacility(Collections.emptyList()); // return empty list on failure
+                }
+            }
+        });
     }
 
 

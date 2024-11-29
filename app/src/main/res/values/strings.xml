@@ -29,11 +29,6 @@
     <string name="profile_text">Profile</string>
     <string name="edit_profile">Edit profile</string>
     <string name="role_text">Role</string>
-    <string name="profile_initial">%s</string>
-    <string name="profile_username">%s</string>
-    <string name="profile_email">%s</string>
-    <string name="profile_number">%s</string>
-    <string name="profile_facility">%s</string>
     <string name="qrscanner">q</string>
     <string name="create_event">Create Event</string>
     <string name="event_name">Enter event name</string>
@@ -46,8 +41,8 @@
     <string name="edit_event_poster">edit event poster</string>
     <string name="waiting_list_button">Join waiting list</string>
     <string name="event_title">%s</string>
-    <string name="generate_entrants">Generate Entrants</string>
-    <string name="draw_replacements">Draw Replacement(s)</string>
+    <string name="generate_entrants">Run Lottery</string>
+    <string name="draw_replacements">Draw Replacement</string>
     <string name="map">MAP</string>
     <string name="event">%s</string>
     <string name="registration_opens_s">Registration opens: %s</string>
@@ -66,7 +61,7 @@
     <string name="show_details_code">" Show Details Code"</string>
     <string name="delete_event">" Delete Event"</string>
     <string name="edit_event">" Edit Event"</string>
-    <string name="cancel">Cancel</string>
+    <string name="cancel">No</string>
     <string name="send">Send</string>
     <string name="send_to">Send to:</string>
     <string name="notification_message">notification message</string>
@@ -104,10 +99,14 @@
     <string name="waiting_list">Waiting List</string>
     <string name="entrant_event_title">%s</string>
     <string name="entrant_event_date">%s</string>
-    <string name="entrant_event_capacity">%d</string>
     <string name="delete_my_event">Delete Event</string>
     <string name="empty_phone">No phone given.</string>
     <string name="name_s">%s</string>
+    <string name="announcement">Announcement</string>
+    <string name="yes">Yes</string>
+    <string name="sample_size">Sample size</string>
+    <string name="ok">OK</string>
+    <string name="invited_list">Invited List</string>
 
     <string-array name="roles_array">
         <item>Entrant</item>

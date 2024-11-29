@@ -2,11 +2,13 @@ package com.example.butter;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.os.Environment;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +28,10 @@ import android.graphics.Bitmap;
 import android.util.Base64;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 /**
  * This activity displays the QR code for this activity
@@ -41,12 +47,15 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private CollectionReference eventRef;
     private CollectionReference userRef;
+    private CollectionReference imageRef;
 
     TextView eventNameText;
     TextView registrationOpenText;
     TextView registrationCloseText;
     TextView eventDateText;
     TextView facilityText;
+    ImageView posterImage;
+    ImageView qrCode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +69,7 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         eventRef = db.collection("event"); // event collection
         userRef = db.collection("user"); // user collection
+        imageRef = db.collection("image");
 
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
@@ -67,6 +77,8 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         registrationCloseText = findViewById(R.id.reg_close_text);
         eventDateText = findViewById(R.id.event_date);
         facilityText = findViewById(R.id.event_place);
+        posterImage = findViewById(R.id.qr_code_image);
+        qrCode = findViewById(R.id.details_barcode_image);
 
         // retrieving event info from firebase
         eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -80,6 +92,23 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
                 registrationCloseText.setText(String.format("Registration Closes: %s", closeDate));
                 String date = doc.getString("eventInfo.date");
                 eventDateText.setText(String.format("Event Date: %s", date));
+            }
+        });
+
+        // retrieving image data from firebase
+        imageRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot doc = task.getResult();
+                    if (doc.exists()) { // if there is image data associated with this event
+                        String base64string = doc.getString("imageData"); // retrieving the image's string data
+                        ImageDB imageDB = new ImageDB();
+                        Bitmap bitmap = imageDB.stringToBitmap(base64string); // converting the string data into a bitmap
+
+                        posterImage.setImageBitmap(bitmap); // displaying the image
+                    }
+                }
             }
         });
 
@@ -103,7 +132,6 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
                 finish();
             }
         });
-
     }
 
     // displays the QR Code for this event
@@ -122,8 +150,9 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
 
                         Bitmap bitmap = stringToBitmap(base64String); // turning the string into a bitmap
 
-                        ImageView qrCode = findViewById(R.id.details_barcode_image);
                         qrCode.setImageBitmap(bitmap); // displaying the bitmap
+                    } else {
+                        generateQRCode(eventID);
                     }
                 }
             }
@@ -135,5 +164,23 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
         Bitmap bitmap = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length);
         return bitmap;
+    }
+
+    private void generateQRCode(String eventID) {
+        MultiFormatWriter writer = new MultiFormatWriter();
+        try {
+            BitMatrix matrix = writer.encode(eventID, BarcodeFormat.QR_CODE, 600, 600);
+
+            BarcodeEncoder encoder = new BarcodeEncoder();
+            Bitmap bitmap = encoder.createBitmap(matrix); // generating the bitmap
+
+            qrCode.setImageBitmap(bitmap);
+
+            QRCodeDB qrCodeDB = new QRCodeDB();
+            qrCodeDB.add(bitmap, eventID); // adding this QR Code to firebase
+
+        } catch (WriterException e) {
+            e.printStackTrace();
+        }
     }
 }

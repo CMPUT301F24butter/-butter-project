@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/splash_gradient"
+    android:id="@+id/splash_activity"
     tools:context=".SplashActivity">
 
     <TextView
@@ -13,7 +14,8 @@
         android:gravity="center"
         android:text="@string/butterLogo"
         android:textColor="@color/secondaryPurpleColor"
-        android:textSize="40sp"
+        android:textSize="80sp"
+        android:fontFamily="@font/butter_title_font"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

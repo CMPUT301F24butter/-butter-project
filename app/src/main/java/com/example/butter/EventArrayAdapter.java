@@ -1,10 +1,12 @@
 package com.example.butter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -33,25 +35,28 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        // return super.getView(position, convertView, parent);
-        View view = convertView;
-
-        if(view == null){
-            view = LayoutInflater.from(context).inflate(R.layout.event_content, parent,false);
-        }
+        View view = LayoutInflater.from(context).inflate(R.layout.event_content, parent,false);
 
         Event event = events.get(position);
 
         TextView eventName = view.findViewById(R.id.event_name);
         TextView eventDate = view.findViewById(R.id.event_date);
         TextView eventCapacity = view.findViewById(R.id.event_capacity);
+        ImageView eventImage = view.findViewById(R.id.event_image);
 
         eventName.setText(event.getName());
         eventDate.setText(event.getDate());
-        if (event.getCapacity() != -1) {
+        if (event.getCapacity() != -1) { // if the event has a waitlist capacity
             eventCapacity.setText(String.format("%d", event.getCapacity()));
-        } else {
+        } else { // otherwise, display "N/A"
             eventCapacity.setText("N/A");
+        }
+
+        if (event.getImageString() != null) { // if the image string attribute is set
+            ImageDB imageDB = new ImageDB();
+            Bitmap bitmap = imageDB.stringToBitmap(event.getImageString()); // turn the string data into a bitmap
+
+            eventImage.setImageBitmap(bitmap); // display the image
         }
 
         return view;

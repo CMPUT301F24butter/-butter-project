@@ -1,7 +1,10 @@
 package com.example.butter;
 
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -52,6 +55,10 @@ public class MainActivity extends AppCompatActivity {
      * String to store the deviceID for the user in an attribute.
      * Is later passed to each fragment.
      */
+    private CollectionReference notificationRef;
+    /**
+     * Used to reference the notification collection and see if there are any updates
+     */
     private String deviceID;
     /**
      * String to store the privileges for the user.
@@ -76,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         userRef = db.collection("user");
 
+        notificationRef = db.collection("notification");
+
+        // Create notification channel
+        createNotificationChannel();
+
         // Set system bars insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -86,6 +98,9 @@ public class MainActivity extends AppCompatActivity {
         listenForPrivilegesChange();
         replaceFragment(new HomeFragment());
         invalidateOptionsMenu();
+
+        listenForNotificationUpdates();
+
     }
 
     /**
@@ -161,5 +176,53 @@ public class MainActivity extends AppCompatActivity {
         args.putString("deviceID", deviceID);
         fragment.setArguments(args);
         fragmentTransaction.commit();
+    }
+
+    private void createNotificationChannel() {
+        // Check if the OS version is Oreo or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Butter Notifications";
+            String description = "Channel for Butter app notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("butter_notifications", name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void listenForNotificationUpdates() {
+        notificationRef.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                Log.e("MainActivity", "Listen failed: ", e);
+                return;
+            }
+
+            Log.d("MainActivity", "Snapshot listener triggered");
+
+            if (querySnapshot != null) {
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+
+                    Log.d("MainActivity", "Document fetched: " + doc.getData());
+                    // Extract data from the document
+                    String recipientDeviceID = doc.getString("recipientDeviceID");
+                    String title = doc.getString("eventSender");
+                    String body = doc.getString("message");
+                    Boolean seen = doc.getBoolean("seen");
+
+                    // Check if the notification is intended for this device
+                    if (recipientDeviceID != null && recipientDeviceID.equals(deviceID) && seen != null && !seen) {
+
+                        Log.d("MainActivity", "Notification for this device: " + title);
+                        // Pass title and body to NotificationManagerHelper
+                        NotificationManagerHelper.handleNotification(this, title, body);
+                        doc.getReference().update("seen", true)
+                                .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
+                    }
+                }
+            }
+        });
     }
 }

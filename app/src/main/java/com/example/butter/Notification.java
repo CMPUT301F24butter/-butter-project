@@ -7,15 +7,17 @@ public class Notification {
     private String recipientDeviceID;
     private String message;
     private String datetime;
-    private boolean invitation;
+    private Boolean seen;
+    private Boolean force;
 
-    public Notification(String notificationID, String eventSender, String eventSenderID, String recipientDeviceID, String message, boolean invitation) {
+    public Notification(String notificationID, String eventSender, String eventSenderID, String recipientDeviceID, String message, boolean force) {
         this.notificationID = notificationID;
         this.eventSender = eventSender;
         this.eventSenderID = eventSenderID;
         this.recipientDeviceID = recipientDeviceID;
         this.message = message;
-        this.invitation = invitation;
+        this.seen = false;
+        this.force = force;
     }
 
     public String getNotificationID() {
@@ -46,18 +48,33 @@ public class Notification {
         this.datetime = datetime;
     }
 
-    public boolean isInvitation() {
-        return invitation;
+    public Boolean getSeen() {
+        return seen;
     }
 
-    public String isInvitationString() {
-        if (invitation) {
+    public String getSeenString() {
+        if (seen) {
             return "true";
         }
         return "false";
     }
 
-    public void setInvitation(boolean invitation) {
-        this.invitation = invitation;
+    public void setSeen(Boolean seen) {
+        this.seen = seen;
+    }
+
+    public Boolean getForce() {
+        return force;
+    }
+
+    public String getForceString() {
+        if (force) {
+            return "true";
+        }
+        return "false";
+    }
+
+    public void setForce(Boolean force) {
+        this.force = force;
     }
 }

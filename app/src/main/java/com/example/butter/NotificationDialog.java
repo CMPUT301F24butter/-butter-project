@@ -99,17 +99,14 @@ public class NotificationDialog extends DialogFragment {
                 }
 
                 String listID;
-                boolean invitation = false;
                 if (sendGroup == "Waitlist Entrants") {
                     listID = eventID + "-wait";
                 } else if (sendGroup == "Chosen Entrants") {
                     listID = eventID + "-draw";
-                    invitation = true;
                 } else {
                     listID = eventID + "-cancelled";
                 }
 
-                boolean finalInvitation = invitation;
                 eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot eventDoc) {
@@ -124,7 +121,7 @@ public class NotificationDialog extends DialogFragment {
                                     String deviceID = listDoc.getString("user" + i);
 
                                     String notificationID = UUID.randomUUID().toString();
-                                    Notification notification = new Notification(notificationID, eventName, eventID, deviceID, message, finalInvitation);
+                                    Notification notification = new Notification(notificationID, eventName, eventID, deviceID, message, false);
 
                                     NotificationDB notificationDB = new NotificationDB();
                                     notificationDB.add(notification);

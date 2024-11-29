@@ -64,15 +64,15 @@ public class NotificationsFragment extends Fragment {
      */
     private void fetchNotifications() {
         db.collection("notification")
-                .whereEqualTo("recipientDeviceID", deviceID) // Filter notifications by deviceID
+                .whereEqualTo("notificationInfo.recipientDeviceID", deviceID) // Filter notifications by deviceID
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         QuerySnapshot querySnapshot = task.getResult();
                         if (querySnapshot != null) {
                             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                                String title = document.getString("eventSender");
-                                String body = document.getString("message");
+                                String title = document.getString("notificationInfo.eventSender");
+                                String body = document.getString("notificationInfo.message");
 
                                 // Create a concatenated string "title + body" and add it to the list
                                 if (title != null && body != null) {

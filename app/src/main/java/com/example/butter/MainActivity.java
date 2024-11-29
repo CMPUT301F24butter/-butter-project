@@ -207,10 +207,10 @@ public class MainActivity extends AppCompatActivity {
 
                     Log.d("MainActivity", "Document fetched: " + doc.getData());
                     // Extract data from the document
-                    String recipientDeviceID = doc.getString("recipientDeviceID");
-                    String title = doc.getString("eventSender");
-                    String body = doc.getString("message");
-                    Boolean seen = doc.getBoolean("seen");
+                    String recipientDeviceID = doc.getString("notificationInfo.recipientDeviceID");
+                    String title = doc.getString("notificationInfo.eventSender");
+                    String body = doc.getString("notificationInfo.message");
+                    Boolean seen = doc.getBoolean("notificationInfo.seen");
 
                     // Check if the notification is intended for this device
                     if (recipientDeviceID != null && recipientDeviceID.equals(deviceID) && seen != null && !seen) {
@@ -218,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.d("MainActivity", "Notification for this device: " + title);
                         // Pass title and body to NotificationManagerHelper
                         NotificationManagerHelper.handleNotification(this, title, body);
-                        doc.getReference().update("seen", true)
+                        doc.getReference().update("notificationInfo.seen", true)
                                 .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
                     }
                 }

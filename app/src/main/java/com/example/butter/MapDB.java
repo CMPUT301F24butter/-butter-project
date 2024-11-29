@@ -16,6 +16,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * This class can be used to interact with the "map" collection in Firebase
+ *
+ * author: Nate Pane (natepane)
+ */
 public class MapDB {
     private FirebaseFirestore db;
     private CollectionReference mapRef;

@@ -95,10 +95,25 @@ public class EditEventActivity extends AppCompatActivity {
     String eventName;
 
     ActivityResultLauncher<Intent> resultLauncher;
+    /**
+     * ImageView for the event image
+     */
     ImageView eventImage;
+    /**
+     * Uri of any image uploaded by the user, null if no image was uploaded
+     */
     Uri uriSelected = null;
+    /**
+     * Button to upload an image from your gallery
+     */
     ImageButton uploadImageButton;
+    /**
+     * Button to remove uploaded image
+     */
     ImageButton deleteImageButton;
+    /**
+     * Boolean to represent if the user deleted an existing image
+     */
     boolean deletedImage = false;
 
     /**
@@ -167,7 +182,7 @@ public class EditEventActivity extends AppCompatActivity {
                         if (Objects.equals(geolocation, "true")) {
                             geolocationSwitch.setChecked(true);
                         }
-                        geolocationSwitch.setEnabled(false);
+                        geolocationSwitch.setEnabled(false); // disabling the geolocation switch
                     }
                 }
             }
@@ -198,16 +213,18 @@ public class EditEventActivity extends AppCompatActivity {
             }
         });
 
+        // setting click listener for the delete image button
         deleteImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                // setting the image back to the blank grey box
                 int color = ContextCompat.getColor(getApplicationContext(), R.color.secondaryGreyColor);
                 eventImage.setBackgroundColor(color);
                 eventImage.setImageDrawable(null);
 
                 uriSelected = null;
-                deletedImage = true;
+                deletedImage = true; // flagging that in image was deleted
             }
         });
 
@@ -277,8 +294,8 @@ public class EditEventActivity extends AppCompatActivity {
                                 if (doc.exists()) { // if there is image data associated with this event
                                     if (uriSelected != null) { // if the user selected a new image
                                         imageDB.update(uriSelected, eventID, getApplicationContext()); // update the image in firebase
-                                    } else if (deletedImage) {
-                                        imageDB.delete(eventID);
+                                    } else if (deletedImage) { // if the user deleted an image
+                                        imageDB.delete(eventID); // delete it from firebase
                                     }
 
                                     EventDB eventDB = new EventDB();

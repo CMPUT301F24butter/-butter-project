@@ -18,6 +18,7 @@ public class User implements Serializable {
     private String email;
     private String phoneNumber;
     private String profilePicString;
+    private Boolean notifications;
 
     public User(String deviceID, String name, int privileges, @Nullable String facility, String email, @Nullable String phoneNumber) {
         this.deviceID = deviceID;
@@ -26,6 +27,7 @@ public class User implements Serializable {
         this.facility = facility;
         this.email = email;
         this.phoneNumber = phoneNumber;
+        this.notifications = true;
     }
 
     public String getDeviceID() {
@@ -100,5 +102,20 @@ public class User implements Serializable {
 
     public void setProfilePicString(String profilePicString) {
         this.profilePicString = profilePicString;
+    }
+
+    public Boolean getNotifications() {
+        return notifications;
+    }
+
+    public String getNotificationsString() {
+        if (notifications) {
+            return "true";
+        }
+        return "false";
+    }
+
+    public void setNotifications(Boolean notifications) {
+        this.notifications = notifications;
     }
 }

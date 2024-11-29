@@ -63,9 +63,18 @@ import com.bumptech.glide.Glide;
  */
 public class CreateEventFragment extends AppCompatActivity {
 
+    /**
+     * Imagie view for the event image
+     */
     ImageView eventImage;
+    /**
+     * Button to be clicked to select an image from your gallery
+     */
     ImageButton uploadEventImage;
     ActivityResultLauncher<Intent> resultLauncher;
+    /**
+     * Uri of the image uploaded by the user, null if no image is uploaded
+     */
     Uri uriUploaded = null;
     /**
      * EditText for the event name
@@ -161,13 +170,13 @@ public class CreateEventFragment extends AppCompatActivity {
                 String maxCapacityString = capacity.getText().toString();
                 Boolean geolocation = geolocationSwitch.isChecked();
 
-                if (name.isEmpty()) {
+                if (name.isEmpty()) { // if no event name is given
                     validDetails = false;
                     Toast toast = Toast.makeText(getApplicationContext(), "Must enter an event name.", Toast.LENGTH_LONG);
                     toast.show();
                 }
 
-                if (name.indexOf('-') != -1 || name.indexOf('_') != -1) {
+                if (name.indexOf('-') != -1 || name.indexOf('_') != -1) { // if the event name contains '-' or '_'
                     validDetails = false;
                     Toast toast = Toast.makeText(getApplicationContext(), "Event name cannot contain '-' or '_'", Toast.LENGTH_LONG);
                     toast.show();
@@ -245,9 +254,9 @@ public class CreateEventFragment extends AppCompatActivity {
                                         imageDB.add(uriUploaded, event.getEventID(), getApplicationContext()); // add the image to firebase
                                     }
 
-                                    if (event.isGeolocation()) {
+                                    if (event.isGeolocation()) { // if the event has geolocation
                                         MapDB mapDB = new MapDB();
-                                        mapDB.createMap(event.getEventID());
+                                        mapDB.createMap(event.getEventID()); // create a map docuement for this event
                                     }
 
                                     generateQRCode(eventID); // generating the QR code for this event

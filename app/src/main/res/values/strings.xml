@@ -106,6 +106,7 @@
     <string name="yes">Yes</string>
     <string name="sample_size">Sample size</string>
     <string name="ok">OK</string>
+    <string name="invited_list">Invited List</string>
 
     <string-array name="roles_array">
         <item>Entrant</item>

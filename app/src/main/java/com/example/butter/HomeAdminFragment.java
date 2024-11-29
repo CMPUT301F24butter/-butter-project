@@ -29,9 +29,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * This fragment is used to set up the home screen on the admins side. Admins have access to a spinner
  * and can also access entrants page.
- * Outstanding Issue: When I move to another screen and come back to the admin screen,
- *               the spinner goes back to default option (browse events) instead of the
- *               option user last clicked on
  *
  * @author Angela Dakay (angelcache)
  */
@@ -155,7 +152,8 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
                     Intent intent = new Intent(getContext(), EventDetailsActivity.class);
                     intent.putExtra("deviceID", deviceID);
                     intent.putExtra("eventID", selectedEventID);
-                    intent.putExtra("adminPrivilege", Boolean.TRUE); // User has admin priviliges, used in eventDetailsActivity for special priviliges
+                    intent.putExtra("adminPrivilege", Boolean.TRUE); // User has admin privileges, used in eventDetailsActivity for special privileges
+                    intent.putExtra("adminBrowsing", Boolean.TRUE); // User is browsing, therefore won't see the waiting list button
                     startActivity(intent);
                 } else if (browse.equals("Browse Profiles")) {
                     selectedUser = allUsers.get(position);

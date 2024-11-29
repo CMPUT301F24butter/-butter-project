@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -29,8 +30,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 /**
  * This activity shows the details of an event when it is clicked on from the "Events" screen
@@ -38,7 +43,7 @@ import java.util.Objects;
  *
  * Current outstanding issues: need to implement poster images
  *
- * @author Nate Pane (natepane) and Angela Dakay (angelcache)
+ * @author Nate Pane (natepane) and Angela Dakay (angelcache) and Bir Parkash(bparkash)
  */
 public class EventDetailsActivity extends AppCompatActivity implements GeolocationDialog.GeolocationDialogListener, ConfirmationDialog.ConfirmationDialogListener {
 
@@ -62,9 +67,13 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     private int capacity;
     private Boolean adminPrivilege;
     private String listType;
+    private Boolean valid_date;
 
     private Button eventButton;
     private Button declineButton;
+    public interface OnDateValidationListener {
+        void onResult(boolean isValid);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,7 +137,8 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                 } else if (adminPrivilege) { // user has admin privileges, can see delete button
                     setupAdminOptions();
                 } else {
-                    setUpEntrantActions();
+                    confirmlistType();
+                    //setUpEntrantActions();
                 }
             }
         });
@@ -178,48 +188,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
             }
         });
     }
-    private void confirmlistType() {
-        // Reference to the Firestore collection for user lists
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-
-        // Define the possible list types
-        String[] listTypes = {"wait", "registered", "draw"};
-
-        for (String type : listTypes) {
-            String userListID = eventID + "-" + type;
-
-            // Check each list type for the user's presence
-            db.collection("userList").document(userListID)
-                    .get()
-                    .addOnSuccessListener(documentSnapshot -> {
-                        if (documentSnapshot.exists()) {
-                            String listSizeString = documentSnapshot.getString("size");
-                            int listSize = listSizeString != null ? Integer.parseInt(listSizeString) : 0;
-
-                            for (int i = 0; i < listSize; i++) {
-                                String userKey = "user" + i;
-                                String userId = documentSnapshot.getString(userKey);
-
-                                if (deviceID.equals(userId)) {
-                                    // If the user is in this list, update the listType
-                                    if (!type.equals(listType)) {
-                                        Log.d("ConfirmListType", "List type updated to: " + type);
-                                        listType = type;
-                                    }
-                                    return; // Exit once the correct list type is found
-                                }
-                            }
-                        }
-                    })
-                    .addOnFailureListener(e -> Log.e("ConfirmListType", "Error checking list type: " + e.getMessage()));
-        }
-    }
 
     private void setUpEntrantActions() {
-        if (listType.equals("wait")){
-            confirmlistType();
-        }
-        String userListID  = eventID + "-" + listType;
+        Log.d("CheckingListType2", "Starting to confirm list type for eventID: " + listType);
+        String userListID = eventID + "-" + listType;
         userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -239,17 +211,17 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                                 break;
                             }
                         }
-                        
+
                         if ((listSize == capacity) && (listType.equals("wait"))) {
                             String fullText = "Waiting List Full";
                             eventButton.setText(fullText);
                             eventButton.setEnabled(Boolean.FALSE);
                             eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
                         } else if (userAlreadyAdded) {
-                            String leaveText ="";
+                            String leaveText = "";
                             if (listType.equals("wait")) {
                                 leaveText = "Leave Waiting List";
-                                eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+                                eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));
 
                             } else if (listType.equals("registered")) {
                                 leaveText = "Leave Event";
@@ -264,9 +236,22 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
 
 
                         } else {
-                            String joinText = "Join Waiting List";
-                            eventButton.setText(joinText);
-                            eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));        
+                            isValidDate(eventID, isValid -> {
+                                if (isValid) {
+                                    Log.d("ValidDate", "Confirm valid boolean: " + isValid);
+                                    String joinText = "Registration Date Passed";
+                                    eventButton.setText(joinText);
+                                    eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+                                    eventButton.setEnabled(false);
+                                } else {
+                                    Log.d("ValidDate", "Confirm false valid boolean: " + isValid);
+                                    String joinText = "Join Waiting List";
+                                    eventButton.setText(joinText);
+                                    eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));
+                                    eventButton.setEnabled(true);
+                                }
+                            });
+
                         }
                     } else {
                         Log.d("Firebase", "User list doesn't exists.");
@@ -300,15 +285,13 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                 } else if (eventButton.getText() == "Accept Invitation") {
                     leaveDrawList();
                     joinRegisteredList();
-                }
-                else if (eventButton.getText() == "Leave Event") {
+                } else if (eventButton.getText() == "Leave Event") {
                     leaveRegisteredList();
                     joinCancelList();
 
                 } else {
                     leaveWaitingList();
                 }
-
 
 
             }
@@ -318,20 +301,192 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     }
 
 
+    /**
+     * Verify if list is correct type, check if user try to scan qr code to join but already in register or draw lsit
+     */
+    private void confirmlistType() {
+        // Define the possible list types
+        if (listType.equals("wait")) {
+            String[] listTypes = {"wait", "registered", "draw"};
+            final boolean[] found = {false}; // Shared flag to indicate a match
+
+            for (String type : listTypes) {
+                if (found[0]) break; // Stop initiating new queries if a match is found
+
+                String userListID = eventID + "-" + type;
+
+                db.collection("userList").document(userListID)
+                        .get()
+                        .addOnSuccessListener(documentSnapshot -> {
+                            if (documentSnapshot.exists() && !found[0]) { // Check flag before processing
+                                String listSizeString = documentSnapshot.getString("size");
+                                int listSize = listSizeString != null ? Integer.parseInt(listSizeString) : 0;
+
+                                for (int i = 0; i < listSize; i++) {
+                                    //if (found[0]) return; // Exit the listener if a match is already found
+
+                                    String userKey = "user" + i;
+                                    String userId = documentSnapshot.getString(userKey);
+
+                                    if (deviceID.equals(userId)) {
+                                        // Match found
+                                        listType = type; // Update listType
+                                        found[0] = true; // Set the flag to prevent further updates
+                                        Log.d("ConfirmListType", "List type confirmed: " + listType);
+
+                                        // Call setUpEntrantActions after confirming the list type
+                                        setUpEntrantActions();
+                                        return; // Exit the listener immediately
+                                    }
+                                }
+                            }
+                        })
+                        .addOnFailureListener(e -> Log.e("ConfirmListType", "Error checking list type: " + e.getMessage()));
+            }
+        }
+        setUpEntrantActions();
+
+    }
+
+    /**
+     * Verify if registerationdate has passed already
+     *
+     * @param eventId
+     * @return bool
+     */
+//    public void isValidDate(String eventId) {
+//        valid_date = false;
+//        Log.d("ValidDate", "Checking validity for eventId: " + eventId);
+//
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        DocumentReference docRef = db.collection("event").document(eventId);
+//
+//        docRef.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                DocumentSnapshot document = task.getResult();
+//                if (document != null && document.exists()) {
+//                    String date = document.getString("eventInfo.registrationCloseDate");
+//                    if (date == null) {
+//                        Log.e("ValidDate", "Date is null for eventId: " + eventId);
+//                        //listener.onResult(false); // Notify invalid result
+//                        //return false;
+//                    }
+//
+//                    // Format for parsing and comparing dates
+//                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+//
+//                    try {
+//                        Date todaysDate = formatter.parse(formatter.format(new Date()));
+//                        Date eventDate = formatter.parse(date);
+//
+//                        Log.d("ValidDate", "Today's date: " + todaysDate + ", Event date: " + eventDate);
+//                        boolean isAfter = todaysDate.after(eventDate);
+//                        Log.d("ValidDate", "Is today's date after event date: " + isAfter);
+//
+//                        valid_date = isAfter; // Notify result of comparison
+//                    } catch (ParseException e) {
+//                        Log.e("ValidDate", "Error parsing date: " + e.getMessage());
+//
+//                        //listener.onResult(false); // Notify failure
+//                    }
+//                } else {
+//                    Log.e("ValidDate", "Document does not exist for eventId: " + eventId);
+//
+//                    //listener.onResult(false); // Notify failure
+//                }
+//            } else {
+//                Log.e("ValidDate", "Error fetching document: " + task.getException());
+//
+//                //listener.onResult(false); // Notify failure
+//            }
+//        });
+//    }
+    public void isValidDate(String eventId, OnDateValidationListener listener) {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference docRef = db.collection("event").document(eventId);
+
+        docRef.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot document = task.getResult();
+                if (document != null && document.exists()) {
+                    String date = document.getString("eventInfo.registrationCloseDate");
+                    if (date == null) {
+                        Log.e("ValidDate", "Date is null for eventId: " + eventId);
+                        listener.onResult(false); // Notify invalid result
+                        return;
+                    }
+
+                    try {
+                        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                        Date todaysDate = formatter.parse(formatter.format(new Date()));
+                        Date eventDate = formatter.parse(date);
+
+                        boolean isAfter = todaysDate.after(eventDate);
+                        Log.d("ValidDate", "Today's date: " + todaysDate + ", Event date: " + eventDate);
+                        Log.d("ValidDate", "Is today's date after event date: " + isAfter);
+                        listener.onResult(isAfter); // Notify result of comparison
+                    } catch (ParseException e) {
+                        Log.e("ValidDate", "Error parsing date: " + e.getMessage());
+                        listener.onResult(false); // Notify failure
+                    }
+                } else {
+                    Log.e("ValidDate", "Document does not exist for eventId: " + eventId);
+                    listener.onResult(false); // Notify failure
+                }
+            } else {
+                Log.e("ValidDate", "Error fetching document: " + task.getException());
+                listener.onResult(false); // Notify failure
+            }
+        });
+    }
 
 
+
+
+    /**
+     * Fetch closing date from db related with registeration event id
+     *
+     * @param eventId
+     * @return String closing_date
+     */
+//    private String fetchRegistrationClosingDate(String eventId) {
+//
+//        FirebaseFirestore db = FirebaseFirestore.getInstance();
+//        DocumentReference docRef = db.collection("event").document(eventId);
+//
+//        docRef.get().addOnCompleteListener(task -> {
+//            if (task.isSuccessful()) {
+//                DocumentSnapshot document = task.getResult();
+//                if (document != null && document.exists()) {
+//                    return document.getString("eventInfo.registrationCloseDate");
+//
+//                } else {
+//                    Log.e("FetchDate", "Document does not exist for eventId: " + eventId);
+//                }
+//            } else {
+//                Log.e("FetchDate", "Error fetching document: " + task.getException());
+//            }
+//        });
+//    }
+
+
+
+    /**
+     * Add user to canceleled list
+     */
     private void joinCancelList() {
-        String userListID  = eventID + "-cancelled";
+        String userListID = eventID + "-cancelled";
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.addToList(userListID, deviceID);
 
     }
 
-
-
+    /**
+     * Remove user from registered list
+     */
     private void leaveRegisteredList() {
-        String userListID  = eventID + "-registered";
+        String userListID = eventID + "-registered";
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.removeFromList(userListID, deviceID);
@@ -342,10 +497,11 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventButton.setEnabled(Boolean.FALSE);
     }
 
-
-
+    /**
+     * Remove user from draw list
+     */
     private void leaveDrawList() {
-        String userListID  = eventID + "-draw";
+        String userListID = eventID + "-draw";
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.removeFromList(userListID, deviceID);
@@ -356,9 +512,11 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         declineButton.setEnabled(Boolean.FALSE);
     }
 
-
+    /**
+     * Add user to registered list
+     */
     private void joinRegisteredList() {
-        String userListID  = eventID + "-registered";
+        String userListID = eventID + "-registered";
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.addToList(userListID, deviceID);
@@ -366,8 +524,11 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventButton.setText(joinText);
     }
 
+    /**
+     * Remove user from wait list
+     */
     private void leaveWaitingList() {
-        String userListID  = eventID + "-wait";
+        String userListID = eventID + "-wait";
 
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
@@ -390,7 +551,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     }
 
     private void joinWaitingList() {
-        String userListID  = eventID + "-wait";
+        String userListID = eventID + "-wait";
 
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();

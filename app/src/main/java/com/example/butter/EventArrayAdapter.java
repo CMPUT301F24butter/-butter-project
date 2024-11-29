@@ -46,9 +46,9 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
 
         eventName.setText(event.getName());
         eventDate.setText(event.getDate());
-        if (event.getCapacity() != -1) {
+        if (event.getCapacity() != -1) { // if the event has a waitlist capacity
             eventCapacity.setText(String.format("%d", event.getCapacity()));
-        } else {
+        } else { // otherwise, display "N/A"
             eventCapacity.setText("N/A");
         }
 

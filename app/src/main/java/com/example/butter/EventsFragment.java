@@ -138,6 +138,7 @@ public class EventsFragment extends Fragment {
         eventArrayAdapter = new EventArrayAdapter(getContext(), userEvents);
     }
 
+    // method to update the displayed list of events
     private void updateEventList(QuerySnapshot querySnapshots) {
         if (querySnapshots != null) {
             userEvents.clear(); // clearing the userEvents array
@@ -227,7 +228,7 @@ public class EventsFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        userEvents.clear();
+        userEvents.clear(); // clearing the list
         eventArrayAdapter.notifyDataSetChanged();
 
         eventRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {

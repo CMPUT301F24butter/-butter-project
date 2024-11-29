@@ -86,7 +86,7 @@ public class EntrantListsActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         userRef = db.collection("user"); // user collection
         userListRef = db.collection("userList"); // userList collection
-        imageRef = db.collection("image");
+        imageRef = db.collection("image"); // image collection
 
         generateEntrants = findViewById(R.id.generate_entrants_button);
         drawReplacement = findViewById(R.id.draw_replacements_button);
@@ -129,6 +129,7 @@ public class EntrantListsActivity extends AppCompatActivity {
             }
         });
 
+        // setting a click listener for elements in the list
         entrantList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
@@ -153,7 +154,7 @@ public class EntrantListsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String sampleSizeString = sampleSize.getText().toString();
-                if (sampleSizeString.isEmpty()) {
+                if (sampleSizeString.isEmpty()) { // if no sample size was specified
                     Toast toast = Toast.makeText(getApplicationContext(), "Choose the number of entrants to sample.", Toast.LENGTH_LONG);
                     toast.show();
                     return;
@@ -161,17 +162,17 @@ public class EntrantListsActivity extends AppCompatActivity {
 
                 int sampleSizeInt = Integer.parseInt(sampleSizeString);
 
-                if (sampleSizeInt > entrantsData.size()) {
+                if (sampleSizeInt > entrantsData.size()) { // if the sample size is greater than the number of users in the waitlist
                     Toast toast = Toast.makeText(getApplicationContext(), "Sample size too large.", Toast.LENGTH_LONG);
                     toast.show();
                     return;
                 }
                 
-                if (sampleSizeInt == 0) {
+                if (sampleSizeInt == 0) { // if the sample size is 0
                     return;
                 }
                 
-                sampleEntrants(sampleSizeInt);
+                sampleEntrants(sampleSizeInt); // if valid, run the lottery
                 sampleSize.setText("");
             }
         });
@@ -224,7 +225,6 @@ public class EntrantListsActivity extends AppCompatActivity {
 
         entrantsData.clear(); // clearing current data in the entrants list
         adapter.notifyDataSetChanged();
-        // getting data from this userList document
 
         // retrieving data for this list
         userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -318,13 +318,12 @@ public class EntrantListsActivity extends AppCompatActivity {
         } else {
             selectedList = shuffledUsers.subList(0, shuffledUsers.size());
         }
-        ArrayList<String> selectedIDList = new ArrayList<>();
+        ArrayList<String> selectedIDList = new ArrayList<>(); // storing the deviceIDs of selected users
         for (User user : selectedList) {
             selectedIDList.add(user.getDeviceID());
         }
 
-        UserListDB userListDB = new UserListDB();
-
+        // fetching waitlist data for this event
         userListRef.document(waitlistID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot doc) {
@@ -333,19 +332,19 @@ public class EntrantListsActivity extends AppCompatActivity {
                 ArrayList<String> stillInWaitlist = new ArrayList<>();
                 HashMap<String, Object> updates = new HashMap<>();
 
-                for (int i = 0; i < size; i++) {
+                for (int i = 0; i < size; i++) { // storing the deviceIDs of users who will remain in the waitlist
                     String deviceID = doc.getString("user" + i);
                     if (!selectedIDList.contains(deviceID)) {
                         stillInWaitlist.add(deviceID);
                     }
 
-                    updates.put("user" + i, FieldValue.delete());
+                    updates.put("user" + i, FieldValue.delete()); // removing all user fields from the document
                 }
 
                 int new_size = size - sampleSize;
-                updates.put("size", String.valueOf(new_size));
+                updates.put("size", String.valueOf(new_size)); // updating the list size
 
-                for (int i = 0; i < stillInWaitlist.size(); i++) {
+                for (int i = 0; i < stillInWaitlist.size(); i++) { // putting the remaining deviceIDs back in the document
                     updates.put("user" + i, stillInWaitlist.get(i));
                 }
 
@@ -353,6 +352,7 @@ public class EntrantListsActivity extends AppCompatActivity {
             }
         });
 
+        // fetching draw list data for this event
         userListRef.document(drawlistID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot doc) {
@@ -360,12 +360,12 @@ public class EntrantListsActivity extends AppCompatActivity {
 
                 HashMap<String, Object> updates = new HashMap<>();
 
-                for (int i = size; i < size + sampleSize; i++) {
+                for (int i = size; i < size + sampleSize; i++) { // adding deviceIDs of lottery winners to the document
                     updates.put("user" + i, selectedIDList.get(i - size));
                 }
 
                 int new_size = size + sampleSize;
-                updates.put("size", String.valueOf(new_size));
+                updates.put("size", String.valueOf(new_size)); // updating the list size
 
                 userListRef.document(drawlistID).update(updates);
             }
@@ -382,7 +382,7 @@ public class EntrantListsActivity extends AppCompatActivity {
 
     private void drawReplacementEntrant() {
 
-        if (entrantsData.size() == 0) {
+        if (entrantsData.size() == 0) { // if there are no cancelled entrants
             Toast toast = Toast.makeText(getApplicationContext(), "There are no cancelled entrants.", Toast.LENGTH_LONG);
             toast.show();
             return;
@@ -398,7 +398,7 @@ public class EntrantListsActivity extends AppCompatActivity {
                         String listSizeString = doc.getString("size");
                         int listSize = Integer.parseInt(listSizeString); // # of entrants in the list
 
-                        if (listSize == 0) {
+                        if (listSize == 0) { // if there are no users in the waitlist
                             Toast toast = Toast.makeText(getApplicationContext(), "No entrants in the waitlist.", Toast.LENGTH_LONG);
                             toast.show();
                             return;

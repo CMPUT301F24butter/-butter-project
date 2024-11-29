@@ -191,6 +191,12 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             imageArrayAdapter.notifyDataSetChanged();
             selectedImage = null;
 
+            try {   // sleep to avoid crashes
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
             Toast.makeText(getContext(), "Image successfully deleted.", Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(getContext(), "No Image selected.", Toast.LENGTH_SHORT).show();
@@ -213,6 +219,12 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             allQrCodesEventID.remove(QRIndex);
             QRCodeArrayAdapter.notifyDataSetChanged();
             selectedQRCode = null;
+
+            try {   // sleep to avoid crashes
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
             Toast.makeText(getContext(), "QR code successfully deleted.", Toast.LENGTH_SHORT).show();
         } else {

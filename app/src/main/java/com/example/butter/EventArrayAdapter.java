@@ -47,7 +47,7 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
         eventName.setText(event.getName());
 
         DateFormatter dateFormatter = new DateFormatter();
-        String formattedDate = dateFormatter.formatDate(event.getDate());
+        String formattedDate = dateFormatter.formatDate(event.getDate()); // formatting the date
         if (formattedDate != null) {
             eventDate.setText(formattedDate);
         } else {

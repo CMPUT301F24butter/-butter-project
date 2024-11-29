@@ -5,6 +5,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+/**
+ * Formats dates into a nicer format to be displayed in the app
+ *
+ * author: Nate Pane (natepane)
+ */
 public class DateFormatter {
 
     /**
@@ -33,6 +38,11 @@ public class DateFormatter {
         }
     }
 
+    /**
+     * Adds a suffix to the day of the date
+     * @param date
+     * @return
+     */
     private String addSuffix(Date date) {
         SimpleDateFormat dayFormat = new SimpleDateFormat("d", Locale.ENGLISH);
         int day = Integer.parseInt(dayFormat.format(date));

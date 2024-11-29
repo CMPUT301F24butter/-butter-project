@@ -23,9 +23,6 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <!-- RecyclerView for Upcoming Events -->
-
-        <!-- Waiting List Label -->
-
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/eventsRecyclerView"
             android:layout_width="wrap_content"
@@ -36,6 +33,35 @@
             app:layout_constraintHorizontal_bias="0.051"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/upcomingText" />
+
+        <!-- Recycler view for Invitation list -->
+        <TextView
+            android:id="@+id/draw_list_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="200dp"
+            android:paddingTop="20dp"
+            android:paddingBottom="10dp"
+            android:text="@string/invited_list"
+            android:textColor="@color/black"
+            android:textSize="25sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.058"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/upcomingText"
+            app:layout_constraintVertical_bias="45" />
+
+        <!-- RecyclerView for Invitation List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/drawListRecyclerView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="0dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.051"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/draw_list_label" />
 
         <TextView
             android:id="@+id/waiting_list_label"
@@ -50,9 +76,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.058"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/upcomingText"
+            app:layout_constraintTop_toBottomOf="@id/draw_list_label"
             app:layout_constraintVertical_bias="45" />
-
         <!-- RecyclerView for Waiting List -->
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/waitingListRecyclerView"

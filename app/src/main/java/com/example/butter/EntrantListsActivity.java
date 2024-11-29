@@ -35,6 +35,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.UUID;
 
 /**
  * This activity is used to display the users in any event's waitlist/draw list/registered list/cancelled list
@@ -63,6 +64,7 @@ public class EntrantListsActivity extends AppCompatActivity {
     private CollectionReference userRef;
     private CollectionReference userListRef;
     private CollectionReference imageRef;
+    private CollectionReference eventRef;
 
     Button generateEntrants;
     Button drawReplacement;
@@ -87,6 +89,7 @@ public class EntrantListsActivity extends AppCompatActivity {
         userRef = db.collection("user"); // user collection
         userListRef = db.collection("userList"); // userList collection
         imageRef = db.collection("image"); // image collection
+        eventRef = db.collection("event"); // event collection
 
         generateEntrants = findViewById(R.id.generate_entrants_button);
         drawReplacement = findViewById(R.id.draw_replacements_button);
@@ -348,6 +351,20 @@ public class EntrantListsActivity extends AppCompatActivity {
                     updates.put("user" + i, stillInWaitlist.get(i));
                 }
 
+                eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot eventDoc) {
+                        String eventName = eventDoc.getString("eventInfo.name");
+
+                        for (int i = 0; i < stillInWaitlist.size(); i++) { // putting the remaining deviceIDs back in the document
+                            String notificationID = UUID.randomUUID().toString();
+                            Notification notification = new Notification(notificationID, eventName, eventID, stillInWaitlist.get(i), "Unfortunately, you have lost the lottery.", true);
+                            NotificationDB notificationDB = new NotificationDB();
+                            notificationDB.add(notification);
+                        }
+                    }
+                });
+
                 userListRef.document(waitlistID).update(updates);
             }
         });
@@ -368,6 +385,20 @@ public class EntrantListsActivity extends AppCompatActivity {
                 updates.put("size", String.valueOf(new_size)); // updating the list size
 
                 userListRef.document(drawlistID).update(updates);
+            }
+        });
+
+        eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot doc) {
+                String eventName = doc.getString("eventInfo.name");
+
+                for (int i = 0; i < selectedIDList.size(); i++) {
+                    String notificationID = UUID.randomUUID().toString();
+                    Notification notification = new Notification(notificationID, eventName, eventID, selectedIDList.get(i), "Congrats, you have won the lottery!.", true);
+                    NotificationDB notificationDB = new NotificationDB();
+                    notificationDB.add(notification);
+                }
             }
         });
 

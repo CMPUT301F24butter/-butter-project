@@ -38,6 +38,24 @@ public class DateFormatter {
         }
     }
 
+    public String unformatDate(String inputDate) {
+        try {
+            inputDate = inputDate.replaceAll("(\\d+)(st|nd|rd|th)", "$1");
+
+            SimpleDateFormat format = new SimpleDateFormat("MMM d, yyyy", Locale.ENGLISH);
+            Date date = format.parse(inputDate);
+
+            SimpleDateFormat newFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
+            String unformattedDate = newFormat.format(date);
+
+            return unformattedDate;
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
     /**
      * Adds a suffix to the day of the date
      * @param date

@@ -80,7 +80,7 @@
             android:inputType="text"
             android:textSize="12sp" />
 
-        <EditText
+        <TextView
             android:id="@+id/start_date"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -93,7 +93,7 @@
             android:inputType="date"
             android:textSize="12sp" />
 
-        <EditText
+        <TextView
             android:id="@+id/end_date"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -106,7 +106,7 @@
             android:inputType="date"
             android:textSize="12sp" />
 
-        <EditText
+        <TextView
             android:id="@+id/event_date"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -117,7 +117,8 @@
             android:drawablePadding="8dp"
             android:hint="@string/event_date"
             android:inputType="date"
-            android:textSize="12sp" />
+            android:textSize="12sp"
+            android:clickable="true"/>
 
         <RelativeLayout
             android:layout_width="match_parent"

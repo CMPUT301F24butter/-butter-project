@@ -45,7 +45,15 @@ public class EventArrayAdapter extends ArrayAdapter<Event> {
         ImageView eventImage = view.findViewById(R.id.event_image);
 
         eventName.setText(event.getName());
-        eventDate.setText(event.getDate());
+
+        DateFormatter dateFormatter = new DateFormatter();
+        String formattedDate = dateFormatter.formatDate(event.getDate());
+        if (formattedDate != null) {
+            eventDate.setText(formattedDate);
+        } else {
+            eventDate.setText(event.getDate());
+        }
+
         if (event.getCapacity() != -1) { // if the event has a waitlist capacity
             eventCapacity.setText(String.format("%d", event.getCapacity()));
         } else { // otherwise, display "N/A"

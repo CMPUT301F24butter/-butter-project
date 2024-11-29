@@ -64,6 +64,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     private String listType;
 
     private Button eventButton;
+    private Button declineButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,6 +89,8 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventDateText = findViewById(R.id.event_date);
         eventDescriptionText = findViewById(R.id.event_description);
         eventButton = findViewById(R.id.waiting_list_button);
+        declineButton = findViewById(R.id.decline_invitation_button);
+        declineButton.setVisibility(View.INVISIBLE);
         posterImage = findViewById(R.id.event_screen_image);
 
         // retrieving event info for this eventID
@@ -209,13 +212,13 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                                 eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
 
                             } else if (listType.equals("registered")) {
-                                leaveText = "Decline Invitation";
-                                eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+                                leaveText = "Leave Event";
+                                eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));
 
                             } else if (listType.equals("draw")) {
                                 leaveText = "Accept Invitation";
                                 eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));
-
+                                declineButton.setVisibility(View.VISIBLE);
                             }
                             eventButton.setText(leaveText);
 
@@ -229,6 +232,15 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                         Log.d("Firebase", "User list doesn't exists.");
                     }
                 }
+            }
+        });
+        declineButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                leaveDrawList();
+                joinCancelList();
+                String joinText = "Invitation Declined Successfully";
+                declineButton.setText(joinText);
             }
         });
 
@@ -249,7 +261,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                     leaveDrawList();
                     joinRegisteredList();
                 }
-                else if (eventButton.getText() == "Decline Invitation") {
+                else if (eventButton.getText() == "Leave Event") {
                     leaveRegisteredList();
                     joinCancelList();
 
@@ -283,7 +295,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         UserListDB userList = new UserListDB();
         userList.removeFromList(userListID, deviceID);
         // Turn it into Leave Waiting List
-        String joinText = "Invitation Declined Successfully";
+        String joinText = "Event Left Successfully";
         eventButton.setText(joinText);
         eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
         eventButton.setEnabled(Boolean.FALSE);
@@ -296,10 +308,11 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.removeFromList(userListID, deviceID);
-        String joinText = "Invitation Accepted Successfully";
-        eventButton.setText(joinText);
+
+        declineButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
         eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
         eventButton.setEnabled(Boolean.FALSE);
+        declineButton.setEnabled(Boolean.FALSE);
     }
 
 
@@ -308,11 +321,8 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.addToList(userListID, deviceID);
-        // Turn it into Leave Waiting List
-        //String leftText = "Decline Invitation";
-        //eventButton.setText(leftText);
-        //eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
-
+        String joinText = "Invitation Accepted Successfully";
+        eventButton.setText(joinText);
     }
 
     private void leaveWaitingList() {
@@ -323,9 +333,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         userList.removeFromList(userListID, deviceID);
 
         // Turn it into Leave Waiting List
-        String joinText = "Join Waiting List";
+        String joinText = "Sucessfuly Left Waitlist";
         eventButton.setText(joinText);
-        eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryPurpleColor));
+        eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
+        eventButton.setEnabled(Boolean.FALSE);
     }
 
     @Override

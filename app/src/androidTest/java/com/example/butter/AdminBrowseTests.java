@@ -12,7 +12,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withSpinnerText;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 
@@ -28,14 +27,26 @@ import org.junit.Rule;
 import org.junit.Test;
 
 /**
+ * This will run tests to see if the browsing and qr code functionalities in admin home screen
+ * works as intended.
+ *
  * NOTE: RUN THE APP FIRST BEFORE RUNNING THE TEST FILE
  *
  * IN ORDER TO RUN THESE TESTS YOU MUST HAVE ADMIN PRIVILEGES
  *
- * @author Angela
+ * NOTE: IN ORDER FOR THESE TESTS TO WORK, YOU HAVE TO FIRST LAUNCH THE APP NORMALLY (NOT THE TEST FILE)
+ *      ONCE IT'S BOOTED UP FULLY, CLICK THE DROPDOWN BUTTON TO THE LEFT OF THE RUN APP BUTTON
+ *      CLICK RUN 'EVENT SCREEN TEST'
+ *      IF YOU TRY TO RUN THE TEST FILE DIRECTLY WITHOUT THESE STEPS, IT WILL ALWAYS FAIL
+ *
+ *      IF THIS TRICK DOES NOT WORK ON YOUR MACHINE, PLEASE ASK ME TO SHOW YOU ON MY MACHINE
+ *
+ *      ALSO, YOU MUST HAVE AT LEAST ONE EVENT CREATED FOR THESE TESTS TO WORK
+ *
+ * @author Angela Dakay (angelcache)
  */
 
-public class HomeFragmentUITests {
+public class AdminBrowseTests {
 
     @Rule
     public ActivityScenarioRule<MainActivity> scenario = new ActivityScenarioRule<>(MainActivity.class);
@@ -96,11 +107,11 @@ public class HomeFragmentUITests {
         onView(withId(R.id.admin_list_view)).check(matches(isDisplayed()));
     }
 
-    // Tests to see if clicking "Browse Event Posters" will lead to the right listView showing up.
+    // Tests to see if clicking "Browse Images" will lead to the right listView showing up.
     @Test
-    public void testBrowseEventPosters() {
+    public void testBrowseImages() {
         onView(withId(R.id.entrants_spinner)).perform(click());
-        onData(allOf(is(instanceOf(String.class)), is("Browse Event Posters")))
+        onData(allOf(is(instanceOf(String.class)), is("Browse Images")))
                 .inRoot(isPlatformPopup())
                 .perform(click());
 

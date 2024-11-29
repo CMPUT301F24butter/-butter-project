@@ -82,6 +82,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         adminPrivilege = getIntent().getExtras().getBoolean("adminPrivilege", Boolean.FALSE); // Default to false if not found
         listType = getIntent().getExtras().getString("listType"); // clicked even from register or event list
 
+
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
         registrationOpenText = findViewById(R.id.register_opens);
@@ -177,8 +178,47 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
             }
         });
     }
+    private void confirmlistType() {
+        // Reference to the Firestore collection for user lists
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        // Define the possible list types
+        String[] listTypes = {"wait", "registered", "draw"};
+
+        for (String type : listTypes) {
+            String userListID = eventID + "-" + type;
+
+            // Check each list type for the user's presence
+            db.collection("userList").document(userListID)
+                    .get()
+                    .addOnSuccessListener(documentSnapshot -> {
+                        if (documentSnapshot.exists()) {
+                            String listSizeString = documentSnapshot.getString("size");
+                            int listSize = listSizeString != null ? Integer.parseInt(listSizeString) : 0;
+
+                            for (int i = 0; i < listSize; i++) {
+                                String userKey = "user" + i;
+                                String userId = documentSnapshot.getString(userKey);
+
+                                if (deviceID.equals(userId)) {
+                                    // If the user is in this list, update the listType
+                                    if (!type.equals(listType)) {
+                                        Log.d("ConfirmListType", "List type updated to: " + type);
+                                        listType = type;
+                                    }
+                                    return; // Exit once the correct list type is found
+                                }
+                            }
+                        }
+                    })
+                    .addOnFailureListener(e -> Log.e("ConfirmListType", "Error checking list type: " + e.getMessage()));
+        }
+    }
 
     private void setUpEntrantActions() {
+        if (listType.equals("wait")){
+            confirmlistType();
+        }
         String userListID  = eventID + "-" + listType;
         userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -276,6 +316,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         });
 
     }
+
 
 
 

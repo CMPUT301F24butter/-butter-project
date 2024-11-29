@@ -28,6 +28,11 @@ import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * This class can be used to interact with the "image" collection in Firebase
+ *
+ * author: Nate Pane (natepane)
+ */
 public class ImageDB {
     private FirebaseFirestore db;
     private CollectionReference imageRef;
@@ -149,6 +154,7 @@ public class ImageDB {
      *      URI returned when the user selects an image from their gallery
      * @param context
      * @return
+     *      String equivalent of the image
      */
     private String imageUriToString(Uri uri, Context context) {
 
@@ -180,9 +186,11 @@ public class ImageDB {
     /**
      * resizes the bitmap in order to make the string data small enough to store in Firebase
      * @param original
+     *      original Bitmap to be resized
      * @param maxWidth
      * @param maxHeight
      * @return
+     *      returns a resized Bitmap for the same image
      */
     private Bitmap resizeBitmap(Bitmap original, int maxWidth, int maxHeight) {
         int width = original.getWidth();
@@ -202,7 +210,9 @@ public class ImageDB {
      * Converts string data into a Bitmap
      * This method is public so that it can be conveniently used after fetching string data of an image from firebase
      * @param base64String
+     *      String data of an image
      * @return
+     *      Bitmap for the image
      */
     public Bitmap stringToBitmap(String base64String) {
         try {

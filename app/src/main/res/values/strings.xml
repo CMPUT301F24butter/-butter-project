@@ -32,8 +32,8 @@
     <string name="qrscanner">q</string>
     <string name="create_event">Create Event</string>
     <string name="event_name">Enter event name</string>
-    <string name="start_date">Registration Open Date (YYYY-MM-DD)</string>
-    <string name="end_date">Registration Close Date (YYYY-MM-DD)</string>
+    <string name="start_date">Registration Open Date</string>
+    <string name="end_date">Registration Close Date</string>
     <string name="description">Description</string>
     <string name="max_entrants">Max entrants (optional)</string>
     <string name="geolocation">Geolocation</string>
@@ -72,7 +72,7 @@
     <string name="current_description">%s</string>
     <string name="current_max">%s</string>
     <string name="save_changes">Save Changes</string>
-    <string name="event_date">Event Date (YYYY-MM-DD)</string>
+    <string name="event_date">Event Date</string>
     <string name="select_role">Select Role</string>
     <string name="event_date_s">Event Date: %s</string>
     <string name="remove_profile">Event Date: %s</string>

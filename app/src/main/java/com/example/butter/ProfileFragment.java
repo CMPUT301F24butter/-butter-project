@@ -8,14 +8,10 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -44,6 +40,11 @@ public class ProfileFragment extends Fragment {
      * Used for solving a bug with onDestroyView.
      */
     private ListenerRegistration userListener;
+    /**
+     * A Listener object for the addSnapshotListener checking for updated image data in database.
+     * Used for solving a bug with onDestroyView, and listening for changes to the image
+     */
+    private ListenerRegistration imageListener;
     /**
      * An imageDB object used for parsing string to bitmap
      */
@@ -95,18 +96,15 @@ public class ProfileFragment extends Fragment {
         DocumentReference imageRef = db.collection("image").document(getArguments().getString("deviceID"));
         // init our imageDB object
         imageDB = new ImageDB();
-        imageRef.addSnapshotListener(new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot doc, @Nullable FirebaseFirestoreException error) {
-                if (doc.exists()) { // if we have an image
-                    base64Image = doc.getString("imageData");
-                    // update the views with the new image attribute
-                } else {    // else set to null
-                    base64Image = null;
-                }
-                // finally update our view with new image
-                updateUserDataInView();
+        imageListener = imageRef.addSnapshotListener((doc, __) -> {
+            if (doc != null && doc.exists()) { // if we have an image
+                base64Image = doc.getString("imageData");
+                // update the views with the new image attribute
+            } else {    // else set to null
+                base64Image = null;
             }
+            // finally update our view with new image
+            updateProfilePicInView();
         });
     }
 
@@ -132,12 +130,37 @@ public class ProfileFragment extends Fragment {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        // detach active listener
+        // detach active listeners
         if (userListener != null) {
             userListener.remove();
             userListener = null;
         }
+        if (imageListener != null) {
+            imageListener.remove();
+            imageListener = null;
+        }
     }
+
+    /**
+     * updateProfilePicInView() updates the image if a new one has been found
+     * If there is no image, set to unique pfp with first initial
+     */
+    private void updateProfilePicInView() {
+        // get our views
+        TextView profileInitial = view.findViewById(R.id.profileText);
+        CircleImageView profileImage = view.findViewById(R.id.profileImage); // profile image
+
+        // now to update profile picture if none shown
+        if (base64Image != null) {  // if our string for our image is not null, set image & hide initial
+            profileImage.setImageBitmap(imageDB.stringToBitmap(base64Image));
+            profileInitial.setVisibility(View.INVISIBLE);
+        } else {    // else show initial and update
+            profileImage.setImageResource(R.drawable.profile_circle);
+            profileInitial.setText(user.getName().substring(0, 1));
+            profileInitial.setVisibility(View.VISIBLE);
+        }
+    }
+
     /**
      * updateUserDataInView() uses the private user variable to update the private view object.
      * Runs some checks to decide what will and will not be visible dependent on user data and roles.
@@ -175,11 +198,8 @@ public class ProfileFragment extends Fragment {
             phone.setText(user.getPhoneNumber());
         }
 
-        // now to update profile picture
-        if (base64Image != null) {  // if our string for our image is not null, set image & hide initial
-            profileImage.setImageBitmap(imageDB.stringToBitmap(base64Image));
-            profileInitial.setVisibility(View.INVISIBLE);
-        } else {    // else show initial and update
+        // now to update profile picture if none shown
+        if (base64Image == null) {  // set initial and image to unique if null
             profileImage.setImageResource(R.drawable.profile_circle);
             profileInitial.setText(user.getName().substring(0, 1));
             profileInitial.setVisibility(View.VISIBLE);

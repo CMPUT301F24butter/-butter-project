@@ -239,14 +239,15 @@ public class HomeAdminFragment extends Fragment implements ConfirmationDialog.Co
             // first grab user id
             String userID = selectedUser.getDeviceID();
 
+            // remove user from list
+            allUsers.remove(selectedUser);
+            profileArrayAdapter.notifyDataSetChanged();
+
             // setup db objects
             UserDB userDB = new UserDB();
-            EventDB eventDB = new EventDB();
             UserListDB userListDB = new UserListDB();
             ImageDB imageDB = new ImageDB();
             NotificationDB notificationDB = new NotificationDB();
-            MapDB mapDB = new MapDB();
-            QRCodeDB qrcodeDB = new QRCodeDB();
 
             // then lets remove all data associated with the user
 

@@ -121,36 +121,60 @@ public class CreateProfileActivity extends AppCompatActivity {
 
                     // now to set privilege values:
                     // Entrant = 100, Organizer = 200, both = 300
-                    if (role.equals("Entrant")) privileges = 100;
+                    if (role.equals("Entrant")) {privileges = 100; facility = null;}
                     if (role.equals("Organizer")) privileges = 200;
                     if (role.equals("Both")) privileges = 300;
 
                     // create the user obj
                     User user = new User(getIntent().getExtras().getString("deviceID"), username.trim(), privileges, facility, email, phone);
 
-                    // finally, lets check if this facility conflicts with another in the db.
-                    String finalFacility = facility;
-                    fetchFacilities(new OnFacilitiesLoadedCallback() {
-                        @Override
-                        public void checkForFacility(List<String> facilities) {
-                            // check if the facility is in our facility list fetch from db
-                            if (!facilities.contains(finalFacility)) { // if the facility is not in db
-                                // add the user to the db, and go to main
-                                users.add(user);
+                    if (facility != null) { // if we are an org
+                        // finally, lets check if this facility conflicts with another in the db.
+                        String finalFacility = facility;
+                        fetchFacilities(new OnFacilitiesLoadedCallback() {
+                            @Override
+                            public void checkForFacility(List<String> facilities) {
+                                // check if the facility is in our facility list fetch from db
+                                if (!facilities.contains(finalFacility)) { // if the facility is not in db
+                                    // add the user to the db, and go to main
+                                    users.add(user);
 
-                                // now our new user should be in the database, and go to MainActivity
-                                Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);
-                                startActivity(toMainActivity);
-                                finish();
-                            } else {    // else create builder and conflicting facility error
-                                AlertDialog.Builder builder = new AlertDialog.Builder(CreateProfileActivity.this);
-                                builder.setTitle("Invalid Signup");
-                                builder.setMessage("Conflicting Facility Name.\nPlease try again.");
-                                builder.setPositiveButton("OK", null);
-                                builder.show();
+                                    // run a quick sleep to ensure that all items have been fetched/updated in db
+                                    try {
+                                        Thread.sleep(300);
+                                    } catch (InterruptedException e) {
+                                        throw new RuntimeException(e);
+                                    }
+
+                                    // now our new user should be in the database, and go to MainActivity
+                                    Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);
+                                    startActivity(toMainActivity);
+                                    finish();
+                                } else {    // else create builder and conflicting facility error
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(CreateProfileActivity.this);
+                                    builder.setTitle("Invalid Signup");
+                                    builder.setMessage("Conflicting Facility Name.\nPlease try again.");
+                                    builder.setPositiveButton("OK", null);
+                                    builder.show();
+                                }
                             }
+                        });
+                    } else {    // else we are not an org, and should just add in db
+                        // add the user to the db, and go to main
+                        users.add(user);
+
+                        // run a quick sleep to ensure that all items have been fetched/updated in db
+                        try {
+                            Thread.sleep(300);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
                         }
-                    });
+
+                        // now our new user should be in the database, and go to MainActivity
+                        Intent toMainActivity = new Intent(CreateProfileActivity.this, MainActivity.class);
+                        startActivity(toMainActivity);
+                        finish();
+                    }
                 } else {    // else then show dialogue message and continue
                     AlertDialog.Builder builder = new AlertDialog.Builder(CreateProfileActivity.this);
                     builder.setTitle("Invalid Signup");

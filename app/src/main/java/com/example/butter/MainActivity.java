@@ -33,6 +33,7 @@ import java.util.Objects;
  * This activity is used to implement the navigation bar of the app with menu icons that
  * will have constraints depending on a users privileges.
  * User info is taken from firebase using a collection reference to the user document.
+ *
  * @author Angela Dakay (angelcache)
  */
 public class MainActivity extends AppCompatActivity {
@@ -135,7 +136,6 @@ public class MainActivity extends AppCompatActivity {
 
             if (id == R.id.homeIcon) {
                 replaceFragment(new HomeFragment());
-
             } else if (id == R.id.eventsIcon) {
                 replaceFragment(new EventsFragment());
             } else if (id == R.id.notificationsIcon) {

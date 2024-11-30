@@ -52,9 +52,6 @@ import java.util.Objects;
  * This fragment is used to set up the home screen on the admins side and the entrants (or both
  * entrant and organizers) side. The admins have access to a spinner and the entrants will have
  * access to only the upcoming and waiting list events.
- * Outstanding Issue: When I move to another screen and come back to the admin screen,
- *               the spinner goes back to default option (browse events) instead of the
- *               option user last clicked on
  *
  * @author Angela Dakay (angelcache)
  */

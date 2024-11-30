@@ -41,7 +41,7 @@ public class ViewMap  extends AppCompatActivity{
         map.setMultiTouchControls(true);
 
         mapController.setZoom((long) 12);
-        GeoPoint startPoint = new GeoPoint(53.51, -113.51);
+        GeoPoint startPoint = new GeoPoint(53.51, -113.50);
         mapController.animateTo(startPoint);
 
         Marker marker = new Marker(map);

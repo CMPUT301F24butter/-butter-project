@@ -5,56 +5,86 @@ import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.matcher.RootMatchers.isPlatformPopup;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static org.hamcrest.CoreMatchers.allOf;
-import static org.hamcrest.CoreMatchers.anything;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.Matchers.is;
 
+
+import static org.junit.Assert.assertEquals;
+
+import android.content.Intent;
+import android.util.Log;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
+import androidx.test.rule.ActivityTestRule;
 
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 
+import java.util.Objects;
+
 /**
- * This will run tests for geolocation testing
+ * This will run tests for geolocation (checks if geolocation dialog pops up for
+ * an event with geolocation on)
  *
- * IN ORDER TO RUN THESE TESTS YOU MUST HAVE ADMIN PRIVILEGES
+ * IN ORDER TO RUN THESE TESTS YOU MUST NOT HAVE JOIN THE EVENT WE'RE TESTING YET
  *
- * NOTE: IN ORDER FOR THESE TESTS TO WORK, YOU HAVE TO FIRST LAUNCH THE APP NORMALLY (NOT THE TEST FILE)
- *      ONCE IT'S BOOTED UP FULLY, CLICK THE DROPDOWN BUTTON TO THE LEFT OF THE RUN APP BUTTON
- *      CLICK RUN 'EVENT SCREEN TEST'
- *      IF YOU TRY TO RUN THE TEST FILE DIRECTLY WITHOUT THESE STEPS, IT WILL ALWAYS FAIL
- *
- *      IF THIS TRICK DOES NOT WORK ON YOUR MACHINE, PLEASE ASK ME TO SHOW YOU ON MY MACHINE
- *
- *      AFTER DELETING SOMETHING ADD IT BACK IN AGAIN BEFORE TESTING IT OUT AGAIN
+ * NOTE: WILL NEED TO CHANGE DEVICE ID TO YOUR OWN TO RUN THIS TEST MAKE SURE YOU ARE
+ * NOT ALREADY IN THE EVENT WAITING / REGISTER / DRAW LIST OF THE TEST EVENT. ALSO, IF
+ * NEEDED, CHANGE THE TEST EVENT AS WELL.
  *
  * @author Angela Dakay (angelcache)
  */
 
 public class GeolocationTest {
     @Rule
-    public ActivityScenarioRule<MainActivity> scenario = new ActivityScenarioRule<MainActivity>(MainActivity.class);
+    public ActivityTestRule<EventDetailsActivity> activityRule =
+            new ActivityTestRule<>(EventDetailsActivity.class, false, false); // Don't launch automatically
 
-    // Tests to see if an event with no geolocation will not have a dialogue pop up
+    @Before
+    public void setUp() {
+        // Event Data we will use Cat Meetup (has geolocation on)
+        String deviceID = "c847b34b3c917f78"; // CHANGE THIS TO YOUR ID
+        String eventID = "Cat_Meetup-65e1e878f39577f3";
+        String listType = "wait";
+
+        // Create an intent with event data
+        Intent intent = new Intent();
+        intent.putExtra("deviceID", deviceID);
+        intent.putExtra("eventID", eventID);
+        intent.putExtra("listType", listType);
+
+        // Launch the activity with the intent
+        activityRule.launchActivity(intent);
+    }
+
+    // Tests to see if an event with geolocation has a dialogue pop up and declining that dialogue
     @Test
-    public void noGeolocationTest() throws InterruptedException {
+    public void GeolocationDeclineTest() throws InterruptedException {
+        // Join waiting list
         Thread.sleep(2000);
-        onView(withId(R.id.entrants_spinner)).perform(click());
-        onData(allOf(is(instanceOf(String.class)), is("Browse Images")))
-                .inRoot(isPlatformPopup())
-                .perform(click());
-        Thread.sleep(2000);
+        onView(withId(R.id.waiting_list_button)).perform(click());
 
-        // Click the specific event in the ListView by matching the event name in the TextView
-        onData(anything()) // Match any data (Event object)
-                .inAdapterView(withId(R.id.admin_list_view))
-                .atPosition(8) // position of my event image
-                .perform(click());
-        onView(withId(R.id.delete_admin_button)).perform(click());
-
+        // Decline Dialogue
         Thread.sleep(2000);
         onView(withId(R.id.cancel_button)).perform(click());
+        Thread.sleep(2000);
+    }
+
+    // Tests to see if an event with geolocation has a dialogue pop up and accepting that dialogue
+    @Test
+    public void GeolocationAcceptTest() throws InterruptedException {
+        // Join Waiting List
+        Thread.sleep(2000);
+        onView(withId(R.id.waiting_list_button)).perform(click());
+
+        // Accept Dialogue
+        Thread.sleep(2000);
+        onView(withId(R.id.yes_button)).perform(click());
+
+        // Leave Waiting list
+        Thread.sleep(2000);
+        onView(withId(R.id.waiting_list_button)).perform(click());
         Thread.sleep(2000);
     }
 }

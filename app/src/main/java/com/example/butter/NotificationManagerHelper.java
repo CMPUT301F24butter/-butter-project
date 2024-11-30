@@ -13,10 +13,9 @@ public class NotificationManagerHelper {
     private static final String CHANNEL_ID = "butter_notifications";
 
     public static void handleNotification(Context context, String title, String body) {
-        // Check if permission is required (Android 13+)
+        // Check if permission is required
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
             if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                // Ask for permission if not granted
                 requestNotificationPermission(context);
                 return;
             }
@@ -24,7 +23,7 @@ public class NotificationManagerHelper {
 
         // Build and display the notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_notification) // Replace with your notification icon
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(body)
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);

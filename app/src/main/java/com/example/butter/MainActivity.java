@@ -204,25 +204,52 @@ public class MainActivity extends AppCompatActivity {
 
             if (querySnapshot != null) {
                 for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
-
                     Log.d("MainActivity", "Document fetched: " + doc.getData());
+
                     // Extract data from the document
                     String recipientDeviceID = doc.getString("notificationInfo.recipientDeviceID");
                     String title = doc.getString("notificationInfo.eventSender");
                     String body = doc.getString("notificationInfo.message");
                     Boolean seen = doc.getBoolean("notificationInfo.seen");
+                    Boolean force = doc.getBoolean("notificationInfo.force");
 
-                    // Check if the notification is intended for this device
+                    // Check if the notification is intended for this device and has not been seen
                     if (recipientDeviceID != null && recipientDeviceID.equals(deviceID) && seen != null && !seen) {
+                        // Fetch user notification preferences from the "users" collection
+                        userRef.document(deviceID).get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                DocumentSnapshot userDoc = task.getResult();
+                                Boolean notifications = userDoc.getBoolean("userInfo.notifications");
 
-                        Log.d("MainActivity", "Notification for this device: " + title);
-                        // Pass title and body to NotificationManagerHelper
-                        NotificationManagerHelper.handleNotification(this, title, body);
-                        doc.getReference().update("notificationInfo.seen", true)
-                                .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
+                                // Log the fetched preferences
+                                Log.d("MainActivity", "Force: " + force + ", Notifications: " + notifications);
+
+                                // Send the notification based on `force` or `notifications`
+                                if (Boolean.TRUE.equals(force)) {
+                                    Log.d("MainActivity", "Force sending notification: " + title);
+                                    NotificationManagerHelper.handleNotification(this, title, body);
+
+                                    // Mark the notification as seen
+                                    doc.getReference().update("notificationInfo.seen", true)
+                                            .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
+                                } else if (Boolean.TRUE.equals(notifications)) {
+                                    Log.d("MainActivity", "Sending notification based on user settings: " + title);
+                                    NotificationManagerHelper.handleNotification(this, title, body);
+
+                                    // Mark the notification as seen
+                                    doc.getReference().update("notificationInfo.seen", true)
+                                            .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
+                                } else {
+                                    Log.d("MainActivity", "Notification not sent: force=false and user notifications are disabled.");
+                                }
+                            } else {
+                                Log.e("MainActivity", "Failed to fetch user preferences", task.getException());
+                            }
+                        });
                     }
                 }
             }
         });
     }
+
 }

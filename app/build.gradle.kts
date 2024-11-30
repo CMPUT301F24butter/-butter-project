@@ -49,11 +49,12 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.espresso.intents)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    implementation ("org.osmdroid:osmdroid-android:6.1.11")
-    implementation ("org.osmdroid:osmdroid-wms:6.1.11")
-
+    implementation(libs.espresso.contrib){
+        exclude(group = "com.google.protobuf")
+    }
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")

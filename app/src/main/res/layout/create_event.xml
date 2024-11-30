@@ -72,6 +72,7 @@
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="15dp"
+            android:gravity="center_vertical"
             android:autofillHints=""
             android:background="@drawable/edit_text_border"
             android:drawableStart="@drawable/event_name"
@@ -80,7 +81,7 @@
             android:inputType="text"
             android:textSize="12sp" />
 
-        <EditText
+        <TextView
             android:id="@+id/start_date"
             android:layout_width="match_parent"
             android:layout_height="48dp"
@@ -91,33 +92,37 @@
             android:drawablePadding="8dp"
             android:hint="@string/start_date"
             android:inputType="date"
+            android:gravity="center_vertical"
             android:textSize="12sp" />
 
-        <EditText
+        <TextView
             android:id="@+id/end_date"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="15dp"
             android:autofillHints=""
             android:background="@drawable/edit_text_border"
-            android:drawableStart="@drawable/clock"
+            android:drawableStart="@drawable/calendar"
+            android:gravity="center_vertical"
             android:drawablePadding="8dp"
             android:hint="@string/end_date"
             android:inputType="date"
             android:textSize="12sp" />
 
-        <EditText
+        <TextView
             android:id="@+id/event_date"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_marginBottom="15dp"
             android:autofillHints=""
             android:background="@drawable/edit_text_border"
-            android:drawableStart="@drawable/clock"
+            android:drawableStart="@drawable/calendar"
             android:drawablePadding="8dp"
             android:hint="@string/event_date"
             android:inputType="date"
-            android:textSize="12sp" />
+            android:gravity="center_vertical"
+            android:textSize="12sp"
+            android:clickable="true"/>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -150,6 +155,7 @@
                 android:id="@+id/max_entrants"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
+                android:gravity="center_vertical"
                 android:layout_weight="1"
                 android:autofillHints=""
                 android:background="@drawable/edit_text_border"

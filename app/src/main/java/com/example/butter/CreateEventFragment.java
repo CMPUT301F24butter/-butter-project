@@ -1,6 +1,7 @@
 package com.example.butter;
 
 import android.annotation.SuppressLint;
+import android.app.DatePickerDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +14,7 @@ import android.provider.MediaStore;
 import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -25,8 +27,10 @@ import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
@@ -39,6 +43,8 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -63,9 +69,18 @@ import com.bumptech.glide.Glide;
  */
 public class CreateEventFragment extends AppCompatActivity {
 
+    /**
+     * Imagie view for the event image
+     */
     ImageView eventImage;
+    /**
+     * Button to be clicked to select an image from your gallery
+     */
     ImageButton uploadEventImage;
     ActivityResultLauncher<Intent> resultLauncher;
+    /**
+     * Uri of the image uploaded by the user, null if no image is uploaded
+     */
     Uri uriUploaded = null;
     /**
      * EditText for the event name
@@ -74,15 +89,15 @@ public class CreateEventFragment extends AppCompatActivity {
     /**
      * EditText for opening reg date
      */
-    EditText openDate;
+    TextView openDate;
     /**
      * EditText for closing reg date
      */
-    EditText closeDate;
+    TextView closeDate;
     /**
      * EditText for date of event
      */
-    EditText eventDate;
+    TextView eventDate;
     /**
      * EditText for description of event
      */
@@ -146,28 +161,68 @@ public class CreateEventFragment extends AppCompatActivity {
         uploadEventImage.setOnClickListener(view -> pickImage());
         registerResult();
 
+        openDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePicker(openDate);
+            }
+        });
+
+        closeDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePicker(closeDate);
+            }
+        });
+
+        eventDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePicker(eventDate);
+            }
+        });
+
         // setting click listener for the create event button
         createButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 boolean validDetails = true; // represents whether the event details are valid or not
-
+                DateFormatter dateFormatter = new DateFormatter();
                 // extracting inputted event details
                 String name = eventName.getText().toString();
+
                 String registrationOpenDate = openDate.getText().toString();
+                if (registrationOpenDate.isEmpty()) {
+                    validDetails = false;
+                } else {
+                    registrationOpenDate = dateFormatter.unformatDate(registrationOpenDate);
+                }
+
                 String registrationCloseDate = closeDate.getText().toString();
+                if (registrationCloseDate.isEmpty()) {
+                    validDetails = false;
+                } else {
+                    registrationCloseDate = dateFormatter.unformatDate(registrationCloseDate);
+                }
+
                 String date = eventDate.getText().toString();
+                if (date.isEmpty()) {
+                    validDetails = false;
+                } else {
+                    date = dateFormatter.unformatDate(date);
+                }
+
                 String eventDescription = description.getText().toString();
                 String maxCapacityString = capacity.getText().toString();
                 Boolean geolocation = geolocationSwitch.isChecked();
 
-                if (name.isEmpty()) {
+                if (name.isEmpty()) { // if no event name is given
                     validDetails = false;
                     Toast toast = Toast.makeText(getApplicationContext(), "Must enter an event name.", Toast.LENGTH_LONG);
                     toast.show();
                 }
 
-                if (name.indexOf('-') != -1 || name.indexOf('_') != -1) {
+                if (name.indexOf('-') != -1 || name.indexOf('_') != -1) { // if the event name contains '-' or '_'
                     validDetails = false;
                     Toast toast = Toast.makeText(getApplicationContext(), "Event name cannot contain '-' or '_'", Toast.LENGTH_LONG);
                     toast.show();
@@ -224,6 +279,9 @@ public class CreateEventFragment extends AppCompatActivity {
                     int cap = maxCapacity;
                     String eventID = name.replace(" ", "_") + "-" + deviceID; // eventID of this potential new event
                     // checking if an event with this ID already exists
+                    String finalRegistrationOpenDate = registrationOpenDate;
+                    String finalRegistrationCloseDate = registrationCloseDate;
+                    String finalDate = date;
                     eventRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                         @Override
                         public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -235,7 +293,7 @@ public class CreateEventFragment extends AppCompatActivity {
                                 }
                                 else { // otherwise, add the event to firebase and return to the previous page
 
-                                    Event event = new Event(name, deviceID, registrationOpenDate, registrationCloseDate, date, cap, geolocation, eventDescription);
+                                    Event event = new Event(name, deviceID, finalRegistrationOpenDate, finalRegistrationCloseDate, finalDate, cap, geolocation, eventDescription);
 
                                     EventDB eventDB = new EventDB();
                                     eventDB.add(event);
@@ -245,9 +303,9 @@ public class CreateEventFragment extends AppCompatActivity {
                                         imageDB.add(uriUploaded, event.getEventID(), getApplicationContext()); // add the image to firebase
                                     }
 
-                                    if (event.isGeolocation()) {
+                                    if (event.isGeolocation()) { // if the event has geolocation
                                         MapDB mapDB = new MapDB();
-                                        mapDB.createMap(event.getEventID());
+                                        mapDB.createMap(event.getEventID()); // create a map docuement for this event
                                     }
 
                                     generateQRCode(eventID); // generating the QR code for this event
@@ -316,5 +374,40 @@ public class CreateEventFragment extends AppCompatActivity {
     private void pickImage() {
         Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
         resultLauncher.launch(intent);
+    }
+
+    private void showDatePicker(TextView dateTextView) {
+
+        String selectedDate = dateTextView.getText().toString();
+        int year, month, day;
+
+        if (selectedDate.isEmpty()) {
+            Calendar calendar = Calendar.getInstance();
+            year = calendar.get(Calendar.YEAR);
+            month = calendar.get(Calendar.MONTH);
+            day = calendar.get(Calendar.DAY_OF_MONTH);
+        } else {
+            DateFormatter dateFormatter = new DateFormatter();
+            String unformattedDate = dateFormatter.unformatDate(selectedDate);
+            String[] parts = unformattedDate.split("-");
+
+            year = Integer.parseInt(parts[0]);
+            month = Integer.parseInt(parts[1]);
+            day = Integer.parseInt(parts[2]);
+
+            month--;
+        }
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(CreateEventFragment.this, new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                month++;
+                String dateString = String.format("%04d-%02d-%02d", year, month, day);
+                DateFormatter dateFormatter = new DateFormatter();
+                String formattedDate = dateFormatter.formatDate(dateString);
+                dateTextView.setText(formattedDate);
+            }
+        }, year, month, day);
+        datePickerDialog.show();
     }
 }

@@ -84,14 +84,33 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot doc) {
+                DateFormatter dateFormatter = new DateFormatter();
                 // setting all the text boxes with correct event info
                 eventNameText.setText(doc.getString("eventInfo.name"));
+
                 String openDate = doc.getString("eventInfo.registrationOpenDate");
-                registrationOpenText.setText(String.format("Registration Opens: %s", openDate));
+                String formattedOpenDate = dateFormatter.formatDate(openDate);
+                if (formattedOpenDate != null) {
+                    registrationOpenText.setText(String.format("Registration Opens: %s", formattedOpenDate));
+                } else {
+                    registrationOpenText.setText(String.format("Registration Opens: %s", openDate));
+                }
+
                 String closeDate = doc.getString("eventInfo.registrationCloseDate");
-                registrationCloseText.setText(String.format("Registration Closes: %s", closeDate));
+                String formattedCloseDate = dateFormatter.formatDate(closeDate);
+                if (formattedCloseDate != null) {
+                    registrationCloseText.setText(String.format("Registration Closes: %s", formattedCloseDate));
+                } else {
+                    registrationCloseText.setText(String.format("Registration Closes: %s", closeDate));
+                }
+
                 String date = doc.getString("eventInfo.date");
-                eventDateText.setText(String.format("Event Date: %s", date));
+                String formattedDate = dateFormatter.formatDate(date);
+                if (formattedDate != null) {
+                    eventDateText.setText(String.format("Event Date: %s", formattedDate));
+                } else {
+                    eventDateText.setText(String.format("Event Date: %s", date));
+                }
             }
         });
 

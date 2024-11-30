@@ -58,6 +58,7 @@ public class NotificationDialog extends DialogFragment {
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add("Waitlist Entrants");
         arrayList.add("Chosen Entrants");
+        arrayList.add("Registered Entrants");
         arrayList.add("Cancelled Entrants");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, arrayList);
@@ -99,17 +100,16 @@ public class NotificationDialog extends DialogFragment {
                 }
 
                 String listID;
-                boolean invitation = false;
                 if (sendGroup == "Waitlist Entrants") {
                     listID = eventID + "-wait";
                 } else if (sendGroup == "Chosen Entrants") {
                     listID = eventID + "-draw";
-                    invitation = true;
+                } else if (sendGroup == "Registered Entrants"){
+                    listID = eventID + "-registered";
                 } else {
                     listID = eventID + "-cancelled";
                 }
 
-                boolean finalInvitation = invitation;
                 eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                     @Override
                     public void onSuccess(DocumentSnapshot eventDoc) {
@@ -124,7 +124,7 @@ public class NotificationDialog extends DialogFragment {
                                     String deviceID = listDoc.getString("user" + i);
 
                                     String notificationID = UUID.randomUUID().toString();
-                                    Notification notification = new Notification(notificationID, eventName, eventID, deviceID, message, finalInvitation);
+                                    Notification notification = new Notification(notificationID, eventName, eventID, deviceID, message, false);
 
                                     NotificationDB notificationDB = new NotificationDB();
                                     notificationDB.add(notification);

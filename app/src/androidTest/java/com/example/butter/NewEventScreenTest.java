@@ -117,4 +117,105 @@ public class NewEventScreenTest {
         onView(withId(R.id.edit_event_button)).perform(click());
         onView(withId(R.id.edit_event_button)).check(matches(isDisplayed()));
     }
+
+    @Test
+    public void testEditEventValidDetails() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.edit_event_text)).perform(click());
+
+        onView(withId(R.id.event_date)).perform(click());
+        onView(isAssignableFrom(DatePicker.class)).perform(PickerActions.setDate(2025, 1, 1));
+        onView(withText("OK")).perform(click());
+
+        onView(withId(R.id.event_description)).perform(clearText());
+        onView(withId(R.id.event_description)).perform(typeText("New event description"));
+
+        onView(withId(R.id.edit_event_button)).perform(click());
+        onView(withText("Delete Event")).check(matches(isDisplayed()));
+
+        onView(withText("New event description")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testViewEntrants() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.view_entrants_text)).perform(click());
+        onView(withText("Entrants list")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testWaitlistButtons() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.view_entrants_text)).perform(click());
+        onView(withId(R.id.generate_entrants_button)).check(matches(isDisplayed()));
+        onView(withId(R.id.sample_size)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testDrawListButtons() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.view_entrants_text)).perform(click());
+        onView(withId(R.id.entrants_spinner)).perform(click());
+        onView(withText("Draw")).perform(click());
+        onView(withId(R.id.generate_entrants_button)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.delete_entrant_button)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testRegisteredListNoButtons() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.view_entrants_text)).perform(click());
+        onView(withId(R.id.entrants_spinner)).perform(click());
+        onView(withText("Registered")).perform(click());
+        onView(withId(R.id.generate_entrants_button)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.delete_entrant_button)).check(matches(not(isDisplayed())));
+    }
+
+    @Test
+    public void testCancelledListButtons() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.view_entrants_text)).perform(click());
+        onView(withId(R.id.entrants_spinner)).perform(click());
+        onView(withText("Cancelled")).perform(click());
+        onView(withId(R.id.generate_entrants_button)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.delete_entrant_button)).check(matches(not(isDisplayed())));
+        onView(withId(R.id.draw_replacements_button)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testNotifications() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.send_notifications_text)).perform(click());
+        onView(withText("Event Announcement")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testNotificationsNoMessage() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.send_notifications_text)).perform(click());
+        onView(withId(R.id.send_button)).perform(click());
+        onView(withText("Event Announcement")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testValidNotification() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.send_notifications_text)).perform(click());
+        onView(withId(R.id.dialogue_text)).perform(ViewActions.typeText("Test notification"));
+        onView(withId(R.id.send_button)).perform(click());
+        onView(withText("Delete Event")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testShowDetailsCode() {
+        onView(withId(R.id.organizer_opt_button)).perform(click());
+        onView(withId(R.id.show_details_code_text)).perform(click());
+        onView(withText("Details QR Code")).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void testDeleteEventConfirmationDialogue() {
+        onView(withText("Delete Event")).perform(click());
+        onView(withText("Delete")).check(matches(isDisplayed()));
+    }
 }

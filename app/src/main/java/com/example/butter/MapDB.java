@@ -74,7 +74,7 @@ public class MapDB {
      * @param lon
      *      current longitude of the user
      */
-    public void addLocation(String eventID, String deviceID, float lat, float lon) {
+    public void addLocation(String eventID, String deviceID, double lat, double lon) {
         DocumentReference docRef = mapRef.document(eventID);
 
         // getting map data associated with this eventID

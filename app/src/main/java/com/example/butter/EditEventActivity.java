@@ -121,6 +121,10 @@ public class EditEventActivity extends AppCompatActivity {
      */
     boolean deletedImage = false;
 
+    String originalOpenDate;
+    String originalCloseDate;
+    String originalDate;
+
     /**
      * onCreate method performs everything here.
      * We simply grab the eventID from the args passed over,
@@ -194,6 +198,7 @@ public class EditEventActivity extends AppCompatActivity {
                         eventName = doc.getString("eventInfo.name");
 
                         String openDate = doc.getString("eventInfo.registrationOpenDate");
+                        originalOpenDate = openDate;
                         String formattedOpenDate = dateFormatter.formatDate(openDate);
                         if (formattedOpenDate != null) {
                             registrationOpenText.setText(formattedOpenDate);
@@ -202,6 +207,7 @@ public class EditEventActivity extends AppCompatActivity {
                         }
 
                         String closeDate = doc.getString("eventInfo.registrationCloseDate");
+                        originalCloseDate = closeDate;
                         String formattedCloseDate = dateFormatter.formatDate(closeDate);
                         if (formattedCloseDate != null) {
                             registrationCloseText.setText(formattedCloseDate);
@@ -210,6 +216,7 @@ public class EditEventActivity extends AppCompatActivity {
                         }
 
                         String date = doc.getString("eventInfo.date");
+                        originalDate = date;
                         String formattedDate = dateFormatter.formatDate(date);
                         if (formattedDate != null) {
                             dateText.setText(formattedDate);
@@ -322,7 +329,8 @@ public class EditEventActivity extends AppCompatActivity {
 
                     Boolean bool1 = date2.after(date1);
                     Boolean bool2 = date3.after(date2);
-                    Boolean bool3 = date1.after(today);
+                    Boolean bool3 = date3.after(today);
+                    //Boolean bool3 = date1.after(today);
 
                     // confirming that all dates are valid, i.e. event date isn't before registration date
                     if (!bool1 || !bool2 || !bool3) {

@@ -42,8 +42,6 @@ import org.junit.Test;
  *
  *      IF THIS TRICK DOES NOT WORK ON YOUR MACHINE, PLEASE ASK ME TO SHOW YOU ON MY MACHINE
  *
- *      AFTER DELETING SOMETHING ADD IT BACK IN AGAIN BEFORE TESTING IT OUT AGAIN
- *
  * @author Angela Dakay (angelcache)
  */
 

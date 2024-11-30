@@ -24,6 +24,7 @@ public class ViewMap  extends AppCompatActivity{
     private FirebaseFirestore db;
     private CollectionReference eventRef;
     private CollectionReference userRef;
+    //private CollectionReference mapRef;
     MapView map = null;
 
     @Override
@@ -45,7 +46,7 @@ public class ViewMap  extends AppCompatActivity{
 
         Marker marker = new Marker(map);
         marker.setPosition(new GeoPoint(53.52673985561906, -113.5271290986233));
-        marker.setTitle("Custom Label");
+        marker.setTitle("Entrant");
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
         map.getOverlays().add(marker);
 

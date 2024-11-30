@@ -28,6 +28,8 @@ import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 
+import org.checkerframework.checker.units.qual.N;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -395,7 +397,7 @@ public class EntrantListsActivity extends AppCompatActivity {
 
                 for (int i = 0; i < selectedIDList.size(); i++) {
                     String notificationID = UUID.randomUUID().toString();
-                    Notification notification = new Notification(notificationID, eventName, eventID, selectedIDList.get(i), "Congrats, you have won the lottery!.", true);
+                    Notification notification = new Notification(notificationID, eventName, eventID, selectedIDList.get(i), "Congrats, you have won the lottery!", true);
                     NotificationDB notificationDB = new NotificationDB();
                     notificationDB.add(notification);
                 }
@@ -443,6 +445,18 @@ public class EntrantListsActivity extends AppCompatActivity {
                         UserListDB userListDB = new UserListDB();
                         userListDB.removeFromList(waitlistID, deviceID); // removing the user from the waitlist
                         userListDB.addToList(drawlistID, deviceID); // adding the user to the draw list
+
+                        NotificationDB notificationDB = new NotificationDB();
+                        eventRef.document(eventID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot doc) {
+                                String eventName = doc.getString("eventInfo.name");
+                                String notificationID = UUID.randomUUID().toString();
+                                Notification notification = new Notification(notificationID, eventName, eventID, deviceID, "Congratulations, you were drawn as a replacement!", true);
+                                notificationDB.add(notification);
+                            }
+                        });
+
                     }
                 }
             }

@@ -58,6 +58,7 @@ public class NotificationDialog extends DialogFragment {
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add("Waitlist Entrants");
         arrayList.add("Chosen Entrants");
+        arrayList.add("Registered Entrants");
         arrayList.add("Cancelled Entrants");
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, arrayList);
@@ -103,6 +104,8 @@ public class NotificationDialog extends DialogFragment {
                     listID = eventID + "-wait";
                 } else if (sendGroup == "Chosen Entrants") {
                     listID = eventID + "-draw";
+                } else if (sendGroup == "Registered Entrants"){
+                    listID = eventID + "-registered";
                 } else {
                     listID = eventID + "-cancelled";
                 }

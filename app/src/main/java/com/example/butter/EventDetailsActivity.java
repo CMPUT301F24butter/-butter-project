@@ -354,53 +354,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
      * @param eventId
      * @return bool
      */
-//    public void isValidDate(String eventId) {
-//        valid_date = false;
-//        Log.d("ValidDate", "Checking validity for eventId: " + eventId);
-//
-//        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//        DocumentReference docRef = db.collection("event").document(eventId);
-//
-//        docRef.get().addOnCompleteListener(task -> {
-//            if (task.isSuccessful()) {
-//                DocumentSnapshot document = task.getResult();
-//                if (document != null && document.exists()) {
-//                    String date = document.getString("eventInfo.registrationCloseDate");
-//                    if (date == null) {
-//                        Log.e("ValidDate", "Date is null for eventId: " + eventId);
-//                        //listener.onResult(false); // Notify invalid result
-//                        //return false;
-//                    }
-//
-//                    // Format for parsing and comparing dates
-//                    SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-//
-//                    try {
-//                        Date todaysDate = formatter.parse(formatter.format(new Date()));
-//                        Date eventDate = formatter.parse(date);
-//
-//                        Log.d("ValidDate", "Today's date: " + todaysDate + ", Event date: " + eventDate);
-//                        boolean isAfter = todaysDate.after(eventDate);
-//                        Log.d("ValidDate", "Is today's date after event date: " + isAfter);
-//
-//                        valid_date = isAfter; // Notify result of comparison
-//                    } catch (ParseException e) {
-//                        Log.e("ValidDate", "Error parsing date: " + e.getMessage());
-//
-//                        //listener.onResult(false); // Notify failure
-//                    }
-//                } else {
-//                    Log.e("ValidDate", "Document does not exist for eventId: " + eventId);
-//
-//                    //listener.onResult(false); // Notify failure
-//                }
-//            } else {
-//                Log.e("ValidDate", "Error fetching document: " + task.getException());
-//
-//                //listener.onResult(false); // Notify failure
-//            }
-//        });
-//    }
+
     public void isValidDate(String eventId, OnDateValidationListener listener) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         DocumentReference docRef = db.collection("event").document(eventId);
@@ -409,8 +363,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
             if (task.isSuccessful()) {
                 DocumentSnapshot document = task.getResult();
                 if (document != null && document.exists()) {
-                    String date = document.getString("eventInfo.registrationCloseDate");
-                    if (date == null) {
+                    String closedate = document.getString("eventInfo.registrationCloseDate");
+                    String date = document.getString("eventInfo.date");
+                    if (closedate == null) {
                         Log.e("ValidDate", "Date is null for eventId: " + eventId);
                         listener.onResult(false); // Notify invalid result
                         return;
@@ -419,10 +374,14 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                     try {
                         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
                         Date todaysDate = formatter.parse(formatter.format(new Date()));
-                        Date eventDate = formatter.parse(date);
+                        Date eventcloseDate = formatter.parse(closedate);
+                        Date eventregDate = formatter.parse(date);
 
-                        boolean isAfter = todaysDate.after(eventDate);
-                        Log.d("ValidDate", "Today's date: " + todaysDate + ", Event date: " + eventDate);
+                        boolean isAfter1 = todaysDate.after(eventcloseDate);
+                        boolean isAfter2 = todaysDate.after(eventregDate);
+                        Log.d("ValidDate", "Today's date: " + todaysDate + ", Event date: " + eventcloseDate);
+                        //Log.d("ValidDate", "Is today's date after event date: " + isAfter);
+                        boolean isAfter = isAfter1 || isAfter2;
                         Log.d("ValidDate", "Is today's date after event date: " + isAfter);
                         listener.onResult(isAfter); // Notify result of comparison
                     } catch (ParseException e) {

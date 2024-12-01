@@ -42,7 +42,9 @@
         app:layout_constraintBottom_toTopOf="@+id/pink_divider"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/pink_divider" />
+        app:layout_constraintTop_toBottomOf="@+id/pink_divider"
+        android:choiceMode="singleChoice"
+        android:listSelector="@color/secondaryGreyColor"/>
 
     <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/notificationSwitch"

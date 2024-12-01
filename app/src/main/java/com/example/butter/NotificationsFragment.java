@@ -2,6 +2,7 @@ package com.example.butter;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.fragment.app.Fragment;
@@ -10,10 +11,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -21,7 +27,10 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Objects;
 
@@ -51,6 +60,9 @@ public class NotificationsFragment extends Fragment {
     ListView notificationsList;
     ArrayList<Notification> notificationData;
     NotificationArrayAdapter adapter;
+
+    String notificationIDSelected;
+    int positionSelected;
 
     public NotificationsFragment() {
         db = FirebaseFirestore.getInstance();
@@ -91,8 +103,6 @@ public class NotificationsFragment extends Fragment {
         notificationData = new ArrayList<>();
         adapter = new NotificationArrayAdapter(getContext(), notificationData);
 
-
-
         updateToggle();
 
         notificationRef.addSnapshotListener(new EventListener<QuerySnapshot>() {
@@ -100,22 +110,48 @@ public class NotificationsFragment extends Fragment {
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
 
                 notificationData.clear();
-                adapter.notifyDataSetChanged();
+
                 for (DocumentSnapshot doc : value) {
                     String recipientID = doc.getString("notificationInfo.recipientDeviceID");
                     if (Objects.equals(recipientID, deviceID)) {
                         String notificationID = doc.getString("notificationInfo.notificationID");
+                        String eventID = doc.getString("notificationInfo.eventSenderID");
                         String eventName = doc.getString("notificationInfo.eventSender");
                         String message = doc.getString("notificationInfo.message");
+                        String datetime = doc.getString("notificationInfo.datetime");
 
-                        Notification notification = new Notification(notificationID, eventName, message);
-                        notificationData.add(notification);
-                        adapter.notifyDataSetChanged();
+                        Notification notification = new Notification(notificationID, eventName, message, datetime);
+
+                        imageRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot imageDoc = task.getResult();
+                                    if (imageDoc.exists()) {
+                                        String imageString = imageDoc.getString("imageData");
+                                        notification.setEventImage(imageString);
+                                    }
+                                    notificationData.add(notification);
+                                }
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                                notificationData.sort((n1, n2) -> {
+                                    try {
+                                        Date date1 = sdf.parse(n1.getDatetime());
+                                        Date date2 = sdf.parse(n2.getDatetime());
+                                        return date2.compareTo(date1);
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                        return 0; // If parsing fails, treat dates as equal
+                                    }
+                                });
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
                     }
                 }
             }
         });
-
     }
 
     @Override
@@ -126,6 +162,8 @@ public class NotificationsFragment extends Fragment {
 
         notificationsSwitch = view.findViewById(R.id.notificationSwitch);
         notificationsList = view.findViewById(R.id.notificationList);
+        FloatingActionButton deleteButton = view.findViewById(R.id.delete_button);
+
         notificationsList.setAdapter(adapter);
 
         notificationsSwitch.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -139,6 +177,28 @@ public class NotificationsFragment extends Fragment {
                         Log.d("Firebase", "Notification status updated successfully");
                     }
                 });
+            }
+        });
+
+        notificationsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                notificationsList.setItemChecked(position, true);
+                notificationIDSelected = notificationData.get(position).getNotificationID();
+                positionSelected = position;
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (notificationIDSelected != null) {
+                    notificationsList.clearChoices();
+                    notificationsList.requestLayout();
+                    NotificationDB notificationDB = new NotificationDB();
+                    notificationDB.delete(notificationIDSelected);
+                    notificationIDSelected = null;
+                }
             }
         });
 

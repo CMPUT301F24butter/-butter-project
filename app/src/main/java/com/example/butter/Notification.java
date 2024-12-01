@@ -9,6 +9,7 @@ public class Notification {
     private String datetime;
     private Boolean seen;
     private Boolean force;
+    private String eventImage;
 
     public Notification(String notificationID, String eventSender, String eventSenderID, String recipientDeviceID, String message, boolean force) {
         this.notificationID = notificationID;
@@ -18,6 +19,13 @@ public class Notification {
         this.message = message;
         this.seen = false;
         this.force = force;
+    }
+
+    public Notification(String notificationID, String eventSender, String message, String datetime) {
+        this.notificationID = notificationID;
+        this.eventSender = eventSender;
+        this.message = message;
+        this.datetime = datetime;
     }
 
     public String getNotificationID() {
@@ -76,5 +84,13 @@ public class Notification {
 
     public void setForce(Boolean force) {
         this.force = force;
+    }
+
+    public String getEventImage() {
+        return eventImage;
+    }
+
+    public void setEventImage(String eventImage) {
+        this.eventImage = eventImage;
     }
 }

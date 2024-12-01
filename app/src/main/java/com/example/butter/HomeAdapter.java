@@ -14,6 +14,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.Date;
 import java.util.List;
 
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RegisteredViewHolder>{
@@ -51,7 +52,14 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RegisteredView
     public void onBindViewHolder(@NonNull RegisteredViewHolder holder, int position) {
         Event item = itemList.get(position);
         holder.nameTextView.setText(item.getName());
-        holder.dateTextView.setText(item.getDate());
+
+        DateFormatter dateFormatter = new DateFormatter();
+        String formattedDate = dateFormatter.formatDate(item.getDate());
+        if (formattedDate != null) {
+            holder.dateTextView.setText(formattedDate);
+        } else {
+            holder.dateTextView.setText(item.getDate());
+        }
         // Decode Base64 image string to Bitmap
         if (item.getImageString() != null) {
             byte[] decodedString = Base64.decode(item.getImageString(), Base64.DEFAULT);

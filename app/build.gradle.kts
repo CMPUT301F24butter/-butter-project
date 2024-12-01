@@ -34,6 +34,10 @@ android {
     buildFeatures{
         viewBinding = true
     }
+
+    tasks.withType<Test>{
+        useJUnitPlatform()
+    }
 }
 
 dependencies {
@@ -65,4 +69,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.0")  // Add Glide dependency
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.0")  // Add annotation processor (for Glide)
     implementation("com.google.firebase:firebase-storage:20.1.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
 }

@@ -40,6 +40,7 @@
         <activity android:name=".ViewMap"/>
         <activity android:name=".CaptureAct"
             android:theme="@style/zxing_CaptureTheme"/>
+
     </application>
 
 </manifest>

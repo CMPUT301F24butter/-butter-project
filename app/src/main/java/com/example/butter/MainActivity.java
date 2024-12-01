@@ -1,7 +1,10 @@
 package com.example.butter;
 
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -53,6 +56,10 @@ public class MainActivity extends AppCompatActivity {
      * String to store the deviceID for the user in an attribute.
      * Is later passed to each fragment.
      */
+    private CollectionReference notificationRef;
+    /**
+     * Used to reference the notification collection and see if there are any updates
+     */
     private String deviceID;
     /**
      * String to store the privileges for the user.
@@ -77,6 +84,11 @@ public class MainActivity extends AppCompatActivity {
         db = FirebaseFirestore.getInstance();
         userRef = db.collection("user");
 
+        notificationRef = db.collection("notification");
+
+        // Create notification channel
+        createNotificationChannel();
+
         // Set system bars insets
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
@@ -87,6 +99,9 @@ public class MainActivity extends AppCompatActivity {
         listenForPrivilegesChange();
         replaceFragment(new HomeFragment());
         invalidateOptionsMenu();
+
+        listenForNotificationUpdates();
+
     }
 
     /**
@@ -162,4 +177,79 @@ public class MainActivity extends AppCompatActivity {
         fragment.setArguments(args);
         fragmentTransaction.commit();
     }
+
+    private void createNotificationChannel() {
+        // Check if the OS version is Oreo or higher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Butter Notifications";
+            String description = "Channel for Butter app notifications";
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel("butter_notifications", name, importance);
+            channel.setDescription(description);
+
+            // Register the channel with the system
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
+    private void listenForNotificationUpdates() {
+        notificationRef.addSnapshotListener((querySnapshot, e) -> {
+            if (e != null) {
+                Log.e("MainActivity", "Listen failed: ", e);
+                return;
+            }
+
+            Log.d("MainActivity", "Snapshot listener triggered");
+
+            if (querySnapshot != null) {
+                for (DocumentSnapshot doc : querySnapshot.getDocuments()) {
+                    Log.d("MainActivity", "Document fetched: " + doc.getData());
+
+                    // Extract data from the document
+                    String recipientDeviceID = doc.getString("notificationInfo.recipientDeviceID");
+                    String title = doc.getString("notificationInfo.eventSender");
+                    String body = doc.getString("notificationInfo.message");
+                    Boolean seen = doc.getBoolean("notificationInfo.seen");
+                    Boolean force = doc.getBoolean("notificationInfo.force");
+
+                    // Check if the notification is intended for this device and has not been seen
+                    if (recipientDeviceID != null && recipientDeviceID.equals(deviceID) && seen != null && !seen) {
+                        // Fetch user notification preferences from the "users" collection
+                        userRef.document(deviceID).get().addOnCompleteListener(task -> {
+                            if (task.isSuccessful() && task.getResult() != null) {
+                                DocumentSnapshot userDoc = task.getResult();
+                                Boolean notifications = userDoc.getBoolean("userInfo.notifications");
+
+                                // Log the fetched preferences
+                                Log.d("MainActivity", "Force: " + force + ", Notifications: " + notifications);
+
+                                // Send the notification based on `force` or `notifications`
+                                if (Boolean.TRUE.equals(force)) {
+                                    Log.d("MainActivity", "Force sending notification: " + title);
+                                    NotificationManagerHelper.handleNotification(this, title, body);
+
+                                    // Mark the notification as seen
+                                    doc.getReference().update("notificationInfo.seen", true)
+                                            .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
+                                } else if (Boolean.TRUE.equals(notifications)) {
+                                    Log.d("MainActivity", "Sending notification based on user settings: " + title);
+                                    NotificationManagerHelper.handleNotification(this, title, body);
+
+                                    // Mark the notification as seen
+                                    doc.getReference().update("notificationInfo.seen", true)
+                                            .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
+                                } else {
+                                    Log.d("MainActivity", "Notification not sent: force=false and user notifications are disabled.");
+                                }
+                            } else {
+                                Log.e("MainActivity", "Failed to fetch user preferences", task.getException());
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+
 }

@@ -16,6 +16,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
 
+/**
+ * This class can be used to interact with the "map" collection in Firebase
+ *
+ * author: Nate Pane (natepane)
+ */
 public class MapDB {
     private FirebaseFirestore db;
     private CollectionReference mapRef;
@@ -69,7 +74,7 @@ public class MapDB {
      * @param lon
      *      current longitude of the user
      */
-    public void addLocation(String eventID, String deviceID, float lat, float lon) {
+    public void addLocation(String eventID, String deviceID, double lat, double lon) {
         DocumentReference docRef = mapRef.document(eventID);
 
         // getting map data associated with this eventID

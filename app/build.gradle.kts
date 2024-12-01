@@ -34,6 +34,10 @@ android {
     buildFeatures{
         viewBinding = true
     }
+
+    tasks.withType<Test>{
+        useJUnitPlatform()
+    }
 }
 
 dependencies {
@@ -51,9 +55,12 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation(libs.espresso.intents)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
-
+    implementation(libs.espresso.contrib){
+        exclude(group = "com.google.protobuf")
+    }
     implementation("com.journeyapps:zxing-android-embedded:4.3.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
@@ -62,4 +69,7 @@ dependencies {
     implementation("com.github.bumptech.glide:glide:4.15.0")  // Add Glide dependency
     annotationProcessor("com.github.bumptech.glide:compiler:4.15.0")  // Add annotation processor (for Glide)
     implementation("com.google.firebase:firebase-storage:20.1.0")
+
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.0.1")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
 }

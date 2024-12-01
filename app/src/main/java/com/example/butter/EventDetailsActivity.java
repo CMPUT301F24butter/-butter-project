@@ -62,6 +62,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     private int capacity;
     private Boolean adminPrivilege;
     private String listType;
+    private Boolean adminBrowsing;
 
     private Button eventButton;
     private Button declineButton;
@@ -81,6 +82,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
         adminPrivilege = getIntent().getExtras().getBoolean("adminPrivilege", Boolean.FALSE); // Default to false if not found
         listType = getIntent().getExtras().getString("listType"); // clicked even from register or event list
+        adminBrowsing = getIntent().getExtras().getBoolean("adminBrowsing", Boolean.FALSE); // Default to false if not found
 
         // getting all text boxes
         eventNameText = findViewById(R.id.event_title);
@@ -163,11 +165,16 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     }
 
     private void setupAdminOptions() {
-        setUpEntrantActions();
+        if (adminBrowsing) {
+            eventButton.setVisibility(View.INVISIBLE);
+        } else {
+            setUpEntrantActions();
+        }
         RelativeLayout privilegesButtons = findViewById(R.id.privileges_layout);
 
         ImageButton adminButton = privilegesButtons.findViewById(R.id.admin_delete_button);
         adminButton.setVisibility(View.VISIBLE);
+
 
         adminButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,6 +186,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     }
 
     private void setUpEntrantActions() {
+        eventButton.setVisibility(View.VISIBLE);
         String userListID  = eventID + "-" + listType;
         userListRef.document(userListID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -362,6 +370,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     }
 
     private void setUpOrganizerOptions() {
+        eventButton.setVisibility(View.VISIBLE);
         System.out.println("Hey I made it here");
         ImageButton orgOptions = findViewById(R.id.organizer_opt_button);
         orgOptions.setVisibility(View.VISIBLE); // making the organizer options button visible to the organizer

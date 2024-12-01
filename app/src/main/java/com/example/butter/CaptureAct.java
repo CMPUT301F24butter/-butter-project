@@ -14,7 +14,7 @@ import com.journeyapps.barcodescanner.DecoratedBarcodeView;
 
 /**
  * This class allows us to customize the scanning functionality and add a back button
- * in AndroidManifest.xml
+ * to the scanner. It also checks whether the event is valid or not.
  * 
  * @author Angela Dakay (angelcache)
  */
@@ -22,6 +22,14 @@ public class CaptureAct extends CaptureActivity {
     private static final String TAG = "CaptureAct";
     private DecoratedBarcodeView barcodeScannerView;
 
+    /**
+     * Gets the barcode Results: returns eventID when finished and handles when it's an invalid
+     * QR Code (Puts out a Toast message)
+     * @param savedInstanceState If the activity is being re-initialized after
+     *     previously being shut down then this Bundle contains the data it most
+     *     recently supplied in {@link #onSaveInstanceState}.  <b><i>Note: Otherwise it is null.</i></b>
+     *
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -62,6 +70,11 @@ public class CaptureAct extends CaptureActivity {
         });
     }
 
+    /**
+     * Checks if result is a valid Event ID
+     * @param scannedText the scanned result which will be checked if it follows Event ID format
+     * @return whether or not scannedText is a valid Event ID
+     */
     private boolean isValidEventID(String scannedText) {
         // Using regex to mach format [Event name]-[Event Unique ID]
         String regex = "^[A-Za-z0-9_]+-[a-f0-9]{16}$";
@@ -70,15 +83,21 @@ public class CaptureAct extends CaptureActivity {
         return scannedText != null && scannedText.matches(regex);
     }
 
+    /**
+     * Resumes the camera preview
+     */
     @Override
     protected void onResume() {
         super.onResume();
-        barcodeScannerView.resume();  // Resume the camera preview
+        barcodeScannerView.resume();
     }
 
+    /**
+     * Pause the camera preview
+     */
     @Override
     protected void onPause() {
         super.onPause();
-        barcodeScannerView.pause();  // Pause the camera preview
+        barcodeScannerView.pause();
     }
 }

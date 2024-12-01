@@ -1,7 +1,9 @@
 package com.example.butter;
 
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Base64;
 import android.util.Log;
@@ -16,8 +18,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -27,10 +32,13 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QuerySnapshot;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+
+
 
 import java.util.HashMap;
 import java.util.Objects;
@@ -39,9 +47,8 @@ import java.util.Objects;
  * This activity shows the details of an event when it is clicked on from the "Events" screen
  * It also includes buttons for more organizer options (e.g. edit event, see QR Code, etc.), as well as a button to delete the event
  *
- * Current outstanding issues: need to implement poster images
  *
- * @author Nate Pane (natepane) and Angela Dakay (angelcache) and Bir Parkash(bparkash)
+ * @author Nate Pane (natepane) and Angela Dakay (angelcache) and Arsalan Firoozkoohi (arsalan-firoozkoohi) and Bir Parkash(bparkash)
  */
 public class EventDetailsActivity extends AppCompatActivity implements GeolocationDialog.GeolocationDialogListener, ConfirmationDialog.ConfirmationDialogListener {
 
@@ -66,7 +73,8 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     private Boolean adminPrivilege;
     private String listType;
     private Boolean adminBrowsing;
-
+    private static final int REQUEST_LOCATION_PERMISSION = 1;
+    private FusedLocationProviderClient fusedLocationClient;
     private Button eventButton;
     private Button declineButton;
     private Boolean valid_date;
@@ -475,7 +483,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         userList.removeFromList(userListID, deviceID);
 
         // Turn it into Leave Waiting List
-        String joinText = "Sucessfuly Left Waitlist";
+        String joinText = "Successfully Left Waitlist";
         eventButton.setText(joinText);
         eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.primaryGreyColor));
         eventButton.setEnabled(Boolean.FALSE);
@@ -484,6 +492,11 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     @Override
     public void onJoinEventConfirmed(boolean confirmJoin) {
         if (confirmJoin) {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+            // Check and request location permissions
+            checkPermissionsAndGetLocation();
+
             joinWaitingList();
         } else {
             Toast.makeText(EventDetailsActivity.this, "Join waiting list cancelled.", Toast.LENGTH_SHORT).show();
@@ -580,5 +593,53 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         } else {
             Toast.makeText(this, deletedItem + " deletion cancelled.", Toast.LENGTH_SHORT).show();
         }
+    }
+    private void checkPermissionsAndGetLocation() {
+        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            // Permission is granted, proceed to get location
+            getLatLong();
+        } else {
+            // Request permission if not granted
+            ActivityCompat.requestPermissions(this,
+                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
+        }
+    }
+
+    // Handle permission result
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission granted, proceed to get location
+                getLatLong();
+            } else {
+                // Permission denied, show a message to the user
+                Toast.makeText(this, "Permission denied. Unable to get location.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    // Get Latitude and Longitude
+    private void getLatLong() {
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, new OnSuccessListener<Location>() {
+                    @Override
+                    public void onSuccess(Location location) {
+                        if (location != null) {
+                            // Location successfully retrieved
+                            double latitude = location.getLatitude();
+                            double longitude = location.getLongitude();
+                            MapDB mapDB = new MapDB();
+                            mapDB.addLocation(eventID, deviceID, latitude, longitude);
+
+                        }
+                    }
+                });
     }
 }

@@ -38,7 +38,7 @@ import java.io.IOException;
  * This QR code can be scanned by a user in order to join the waiting list for the event
  * This activity also displays some event details as well
  *
- * Current outstanding issues: need to implement poster images
+ *
  *
  * @author Nate Pane (natepane)
  */

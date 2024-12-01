@@ -26,15 +26,20 @@ import org.osmdroid.util.GeoPoint;
 import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
+/**
+ * This activity displays the Map for this activity using OpenStreetMap (OSM)
+ * The map shows the location where each entrant has scanned the QR code and entered the waiting list
+ * This activity also displays some event details as well
+ *
+ *
+ * @author Arsalan Firoozkoohi (arsalan-firoozkoohi)
+ */
+
 public class ViewMap  extends AppCompatActivity{
     private FirebaseFirestore db;
     private CollectionReference mapRef;
-    private String deviceID;
     private String eventID;
-    //private CollectionReference userRef;
 
-//    private MapDB mapDB;
-//    String eventID = getIntent().getStringExtra("eventID");
     MapView map = null;
 
     @Override
@@ -44,13 +49,9 @@ public class ViewMap  extends AppCompatActivity{
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
-        deviceID = getIntent().getExtras().getString("deviceID"); // logged in deviceID
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
         db = FirebaseFirestore.getInstance();
         mapRef = db.collection("map"); // map collection
-
-//        DocumentReference mapRef = db.collection("map").document(getArguments().getString("deviceID"));
-//        mapDB = new MapDB();
 
         map = findViewById(R.id.mapview);
         map.setTileSource(TileSourceFactory.MAPNIK);
@@ -61,14 +62,8 @@ public class ViewMap  extends AppCompatActivity{
         mapController.setZoom((long) 12);
         GeoPoint startPoint = new GeoPoint(53.51, -113.50);
         mapController.animateTo(startPoint);
-//        createMarker(53.5267, -113.5271, "Test Device");
-        loadMarkers(eventID);
 
-//        Marker marker = new Marker(map);
-//        marker.setPosition(new GeoPoint(53.52673985561906, -113.5271290986233));
-//        marker.setTitle("Entrant");
-//        marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-//        map.getOverlays().add(marker);
+        loadMarkers(eventID);
 
         // setting click listener for the back button
         ImageButton backButton = findViewById(R.id.back_button);
@@ -80,6 +75,7 @@ public class ViewMap  extends AppCompatActivity{
         });
     }
 
+    // Loads Markers
     private void loadMarkers(String eventID) {
         DocumentReference docRef = mapRef.document(eventID);
 
@@ -104,7 +100,7 @@ public class ViewMap  extends AppCompatActivity{
                                     double lon = Double.parseDouble(split[2]);
 
                                     // Create a marker for each user
-                                    createMarker(lat, lon, deviceID);
+                                    createMarker(lat, lon, "Entrant");
                                     map.invalidate();
                                 }
                             }
@@ -122,7 +118,7 @@ public class ViewMap  extends AppCompatActivity{
     /**
      * Create a marker on the map at the given latitude and longitude
      */
-    private void createMarker(double lat, double lon, String deviceID) {
+    private void createMarker(double lat, double lon, String label) {
         // Create a GeoPoint from latitude and longitude
         GeoPoint geoPoint = new GeoPoint(lat, lon);
 
@@ -131,8 +127,8 @@ public class ViewMap  extends AppCompatActivity{
         marker.setPosition(geoPoint);
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
 
-        // Optionally, set a title for the marker (using the deviceID as the title)
-        marker.setTitle(deviceID);
+        // Set a title for the marker (using the deviceID as the title)
+        marker.setTitle(label);
 
         // Add the marker to the map
         map.getOverlays().add(marker);

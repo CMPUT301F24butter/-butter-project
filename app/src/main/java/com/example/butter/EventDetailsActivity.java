@@ -44,9 +44,9 @@ import java.util.Objects;
  * This activity shows the details of an event when it is clicked on from the "Events" screen
  * It also includes buttons for more organizer options (e.g. edit event, see QR Code, etc.), as well as a button to delete the event
  *
- * Current outstanding issues: need to implement poster images
  *
- * @author Nate Pane (natepane) and Angela Dakay (angelcache)
+ *
+ * @author Nate Pane (natepane) and Angela Dakay (angelcache) and Arsalan Firoozkoohi (arsalan-firoozkoohi)
  */
 public class EventDetailsActivity extends AppCompatActivity implements GeolocationDialog.GeolocationDialogListener, ConfirmationDialog.ConfirmationDialogListener {
 
@@ -359,31 +359,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     @Override
     public void onJoinEventConfirmed(boolean confirmJoin) {
         if (confirmJoin) {
-            // add geolocation to
-            // Global var for eventID, and for deviceID
-//            float lat =
-//            Location location getLocation();
-//            location.getLatitude()
-            // get location
-            // init a map database object
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
             // Check and request location permissions
             checkPermissionsAndGetLocation();
-            MapDB mapDB = new MapDB();
-
-            // now add to database
-            // (eventID, userID, Lat, Long)
-//            mapDB.addLocation();
-
-
-
-
-
-
-
-
-
 
             joinWaitingList();
         } else {
@@ -510,16 +489,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         }
     }
 
-    // Get Lat Long
+    // Get Latitude and Longitude
     private void getLatLong() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
             return;
         }
         fusedLocationClient.getLastLocation()
@@ -532,19 +504,6 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                             double longitude = location.getLongitude();
                             MapDB mapDB = new MapDB();
                             mapDB.addLocation(eventID, deviceID, latitude, longitude);
-                            // Create a GeoPoint from the location
-//                            GeoPoint geoPoint = new GeoPoint(latitude, longitude);
-
-                            // Create a marker
-//                            Marker userMarker = new Marker(map);
-//                            userMarker.setPosition(geoPoint);
-//                            userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-//                            IMapController mapController = map.getController();
-//                            map.getOverlays().add(userMarker);
-//                            userMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-//                            mapController.animateTo(geoPoint);
-//                            mapController.setZoom((long) 17);
-
 
                         }
                     }

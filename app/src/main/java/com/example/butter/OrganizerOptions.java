@@ -21,9 +21,9 @@ import java.util.Objects;
  * This dialog box has options such as edit event, see QR code, see users in the event's lists, etc.
  * When one of these options is clicked, the user is directed to the corresponding page
  *
- * Current outstanding issues: Not all features in this dialog have been implemented, some of the buttons do nothing
  *
- * @author Nate Pane (natepane)
+ *
+ * @author Nate Pane (natepane) and Arsalan Firoozkoohi (arsalan-firoozkoohi)
  */
 public class OrganizerOptions extends DialogFragment {
 

@@ -214,4 +214,56 @@ public class NotificationsFragment extends Fragment {
             }
         });
     }
+
+    /*
+    private void renderNotifications() {
+        notificationData.clear();
+        adapter.notifyDataSetChanged();
+
+        notificationRef.get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
+            @Override
+            public void onSuccess(QuerySnapshot value) {
+                for (DocumentSnapshot doc : value) {
+                    String recipientID = doc.getString("notificationInfo.recipientDeviceID");
+                    if (Objects.equals(recipientID, deviceID)) {
+                        String notificationID = doc.getString("notificationInfo.notificationID");
+                        String eventID = doc.getString("notificationInfo.eventSenderID");
+                        String eventName = doc.getString("notificationInfo.eventSender");
+                        String message = doc.getString("notificationInfo.message");
+                        String datetime = doc.getString("notificationInfo.datetime");
+
+                        Notification notification = new Notification(notificationID, eventName, message, datetime);
+
+                        imageRef.document(eventID).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                                if (task.isSuccessful()) {
+                                    DocumentSnapshot imageDoc = task.getResult();
+                                    if (imageDoc.exists()) {
+                                        String imageString = imageDoc.getString("imageData");
+                                        notification.setEventImage(imageString);
+                                    }
+                                    notificationData.add(notification);
+                                }
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                                notificationData.sort((n1, n2) -> {
+                                    try {
+                                        Date date1 = sdf.parse(n1.getDatetime());
+                                        Date date2 = sdf.parse(n2.getDatetime());
+                                        return date2.compareTo(date1);
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
+                                        return 0; // If parsing fails, treat dates as equal
+                                    }
+                                });
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
+                    }
+                }
+            }
+        });
+    }
+     */
 }

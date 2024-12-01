@@ -240,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
                                     doc.getReference().update("notificationInfo.seen", true)
                                             .addOnSuccessListener(aVoid -> Log.d("MainActivity", "Notification marked as seen"));
                                 } else {
+                                    doc.getReference().update("notificationInfo.seen", true);
                                     Log.d("MainActivity", "Notification not sent: force=false and user notifications are disabled.");
                                 }
                             } else {

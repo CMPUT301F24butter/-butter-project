@@ -45,6 +45,8 @@ public class NotificationArrayAdapter extends ArrayAdapter<Notification> {
             ImageDB imageDB = new ImageDB();
             Bitmap bitmap = imageDB.stringToBitmap(notification.getEventImage());
             eventImage.setImageBitmap(bitmap);
+        } else {
+            eventImage.setImageResource(R.drawable.splash_gradient);
         }
 
         return view;

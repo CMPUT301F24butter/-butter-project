@@ -29,7 +29,7 @@ import org.osmdroid.views.overlay.Marker;
 /**
  * This activity displays the Map for this activity using OpenStreetMap (OSM)
  * The map shows the location where each entrant has scanned the QR code and entered the waiting list
- * This activity also displays some event details as well
+ * Generates markers for each entrant
  *
  *
  * @author Arsalan Firoozkoohi (arsalan-firoozkoohi)

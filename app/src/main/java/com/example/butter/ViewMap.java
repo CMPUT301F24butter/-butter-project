@@ -59,6 +59,7 @@ public class ViewMap  extends AppCompatActivity{
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
 
+        // default map starting point (Edmonton)
         mapController.setZoom((long) 12);
         GeoPoint startPoint = new GeoPoint(53.51, -113.50);
         mapController.animateTo(startPoint);

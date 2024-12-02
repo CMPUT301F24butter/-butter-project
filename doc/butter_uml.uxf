@@ -645,7 +645,7 @@ m2=1</panel_attributes><additional_attributes>290;120;10;10</additional_attribut
 m1=1
 m2=1</panel_attributes><additional_attributes>770;10;10;180</additional_attributes></element><element><id>Relation</id><coordinates><x>123</x><y>354</y><w>234</w><h>96</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>760;10;10;300</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1197</x><y>549</y><w>156</w><h>72</h></coordinates><panel_attributes>ViewMap
+m2=1</panel_attributes><additional_attributes>760;10;10;300</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1188</x><y>549</y><w>156</w><h>72</h></coordinates><panel_attributes>ViewMap
 --
 - db: FirebaseFirestore
 - mapRef: CollectionReference
@@ -656,12 +656,12 @@ m2=1</panel_attributes><additional_attributes>760;10;10;300</additional_attribut
 + loadMarkers(eventID: String): void
 + createMarker(lat: double, lon: double, label: String): void
 + onPause(): void
-+ onResume(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>996</x><y>576</y><w>207</w><h>27</h></coordinates><panel_attributes>lt=&lt;-
++ onResume(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>996</x><y>576</y><w>198</w><h>27</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>670;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>852</x><y>687</y><w>138</w><h>180</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>640;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>852</x><y>687</y><w>138</w><h>180</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
 m2=1</panel_attributes><additional_attributes>10;10;440;580</additional_attributes></element><element><id>Relation</id><coordinates><x>999</x><y>426</y><w>243</w><h>63</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;170;170;790;180</additional_attributes></element><element><id>Relation</id><coordinates><x>1269</x><y>513</y><w>207</w><h>27</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;10;170;170;790;180</additional_attributes></element><element><id>Relation</id><coordinates><x>1269</x><y>528</y><w>12</w><h>27</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>670;10;10;60</additional_attributes></element></diagram>
+m2=1</panel_attributes><additional_attributes>10;70;10;10</additional_attributes></element></diagram>

@@ -10,7 +10,12 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.example.butter.EventsFragment;
-
+/**
+ * Registered fragment to check if we are in the registered list.
+ * Simply gets and returns the view
+ * Is called to from {@link ViewPagerAdapter}
+ * @author Arsalan
+ */
 public class RegisteredFragment extends Fragment {
 
     @Nullable

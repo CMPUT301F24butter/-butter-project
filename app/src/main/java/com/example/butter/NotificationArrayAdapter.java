@@ -16,6 +16,12 @@ import com.makeramen.roundedimageview.RoundedImageView;
 
 import java.util.ArrayList;
 
+/**
+ * This is the array adapter for notifications on the {@link NotificationsFragment} screen.
+ * Is used to display the singular list of notifications.
+ * @author Ahmer
+ */
+
 public class NotificationArrayAdapter extends ArrayAdapter<Notification> {
 
     Context context;
@@ -27,6 +33,9 @@ public class NotificationArrayAdapter extends ArrayAdapter<Notification> {
         this.notifications = notifications;
     }
 
+    /**
+     * Gets the view for each notification
+     */
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {

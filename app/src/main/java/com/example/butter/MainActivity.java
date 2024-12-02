@@ -178,6 +178,9 @@ public class MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    /**
+     * Sets up a channel for receiving notifications.
+     */
     private void createNotificationChannel() {
         // Check if the OS version is Oreo or higher
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -193,6 +196,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Setup a listener for receiving notifications
+     */
     private void listenForNotificationUpdates() {
         notificationRef.addSnapshotListener((querySnapshot, e) -> {
             if (e != null) {

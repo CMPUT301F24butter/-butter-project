@@ -210,6 +210,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         });
     }
 
+    /**
+     * If we are an admin, setup the options on screen accordingly
+     */
     private void setupAdminOptions() {
         if (adminBrowsing) {
             eventButton.setVisibility(View.INVISIBLE);
@@ -231,6 +234,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         });
     }
 
+    /**
+     * If we are an entrant, setup the options on screen accordingly
+     */
     private void setUpEntrantActions() {
         eventButton.setVisibility(View.VISIBLE);
         String userListID  = eventID + "-" + listType;
@@ -354,7 +360,6 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
     /**
      * Verify if list is correct type, check if user try to scan qr code to join but already in register or draw lsit
      */
-
     private void confirmlistType() {
         if (listType == null){
             return;
@@ -396,7 +401,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
      * Verify if registerationdate has passed already
      *
      * @param eventId
-     * @return bool
+     * The parameter containing the event id
      */
     public void isValidDate(String eventId, String listType,OnDateValidationListener listener) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -519,6 +524,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventButton.setEnabled(Boolean.FALSE);
     }
 
+    /**
+     * Checks if we successfully joined the waiting list
+     * If so, check perms and get location and join waiting list.
+     */
     @Override
     public void onJoinEventConfirmed(boolean confirmJoin) {
         if (confirmJoin) {
@@ -533,6 +542,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         }
     }
 
+    /**
+     * Adds the current user to the waiting list for the corresponding event
+     */
     private void joinWaitingList() {
         String userListID  = eventID + "-wait";
 
@@ -546,6 +558,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         eventButton.setBackgroundColor(ContextCompat.getColor(EventDetailsActivity.this, R.color.secondaryPurpleColor));
     }
 
+    /**
+     * If we are an organizer, setup the options on screen accordingly
+     */
     private void setUpOrganizerOptions() {
         eventButton.setVisibility(View.VISIBLE);
         System.out.println("Hey I made it here");
@@ -565,6 +580,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         });
     }
 
+    /**
+     * Simply adds a "Delete Event" button to the screen for the organizer
+     */
     private void addOrganizerDeleteButton() {
         eventButton.setText("Delete Event");
         eventButton.setOnClickListener(new View.OnClickListener() {
@@ -576,6 +594,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         });
     }
 
+    /**
+     * Deletes the current event that is being worked with (and all associated data in the db)
+     * Removes image data, list data, and just overall all data with the event.
+     */
     private void deleteEvent() {
         String waitlistID = eventID + "-wait";
         String drawlistID = eventID + "-draw";
@@ -616,6 +638,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         finish(); // returning to the previous screen
     }
 
+    /**
+     * Return from the confirmation dialogue when deleting an event.
+     * Takes in the boolean pertaining to our option, and the string for the item we are deleting
+     */
     @Override
     public void deleteConfirmation(boolean confirmDelete, String deletedItem) {
         if (confirmDelete) {

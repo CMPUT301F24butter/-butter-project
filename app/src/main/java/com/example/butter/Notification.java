@@ -1,5 +1,10 @@
 package com.example.butter;
 
+/**
+ * This is the main model class for notifications
+ * @author Ahmer
+ */
+
 public class Notification {
     private String notificationID;
     private String eventSender;

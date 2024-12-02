@@ -416,7 +416,7 @@ public class EditProfileActivity extends AppCompatActivity {
      * @param phone
      * If phone is not empty AND is not a valid phone number, invalid. Also checks for len > 15
      * @param facility
-     * If role is not 'Entrant', 'Admin', or 'Admin & Entrant' AND (facility is empty OR more than 20 characters), invalid
+     * If role is not 'Entrant', 'Admin', or 'Admin and Entrant' AND (facility is empty OR more than 20 characters), invalid
      * @param role
      * Role cannot be invalid. Must be passed using "user.getRole()" or a valid role string.
      * @return

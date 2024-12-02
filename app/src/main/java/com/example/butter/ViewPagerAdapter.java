@@ -8,6 +8,12 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import com.example.butter.RegisteredFragment;
 import com.example.butter.WaitingListFragment;
 
+/**
+ * View Pager Adapter for viewing different lists
+ * Determines which list to return, by choosing between Registered list and Waiting list
+ * Communicates with {@link RegisteredFragment} and {@link WaitingListFragment} to get these lists.
+ * @author Arsalan
+ */
 public class ViewPagerAdapter extends FragmentStateAdapter {
 
     public ViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {

@@ -17,6 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * This is the array adapter for lists on the {@link HomeFragment} screen.
+ * Used to display the events on the Home page for entrants.
+ * These lists include the Upcoming events, Invited Events, and Waiting Events.
+ */
+
 public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RegisteredViewHolder>{
     private List<Event> itemList;
     private OnItemClickListener itemClickListener;
@@ -29,13 +35,22 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RegisteredView
         void onItemClick(Event event, int position);
     }
 
+    /**
+     * OnItemClick listener for each item on the home screen.
+     */
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.itemClickListener = listener;
     }
+    /**
+     * Set the array to be using a new data list
+     */
     public void setItemList(List<Event> itemList) {
         this.itemList = itemList;
         notifyDataSetChanged();
     }
+    /**
+     * Clear the items in the array
+     */
     public void clearItems() {
         this.itemList.clear();
         notifyDataSetChanged();
@@ -79,6 +94,9 @@ public class HomeAdapter extends RecyclerView.Adapter<HomeAdapter.RegisteredView
         });
     }
 
+    /**
+     * Get item count in array and return it
+     */
     @Override
     public int getItemCount() {
         //return itemList == null ? 0 : itemList.size();

@@ -21,16 +21,10 @@ import org.junit.runner.RunWith;
 /**
  * This document will perform all tests corresponding to {@link ProfileFragment} and {@link EditProfileActivity}
  * The user testing this must have created an account established in the database first, OR ELSE THIS WON'T RUN
+ * Note that if the testEditProfileFacility isn't ran first, then the first test will always fail.
+ * This is due to it needing to sleep during its first run to initialize the MainActivity screen before continuing.
  *
- * NOTE: IN ORDER FOR THESE TESTS TO WORK, YOU HAVE TO FIRST LAUNCH THE APP NORMALLY (NOT THE TEST FILE)
- *       ONCE IT'S BOOTED UP FULLY, CLICK THE DROPDOWN BUTTON TO THE LEFT OF THE RUN APP BUTTON
- *       CLICK RUN 'EVENT SCREEN TEST'
- *
- *       IF YOU TRY TO RUN THE TEST FILE DIRECTLY WITHOUT THESE STEPS, IT WILL ALWAYS FAIL
- *
- *       IF THIS TRICK DOES NOT WORK ON YOUR MACHINE, PLEASE ASK ME TO SHOW YOU ON MY MACHINE
- *
- *       ALSO, YOU MUST HAVE AT LEAST ONE EVENT CREATED FOR THESE TESTS TO WORK
+ * THE APP WILL NEED TO BE STARTED FIRST, OR ELSE THE FIRST TEST RAN WILL SOMETIMES FAIL
  *
  * @author Soopyman
  */
@@ -156,6 +150,12 @@ public class ProfileScreensTest {
 
     @Test
     public void testEditProfileFacility() {   // test if we can add a facility
+        // must sleep our thread for our first run, or else crashes
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         onView(withId(R.id.profileIcon)).perform(click());
         onView(withId(R.id.edit_profile_button)).perform(click());
         onView(withId(R.id.edit_role_spinner)).perform(click());

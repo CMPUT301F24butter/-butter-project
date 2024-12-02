@@ -38,6 +38,13 @@ public class DateFormatter {
         }
     }
 
+    /**
+     * Unformats an already formatted inputDate
+     * @param inputDate
+     *      will be in form 'MMM d, yyyy'
+     * @return
+     *      return in form 'yyyy-MM-dd
+     */
     public String unformatDate(String inputDate) {
         try {
             inputDate = inputDate.replaceAll("(\\d+)(st|nd|rd|th)", "$1");

@@ -138,6 +138,9 @@ public class EventsFragment extends Fragment {
         eventArrayAdapter = new EventArrayAdapter(getContext(), userEvents);
     }
 
+    /**
+     * Updates the displayed list of events
+     */
     // method to update the displayed list of events
     private void updateEventList(QuerySnapshot querySnapshots) {
         if (querySnapshots != null) {

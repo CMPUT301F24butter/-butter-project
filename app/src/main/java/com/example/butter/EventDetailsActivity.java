@@ -624,6 +624,10 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
             Toast.makeText(this, deletedItem + " deletion cancelled.", Toast.LENGTH_SHORT).show();
         }
     }
+
+    /**
+     * Gets permission to get the users location
+     */
     private void checkPermissionsAndGetLocation() {
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -637,7 +641,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         }
     }
 
-    // Handle permission result
+    /**
+     * Handles permission result
+     */
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -652,7 +658,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         }
     }
 
-    // Get Latitude and Longitude
+    /**
+     * Gets Latitude and Longitude
+     */
     private void getLatLong() {
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;

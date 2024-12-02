@@ -49,20 +49,22 @@ public class ViewMap  extends AppCompatActivity{
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
+        // accessing map db
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
         db = FirebaseFirestore.getInstance();
         mapRef = db.collection("map"); // map collection
 
+        // loading map
         map = findViewById(R.id.mapview);
-        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setTileSource(TileSourceFactory.MAPNIK); // using default OSM map style (MAPNIK)
         IMapController mapController = map.getController();
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
 
         // default map starting point (Edmonton)
-        mapController.setZoom((long) 12);
-        GeoPoint startPoint = new GeoPoint(53.51, -113.50);
-        mapController.animateTo(startPoint);
+        mapController.setZoom((long) 12);   // default zoom settings
+        GeoPoint startPoint = new GeoPoint(53.51, -113.50); // default staring point coordinates
+        mapController.animateTo(startPoint);  // animates to our default starting point (Edmonton)
 
         loadMarkers(eventID);
 

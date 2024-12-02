@@ -27,7 +27,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 /**
- * This activity displays the Map for this activity using OpenStreetMap (OSM)
+ * This activity displays the Map using OpenStreetMap (OSM)
  * The map shows the location where each entrant has scanned the QR code and entered the waiting list
  * Generates markers for each entrant
  *
@@ -49,19 +49,22 @@ public class ViewMap  extends AppCompatActivity{
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
 
+        // accessing map db
         eventID = getIntent().getExtras().getString("eventID"); // clicked eventID
         db = FirebaseFirestore.getInstance();
         mapRef = db.collection("map"); // map collection
 
+        // loading map
         map = findViewById(R.id.mapview);
-        map.setTileSource(TileSourceFactory.MAPNIK);
+        map.setTileSource(TileSourceFactory.MAPNIK); // using default OSM map style (MAPNIK)
         IMapController mapController = map.getController();
         map.setBuiltInZoomControls(true);
         map.setMultiTouchControls(true);
 
-        mapController.setZoom((long) 12);
-        GeoPoint startPoint = new GeoPoint(53.51, -113.50);
-        mapController.animateTo(startPoint);
+        // default map starting point (Edmonton)
+        mapController.setZoom((long) 12);   // default zoom settings
+        GeoPoint startPoint = new GeoPoint(53.51, -113.50); // default staring point coordinates
+        mapController.animateTo(startPoint);  // animates to our default starting point (Edmonton)
 
         loadMarkers(eventID);
 
@@ -75,7 +78,9 @@ public class ViewMap  extends AppCompatActivity{
         });
     }
 
-    // Loads Markers
+    /**
+     * Load markers for all entrants
+     */
     private void loadMarkers(String eventID) {
         DocumentReference docRef = mapRef.document(eventID);
 

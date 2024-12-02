@@ -27,7 +27,7 @@ import org.osmdroid.views.MapView;
 import org.osmdroid.views.overlay.Marker;
 
 /**
- * This activity displays the Map for this activity using OpenStreetMap (OSM)
+ * This activity displays the Map using OpenStreetMap (OSM)
  * The map shows the location where each entrant has scanned the QR code and entered the waiting list
  * Generates markers for each entrant
  *
@@ -75,7 +75,9 @@ public class ViewMap  extends AppCompatActivity{
         });
     }
 
-    // Loads Markers
+    /**
+     * Load markers for all entrants
+     */
     private void loadMarkers(String eventID) {
         DocumentReference docRef = mapRef.document(eventID);
 

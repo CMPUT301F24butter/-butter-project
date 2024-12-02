@@ -1,20 +1,18 @@
 package com.example.butter;
 
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.SwitchCompat;
-import androidx.fragment.app.Fragment;
-
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ListView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -38,6 +36,7 @@ import java.util.Objects;
  * A simple {@link Fragment} subclass.
  * Use the {@link NotificationsFragment#newInstance} factory method to
  * create an instance of this fragment.
+ * @author Nate Pane (natepane)
  */
 public class NotificationsFragment extends Fragment {
 
@@ -89,6 +88,10 @@ public class NotificationsFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * on creation of the fragment
+     * Get the notifications from the database for the user, and show
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -154,6 +157,9 @@ public class NotificationsFragment extends Fragment {
         });
     }
 
+    /**
+     * Using the notifications fetched in onCreate, create the views (populate the list)
+     */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -205,6 +211,9 @@ public class NotificationsFragment extends Fragment {
         return view;
     }
 
+    /**
+     * Toggles the on/off switch for notifications
+     */
     private void updateToggle() {
         userRef.document(deviceID).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override

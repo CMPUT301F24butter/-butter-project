@@ -113,6 +113,9 @@ public class NotificationsFragment extends Fragment {
             public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
 
                 notificationData.clear();
+                notificationsList.clearChoices();
+                notificationsList.invalidateViews();
+                adapter.notifyDataSetChanged();
 
                 for (DocumentSnapshot doc : value) {
                     String recipientID = doc.getString("notificationInfo.recipientDeviceID");
@@ -199,8 +202,6 @@ public class NotificationsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 if (notificationIDSelected != null) {
-                    notificationsList.clearChoices();
-                    notificationsList.requestLayout();
                     NotificationDB notificationDB = new NotificationDB();
                     notificationDB.delete(notificationIDSelected);
                     notificationIDSelected = null;

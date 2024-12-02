@@ -120,12 +120,39 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
             public void onEvent(@Nullable DocumentSnapshot doc, @Nullable FirebaseFirestoreException error) {
                 // setting text boxes with corresponding event info pulled from the database
                 eventNameText.setText(doc.getString("eventInfo.name"));
+
+                DateFormatter dateFormatter = new DateFormatter();
+
                 String registrationOpenDate = doc.getString("eventInfo.registrationOpenDate");
-                registrationOpenText.setText(String.format("Registration Opens: %s", registrationOpenDate));
+                if (registrationOpenDate != null) {
+                    String openDateFormatted = dateFormatter.formatDate(registrationOpenDate);
+                    if (openDateFormatted != null) {
+                        registrationOpenText.setText(String.format("Registration Opens: %s", openDateFormatted));
+                    } else {
+                        registrationOpenText.setText(String.format("Registration Opens: %s", registrationOpenDate));
+                    }
+                }
+
                 String registrationCloseDate = doc.getString("eventInfo.registrationCloseDate");
-                registrationCloseText.setText(String.format("Registration Closes: %s", registrationCloseDate));
+                if (registrationCloseDate != null) {
+                    String closeDateFormatted = dateFormatter.formatDate(registrationCloseDate);
+                    if (closeDateFormatted != null) {
+                        registrationCloseText.setText(String.format("Registration Closes: %s", closeDateFormatted));
+                    } else {
+                        registrationCloseText.setText(String.format("Registration Closes: %s", registrationCloseDate));
+                    }
+                }
+
                 String eventDate = doc.getString("eventInfo.date");
-                eventDateText.setText(String.format("Event Date: %s", eventDate));
+                if (eventDate != null) {
+                    String dateFormatted = dateFormatter.formatDate(eventDate);
+                    if (dateFormatted != null) {
+                        eventDateText.setText(String.format("Event Date: %s", dateFormatted));
+                    } else {
+                        eventDateText.setText(String.format("Event Date: %s", eventDate));
+                    }
+                }
+
                 eventDescriptionText.setText(doc.getString("eventInfo.description"));
 
                 geolocation = doc.getString("eventInfo.geolocationString");
@@ -395,7 +422,7 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
                         boolean isAfter1 = todaysDate.after(eventcloseDate);
                         boolean isAfter2 = todaysDate.after(eventregDate);
                         boolean isAfter3 = false;
-                        if (listType == "draw"){
+                        if (Objects.equals(listType, "draw")){
                             isAfter3 =  eventopenDate.after(todaysDate);
                         }
                         Log.d("ValidDate", "Today's date: " + todaysDate + ", Event date: " + eventcloseDate);
@@ -481,6 +508,9 @@ public class EventDetailsActivity extends AppCompatActivity implements Geolocati
         // Generate UserListDB to add new user to the specific user list event
         UserListDB userList = new UserListDB();
         userList.removeFromList(userListID, deviceID);
+
+        MapDB mapDB = new MapDB();
+        mapDB.removeLocation(eventID, deviceID);
 
         // Turn it into Leave Waiting List
         String joinText = "Successfully Left Waitlist";

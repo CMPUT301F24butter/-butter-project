@@ -1,4 +1,4 @@
-<diagram program="umletino" version="15.1"><zoom_level>6</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>1278</x><y>1254</y><w>114</w><h>102</h></coordinates><panel_attributes>MainActivity
+<diagram program="umletino" version="15.1"><zoom_level>3</zoom_level><help_text>Space for diagram notes</help_text><element><id>UMLClass</id><coordinates><x>456</x><y>441</y><w>57</w><h>51</h></coordinates><panel_attributes>MainActivity
 --
 - binding: ActivityMainBinding
 - db: FirebaseFirestore
@@ -9,72 +9,107 @@
 - onCreate()
 - listenForPrivilegesChange()
 - setupBottomNavigationView()
-- replaceFragment(Fragment)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2058</x><y>1206</y><w>126</w><h>144</h></coordinates><panel_attributes>CreateEventFragment
+- replaceFragment(Fragment)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>891</x><y>441</y><w>75</w><h>96</h></coordinates><panel_attributes>CreateEventFragment
 --
-+ eventName: EditText
-+ openDate: EditText
-+ closeDate: EditText
-+ eventDate: EditText
-+ description: EditText
-+ capacity: EditText
-+ geolocationSwitch: SwitchCompat
-- db: FirebaseFirestore
-- eventRef: CollectionReference
+- eventImage: ImageView     
+ - uploadEventImage: ImageButton 
+ - resultLauncher: ActivityResultLauncher&lt;Intent&gt; 
+ - uriUploaded: Uri          
+ - eventName: EditText       
+ - openDate: TextView        
+ - closeDate: TextView       
+ - eventDate: TextView       
+ - description: EditText     
+ - capacity: EditText        
+ - geolocationSwitch: SwitchCompat 
+ - db: FirebaseFirestore     
+ - eventRef: CollectionReference 
 --
-# onCreate()
-- generateQRCode(eventID: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>978</x><y>1308</y><w>126</w><h>144</h></coordinates><panel_attributes>CreateProfileActivity
+#  onCreate(savedInstanceState: Bundle)
++ generateQRCode(eventID: String)
++ registerResult()
++ pickImage()
++ showDatePicker(dateTextView: TextView)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>318</x><y>507</y><w>96</w><h>72</h></coordinates><panel_attributes>CreateProfileActivity
 --
 - users: UserDB
-
+- db: FirebaseFirestore
 --
-+ onCreate()
+# onCreate(savedInstanceState: Bundle)
 - validityCheck(username: String,
 	email: String,                
 	phone: String,
 	facility: String,
-	role: String): String</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2022</x><y>1884</y><w>126</w><h>144</h></coordinates><panel_attributes>EditEventActivity
+	role: String): String
+- fetchFacilities(callback: OnFacilitiesLoadedCallback)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>984</x><y>840</y><w>87</w><h>126</h></coordinates><panel_attributes>EditEventActivity
 --
 - db: FirebaseFirestore
 - eventRef: CollectionReference
+- imageRef: CollectionReference
 + eventNameText: TextView
-+ registrationOpenText: EditText
-+ registrationCloseText: EditText
-+ dateText: EditText
++ registrationOpenText: TextView
++ registrationCloseText: TextView
++ dateText: TextView
 + descriptionText: EditText
-+ capacityText: EditText
-+ geolocationSwitch: SwitchCompat 
++ capacityText: TextView
++ geolocationSwitch: SwitchCompat
 + eventName: String
++ resultLauncher: ActivityResultLauncher&lt;Intent&gt;
++ eventImage: ImageView
++ uriSelected: Uri
++ uploadImageButton: ImageButton
++ deleteImageButton: ImageButton
++ deletedImage: boolean
++ originalOpenDate: String
++ originalCloseDate: String
++ originalDate: String
 --
-# onCreate()
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1614</x><y>1284</y><w>126</w><h>144</h></coordinates><panel_attributes>EditProfileActivity
+# onCreate(savedInstanceState: Bundle): void
++ registerResult(): void
++ pickImage(): void
++ showDatePicker(dateTextView: TextView): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>654</x><y>555</y><w>93</w><h>75</h></coordinates><panel_attributes>EditProfileActivity
 --
 - users: UserDB
-
+- getImageLauncher: ActivityResultLauncher&lt;Intent&gt;
+- imageUri: Uri
+- newPFP: boolean
+- removed: boolean
+- imageDB: ImageDB
+- db: FirebaseFirestore
 --
-+ onCreate()
+# onCreate(savedInstanceState: Bundle)
++ fetchFacilities(callback: OnFacilitiesLoadedCallback)
 - validityCheck(username: String,
 	email: String,                
 	phone: String,
 	facility: String,
-	role: String): String</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2214</x><y>1620</y><w>126</w><h>186</h></coordinates><panel_attributes>EntrantListsActivity
+	role: String): String</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1008</x><y>651</y><w>63</w><h>93</h></coordinates><panel_attributes>EntrantListsActivity
 --
-- listSelected: String
-- entrantList: ListView
-- entrantsData: ArrayList&lt;User&gt; 
-- adapter: EntrantsArrayAdapter
-- userRef: CollectionReference
-- userListRef: CollectionReference
-- eventRef: CollectionReference
-- db: FirebaseFirestore
-+ eventID: String
-+ waitlistID: String
-+ drawlistID: String 
-+ registeredListID: String
-+ cancelledListID: String 
-+ generateEntrants: Button
+- listSelected: String                                       
+- entrantList: ListView                                      
+- entrantsData: ArrayList&lt;User&gt;                              
+- adapter: EntrantsArrayAdapter                              
+- selectedUserID: String                                     
+- eventID: String                                            
+- waitlistID: String                                         
+- drawlistID: String                                         
+- registeredListID: String                                   
+- cancelledListID: String                                    
+- db: FirebaseFirestore                                      
+- userRef: CollectionReference                                
+- userListRef: CollectionReference                            
+- imageRef: CollectionReference                               
+- eventRef: CollectionReference                               
++ generateEntrants: Button                                    
++ drawReplacement: Button                                     
++ deleteEntrant: FloatingActionButton                         
++ sampleSize: EditText
+
 --
-# onCreate()
-- displayEntrants()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1686</x><y>1686</y><w>204</w><h>360</h></coordinates><panel_attributes>Event
+# onCreate(savedInstanceState: Bundle): void                  
++ displayEntrants(): void                                      
++ generateButtons(): void                                      
++ sampleEntrants(sampleSize: int): void                        
++ drawReplacementEntrant(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>651</x><y>705</y><w>291</w><h>264</h></coordinates><panel_attributes>Event
 --
 - eventID: String
 - name: String
@@ -85,20 +120,38 @@
 - capacity: int
 - geolocation: boolean
 - description: String
+- imageString: String
 - waitlistID: String
-- drawListID:  String
-- registeredListID: final String
+- drawListID: String
+- registeredListID: String
 - cancelledListID: String
 --
-+ Event()
-+ Event()
-- createUserLists()
-+ getEventID()
-+ getName()
-+ getOrganizerID()
-+ getDate()
-+ setDate(date: String)
-+ getCapacity()
++ Event(name: String, organizerID: String, registrationOpenDate: String, registrationCloseDate: String, date: String, capacity: int, geolocation: boolean, description: String)
++ Event(eventID: String, name: String, date: String, capacity: int)
++ createUserLists()
++ getEventID(): String
++ getName(): String
++ getOrganizerID(): String
++ getDate(): String
++ setDate(date: String): void
++ getCapacity(): int
++ getCapacityString(): String
++ setCapacity(capacity: int): void
++ getWaitlistID(): String
++ getDrawListID(): String
++ getRegisteredListID(): String
++ getCancelledListID(): String
++ isGeolocation(): boolean
++ setGeolocation(geolocation: boolean): void
++ getGeolocationString(): String
++ getRegistrationOpenDate(): String
++ setRegistrationOpenDate(registrationOpenDate: String): void
++ getRegistrationCloseDate(): String
++ setRegistrationCloseDate(registrationCloseDate: String): void
++ getDescription(): String
++ setDescription(description: String): void
++ getImageString(): String
++ setImageString(imageString: String): void
 + getCapacityString()
 + setCapacity(capacity: int)
 + getWaitlistID()
@@ -113,13 +166,13 @@
 + getRegistrationCloseDate()
 + setRegistrationCloseDate(registrationCloseDate: String)
 + getDescription()
-+ setDescription(description: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2424</x><y>906</y><w>246</w><h>144</h></coordinates><panel_attributes>EventArrayAdapter
++ setDescription(description: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1074</x><y>285</y><w>123</w><h>72</h></coordinates><panel_attributes>EventArrayAdapter
 --
 - events: ArrayList&lt;Event&gt;
 - context: Context
 --
 + EventArrayAdapter(context: Context, events: ArrayList&lt;Event&gt;)
-+ getView(position: int, convertView: View?, parent: ViewGroup): View</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1788</x><y>1242</y><w>162</w><h>144</h></coordinates><panel_attributes>EventDetailsActivity
++ getView(position: int, convertView: View?, parent: ViewGroup): View</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>705</x><y>354</y><w>156</w><h>150</h></coordinates><panel_attributes>EventDetailsActivity
 --
 - eventNameText: TextView
 - registrationOpenText: TextView
@@ -135,16 +188,34 @@
 --
 + onCreate(savedInstanceState: Bundle)
 + setUpEntrantActions()
-+ setUpOrganizerOptions()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2106</x><y>708</y><w>228</w><h>144</h></coordinates><panel_attributes>HomeAdapter
++ setUpOrganizerOptions()
++ confirmlistType()
++ isValidDate(String eventId, String listType,OnDateValidationListener listener)
++ joinCancelList()
++ leaveRegisteredList()
++ leaveDrawList()
++ joinRegisteredList()
++ leaveWaitingList()
++ onJoinEventConfirmed(boolean confirmJoin)
+- joinWaitingList()
+- setUpOrganizerOptions()
+- addOrganizerDeleteButton()
+- deleteEvent()
++ deleteConfirmation(boolean confirmDelete, String deletedItem)
+- checkPermissionsAndGetLocation()
++ onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults)
+- getLatLong()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>915</x><y>147</y><w>141</w><h>123</h></coordinates><panel_attributes>HomeAdapter
 --
-- itemList: List&lt;Event&gt;
+- itemList: List&lt;Event&gt;                                
+- itemClickListener: OnItemClickListener
 --
-+ HomeAdapter(itemList: List&lt;Event&gt;)
-+ setItemList(itemList: List&lt;Event&gt;)
-+ onCreateViewHolder(parent: ViewGroup, viewType: int)
-+ onBindViewHolder(holder: RegisteredViewHolder, position: int)
++ HomeAdapter(itemList: List&lt;Event&gt;)                   
++ setOnItemClickListener(listener: OnItemClickListener): void
++ setItemList(itemList: List&lt;Event&gt;): void
++ clearItems(): void
 + getItemCount(): int
-group=group-6</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2046</x><y>936</y><w>312</w><h>156</h></coordinates><panel_attributes>EventsFragment
++ onCreateViewHolder(parent: ViewGroup, viewType: int): RegisteredViewHolder
++ onBindViewHolder(holder: RegisteredViewHolder, position: int): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>888</x><y>279</y><w>156</w><h>96</h></coordinates><panel_attributes>EventsFragment
 --
 - ARG_PARAM1: String
 - ARG_PARAM2: String
@@ -156,12 +227,16 @@ group=group-6</panel_attributes><additional_attributes></additional_attributes><
 - db: FirebaseFirestore
 - eventRef: CollectionReference
 - userRef: CollectionReference
+- imageRef: CollectionReference
 - fab: FloatingActionButton
 - deviceID: String
 --
-+ newInstance(param1: String, param2: String)
-+ onCreate(savedInstanceState: Bundle)
-+ onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1398</x><y>582</y><w>600</w><h>300</h></coordinates><panel_attributes>HomeFragment
++ EventsFragment()
++ newInstance(String, String): EventsFragment
++ onCreate(Bundle)
++ updateEventList(QuerySnapshot)
++ onCreateView(LayoutInflater, ViewGroup, Bundle): View
++ onResume()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>561</x><y>144</y><w>300</w><h>150</h></coordinates><panel_attributes>HomeFragment
 --
 - ARG_PARAM1 : String
 - ARG_PARAM2 : String
@@ -195,22 +270,32 @@ group=group-6</panel_attributes><additional_attributes></additional_attributes><
 + fetchUpcomingEvents()
 + fetchWaitingList()
 
-group=group-4</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>966</x><y>864</y><w>336</w><h>144</h></coordinates><panel_attributes>NotificationsFragment
+group=group-4</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>345</x><y>285</y><w>168</w><h>72</h></coordinates><panel_attributes>NotificationsFragment
 --
 - ARG_PARAM1: String
 - ARG_PARAM2: String
-- mParam1: String
-- mParam2: String
+- deviceID: String
+- db: FirebaseFirestore
+- userRef: CollectionReference
+- notificationRef: CollectionReference
+- imageRef: CollectionReference
+- notificationsSwitch: SwitchCompat
+- notificationsList: ListView
+- notificationData: ArrayList&lt;Notification&gt;
+- adapter: NotificationArrayAdapter
+- notificationIDSelected: String
+- positionSelected: int
 --
-+ onCreate(savedInstanceState: Bundle)
-+ onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle)
-+ newInstance(param1: String, param2: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2088</x><y>1392</y><w>186</w><h>144</h></coordinates><panel_attributes>OrganizerOptions
++ newInstance(param1: String, param2: String): NotificationsFragment
++ onCreate(savedInstanceState: Bundle): void
++ onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle): View
+- updateToggle(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>906</x><y>549</y><w>93</w><h>72</h></coordinates><panel_attributes>OrganizerOptions
 --
 - eventID: String
 - deviceID: String
 --
 + onCreateDialog(savedInstanceState: Bundle)
-+ OrganizerOptions(eventID: String, deviceID: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2076</x><y>1584</y><w>126</w><h>144</h></coordinates><panel_attributes>OrganizerShowCodeActivity
++ OrganizerOptions(eventID: String, deviceID: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>942</x><y>645</y><w>63</w><h>72</h></coordinates><panel_attributes>OrganizerShowCodeActivity
 --
 - db: FirebaseFirestore
 - eventRef: CollectionReference
@@ -223,7 +308,7 @@ group=group-4</panel_attributes><additional_attributes></additional_attributes><
 --
 + onCreate(savedInstanceState: Bundle): void
 + displayQRCode(eventID: String): void
-+ stringToBitmap(base64String: String): Bitmap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1434</x><y>1296</y><w>126</w><h>144</h></coordinates><panel_attributes>ProfileFragment
++ stringToBitmap(base64String: String): Bitmap</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>468</x><y>513</y><w>156</w><h>72</h></coordinates><panel_attributes>ProfileFragment
 --
 - user: User
 - view: View
@@ -232,22 +317,22 @@ group=group-4</panel_attributes><additional_attributes></additional_attributes><
 + onCreate(savedInstanceState: Bundle)
 + onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle)
 + onDestroyView()
-- updateUserDataInView()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2160</x><y>1116</y><w>162</w><h>84</h></coordinates><panel_attributes>QRCodeDB
+- updateUserDataInView()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>945</x><y>384</y><w>81</w><h>42</h></coordinates><panel_attributes>QRCodeDB
 --
 - db: FirebaseFirestore
 - QRCodeRef: CollectionReference
 --
 + QRCodeDB()
 + add(bitmap: Bitmap, eventID: String)
-+ delete(eventID: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>894</x><y>2262</y><w>312</w><h>66</h></coordinates><panel_attributes>RegisteredFragment
++ delete(eventID: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>309</x><y>975</y><w>156</w><h>33</h></coordinates><panel_attributes>RegisteredFragment
 --
 
 --
-+ onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>912</x><y>1134</y><w>156</w><h>60</h></coordinates><panel_attributes>SplashActivity
++ onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>318</x><y>420</y><w>78</w><h>30</h></coordinates><panel_attributes>SplashActivity
 --
 - db: FirebaseFirestore
 --
-+ onCreate(savedInstanceState: Bundle)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1398</x><y>1680</y><w>126</w><h>144</h></coordinates><panel_attributes>User
++ onCreate(savedInstanceState: Bundle)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>561</x><y>693</y><w>63</w><h>72</h></coordinates><panel_attributes>User
 --
 - deviceID: String
 - name: String
@@ -268,14 +353,14 @@ group=group-4</panel_attributes><additional_attributes></additional_attributes><
 + getEmail()
 + setEmail(email: String)
 + getPhoneNumber()
-+ setPhoneNumber(phoneNumber: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>894</x><y>1812</y><w>258</w><h>144</h></coordinates><panel_attributes>UserArrayAdapter
++ setPhoneNumber(phoneNumber: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>309</x><y>750</y><w>129</w><h>72</h></coordinates><panel_attributes>UserArrayAdapter
 --
 - users: ArrayList&lt;User&gt;
 - context: Context
 - isFacility: boolean
 --
 + constructor(context: Context, users: ArrayList&lt;User&gt;, isFacility: boolean)
-+ getView(position: int, convertView: View?, parent: ViewGroup)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1026</x><y>1578</y><w>126</w><h>144</h></coordinates><panel_attributes>UserDB
++ getView(position: int, convertView: View?, parent: ViewGroup)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>375</x><y>642</y><w>63</w><h>72</h></coordinates><panel_attributes>UserDB
 --
 - db: FirebaseFirestore
 - userRef: CollectionReference
@@ -283,7 +368,7 @@ group=group-4</panel_attributes><additional_attributes></additional_attributes><
 + UserDB()
 + add(user: User)
 + update(user: User)
-+ delete(deviceID: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1698</x><y>2166</y><w>126</w><h>144</h></coordinates><panel_attributes>UserListDB
++ delete(deviceID: String)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>555</x><y>858</y><w>63</w><h>72</h></coordinates><panel_attributes>UserListDB
 --
 - db: FirebaseFirestore
 - userListRef: CollectionReference
@@ -293,101 +378,290 @@ group=group-4</panel_attributes><additional_attributes></additional_attributes><
 + addToList(userListID: String, deviceID: String): void
 + removeFromList(userListID: String, deviceID: String): void
 + deleteList(userListID: String): void
-</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>954</x><y>2040</y><w>126</w><h>144</h></coordinates><panel_attributes>ViewPagerAdapter
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>339</x><y>873</y><w>63</w><h>72</h></coordinates><panel_attributes>ViewPagerAdapter
 --
 - fragmentActivity: FragmentActivity
 --
 + constructor(fragmentActivity: FragmentActivity)
 + createFragment(position: int)
-+ getItemCount()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1278</x><y>2436</y><w>324</w><h>102</h></coordinates><panel_attributes>WaitingListFragment
++ getItemCount()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>501</x><y>1065</y><w>162</w><h>51</h></coordinates><panel_attributes>WaitingListFragment
 --
 + users: UserDB
 
 --
-+ onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2394</x><y>2178</y><w>246</w><h>144</h></coordinates><panel_attributes>EventDB
++ onCreateView(inflater: LayoutInflater, container: ViewGroup, savedInstanceState: Bundle)</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1176</x><y>1050</y><w>123</w><h>72</h></coordinates><panel_attributes>EventDB
 --
 - events: ArrayList&lt;Event&gt;
 - context: Context
 --
 + EventArrayAdapter(context: Context, events: ArrayList&lt;Event&gt;)
-+ getView(position: int, convertView: View?, parent: ViewGroup): View</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>2568</x><y>690</y><w>228</w><h>144</h></coordinates><panel_attributes>RegisteredViewHolder
++ getView(position: int, convertView: View?, parent: ViewGroup): View</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1155</x><y>216</y><w>114</w><h>42</h></coordinates><panel_attributes>RegisteredViewHolder
 --
-- itemList: List&lt;Event&gt;
+- nameTextView: TextView                                    
+- dateTextView: TextView                                    
+- eventImage: ImageView
 --
-- nameTextView: TextView
-- dateTextView: TextView
-group=group-8</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1014</x><y>1722</y><w>30</w><h>102</h></coordinates><panel_attributes>lt=&lt;..
++ RegisteredViewHolder(itemView: View)</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>369</x><y>714</y><w>15</w><h>42</h></coordinates><panel_attributes>lt=&lt;..
 m1=1
-m2=1</panel_attributes><additional_attributes>10;150;30;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1008</x><y>1950</y><w>24</w><h>102</h></coordinates><panel_attributes>lt=&lt;..
+m2=1</panel_attributes><additional_attributes>10;120;30;10</additional_attributes></element><element><id>Relation</id><coordinates><x>366</x><y>819</y><w>12</w><h>60</h></coordinates><panel_attributes>lt=&lt;..
 m1=1
-m2=1</panel_attributes><additional_attributes>10;150;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1026</x><y>2178</y><w>24</w><h>96</h></coordinates><panel_attributes>lt=&lt;..
+m2=1</panel_attributes><additional_attributes>10;180;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>375</x><y>942</y><w>12</w><h>39</h></coordinates><panel_attributes>lt=&lt;..
 m1=1
-m2=1</panel_attributes><additional_attributes>10;140;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1386</x><y>1332</y><w>60</w><h>24</h></coordinates><panel_attributes>m1=1
-m2=1</panel_attributes><additional_attributes>10;10;80;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1032</x><y>2322</y><w>414</w><h>126</h></coordinates><panel_attributes>lt=.
+m2=1</panel_attributes><additional_attributes>10;110;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>480</x><y>489</y><w>12</w><h>30</h></coordinates><panel_attributes>m1=1
+m2=1</panel_attributes><additional_attributes>10;10;20;80</additional_attributes></element><element><id>Relation</id><coordinates><x>378</x><y>1005</y><w>207</w><h>66</h></coordinates><panel_attributes>lt=.
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;670;190</additional_attributes></element><element><id>Relation</id><coordinates><x>1146</x><y>1740</y><w>264</w><h>156</h></coordinates><panel_attributes>lt=&lt;.&gt;
+m2=1</panel_attributes><additional_attributes>10;10;670;200</additional_attributes></element><element><id>Relation</id><coordinates><x>435</x><y>723</y><w>132</w><h>69</h></coordinates><panel_attributes>lt=&lt;.&gt;
 m1=1
-m2=1</panel_attributes><additional_attributes>10;240;420;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1146</x><y>1644</y><w>264</w><h>96</h></coordinates><panel_attributes>lt=&lt;.
+m2=1</panel_attributes><additional_attributes>10;210;420;10</additional_attributes></element><element><id>Relation</id><coordinates><x>435</x><y>675</y><w>132</w><h>48</h></coordinates><panel_attributes>lt=&lt;.
 m1=1
-m2=1</panel_attributes><additional_attributes>420;140;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2328</x><y>732</y><w>252</w><h>54</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>420;140;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1053</x><y>225</y><w>108</w><h>24</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;60;400;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1992</x><y>750</y><w>126</w><h>24</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;10;340;50</additional_attributes></element><element><id>Relation</id><coordinates><x>858</x><y>219</y><w>63</w><h>21</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;190;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1506</x><y>1818</y><w>204</w><h>402</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;40;190;10</additional_attributes></element><element><id>Relation</id><coordinates><x>585</x><y>762</y><w>15</w><h>102</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;320;650</additional_attributes></element><element><id>Relation</id><coordinates><x>1866</x><y>2040</y><w>540</w><h>222</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;880;350</additional_attributes></element><element><id>Relation</id><coordinates><x>1464</x><y>1434</y><w>42</w><h>258</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1</panel_attributes><additional_attributes>20;10;10;320</additional_attributes></element><element><id>Relation</id><coordinates><x>915</x><y>966</y><w>267</w><h>126</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;10;870;400</additional_attributes></element><element><id>Relation</id><coordinates><x>495</x><y>582</y><w>108</w><h>117</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;410;50;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1146</x><y>1716</y><w>330</w><h>732</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
+m2=1</panel_attributes><additional_attributes>340;370;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>435</x><y>711</y><w>165</w><h>360</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>530;1200;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2328</x><y>1092</y><w>156</w><h>1098</h></coordinates><panel_attributes>lt=&lt;.
+m2=1</panel_attributes><additional_attributes>530;1180;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1029</x><y>372</y><w>192</w><h>684</h></coordinates><panel_attributes>lt=&lt;.
 m1=1
-m2=1</panel_attributes><additional_attributes>240;1810;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1098</x><y>1320</y><w>192</w><h>66</h></coordinates><panel_attributes>lt=&lt;.
+m2=1</panel_attributes><additional_attributes>620;2260;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>411</x><y>474</y><w>51</w><h>72</h></coordinates><panel_attributes>lt=&lt;.
 m1=1
-m2=1</panel_attributes><additional_attributes>300;10;10;90</additional_attributes></element><element><id>Relation</id><coordinates><x>1098</x><y>1446</y><w>324</w><h>246</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>150;10;10;220</additional_attributes></element><element><id>Relation</id><coordinates><x>411</x><y>576</y><w>162</w><h>123</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>520;390;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1062</x><y>1164</y><w>228</w><h>102</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>520;390;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>393</x><y>435</y><w>69</w><h>15</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>360;150;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1554</x><y>1368</y><w>72</w><h>24</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>210;20;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>621</x><y>549</y><w>39</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;100;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1164</x><y>1002</y><w>150</w><h>264</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;10;110;180</additional_attributes></element><element><id>Relation</id><coordinates><x>444</x><y>354</y><w>30</w><h>93</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>230;420;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1842</x><y>1344</y><w>276</w><h>354</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>80;290;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>729</x><y>534</y><w>192</w><h>177</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;570;440;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2094</x><y>2022</y><w>330</w><h>168</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;570;620;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1068</x><y>957</y><w>123</w><h>99</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>530;260;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1032</x><y>1188</y><w>24</w><h>132</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>390;310;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>378</x><y>447</y><w>12</w><h>66</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;200;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1038</x><y>1446</y><w>54</w><h>144</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;200;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>381</x><y>576</y><w>27</w><h>72</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>70;220;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1350</x><y>876</y><w>210</w><h>390</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>70;220;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>492</x><y>291</y><w>150</w><h>156</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;630;330;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1944</x><y>1086</y><w>114</w><h>174</h></coordinates><panel_attributes>lt=&lt;.
+m2=1</panel_attributes><additional_attributes>10;500;480;10</additional_attributes></element><element><id>Relation</id><coordinates><x>858</x><y>372</y><w>36</w><h>69</h></coordinates><panel_attributes>lt=&lt;.
 m1=1
-m2=1</panel_attributes><additional_attributes>170;10;10;270</additional_attributes></element><element><id>Relation</id><coordinates><x>1146</x><y>1422</y><w>522</w><h>222</h></coordinates><panel_attributes>m1=1
-m2=1</panel_attributes><additional_attributes>10;350;850;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1488</x><y>1422</y><w>228</w><h>270</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;430;360;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1386</x><y>1050</y><w>672</w><h>228</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>100;10;10;210</additional_attributes></element><element><id>Relation</id><coordinates><x>435</x><y>627</y><w>246</w><h>51</h></coordinates><panel_attributes>m1=1
+m2=1</panel_attributes><additional_attributes>10;140;800;10</additional_attributes></element><element><id>Relation</id><coordinates><x>606</x><y>627</y><w>99</w><h>72</h></coordinates><panel_attributes>lt=&lt;-</panel_attributes><additional_attributes>10;220;310;10</additional_attributes></element><element><id>Relation</id><coordinates><x>510</x><y>303</y><w>384</w><h>150</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;360;1100;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2124</x><y>1086</y><w>36</w><h>132</h></coordinates><panel_attributes>lt=&lt;.
+m2=1</panel_attributes><additional_attributes>10;480;450;70;780;10;1260;40</additional_attributes></element><element><id>Relation</id><coordinates><x>924</x><y>372</y><w>21</w><h>75</h></coordinates><panel_attributes>lt=&lt;.
 m1=1
-m2=1</panel_attributes><additional_attributes>40;10;10;200</additional_attributes></element><element><id>Relation</id><coordinates><x>1818</x><y>1092</y><w>288</w><h>606</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
+m2=1</panel_attributes><additional_attributes>50;10;10;230</additional_attributes></element><element><id>Relation</id><coordinates><x>717</x><y>372</y><w>204</w><h>339</h></coordinates><panel_attributes>lt=&lt;&lt;&lt;&lt;-
 m1=1
-m2=0..n</panel_attributes><additional_attributes>460;10;10;990</additional_attributes></element><element><id>Relation</id><coordinates><x>1842</x><y>1386</y><w>192</w><h>528</h></coordinates><panel_attributes>lt=&lt;&lt;-
+m2=0..n</panel_attributes><additional_attributes>660;10;480;440;10;1110</additional_attributes></element><element><id>Relation</id><coordinates><x>741</x><y>501</y><w>249</w><h>354</h></coordinates><panel_attributes>lt=&lt;&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;300;860</additional_attributes></element><element><id>Relation</id><coordinates><x>1884</x><y>1824</y><w>150</w><h>150</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;10;810;1160</additional_attributes></element><element><id>Relation</id><coordinates><x>939</x><y>813</y><w>51</w><h>72</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;230;230</additional_attributes></element><element><id>Relation</id><coordinates><x>1944</x><y>1350</y><w>156</w><h>132</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>240;200;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2124</x><y>1530</y><w>30</w><h>66</h></coordinates><panel_attributes>lt=&lt;&lt;-
+m2=1</panel_attributes><additional_attributes>10;10;150;220</additional_attributes></element><element><id>Relation</id><coordinates><x>858</x><y>486</y><w>54</w><h>108</h></coordinates><panel_attributes>lt=&lt;&lt;-</panel_attributes><additional_attributes>160;340;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>930</x><y>618</y><w>45</w><h>33</h></coordinates><panel_attributes>lt=&lt;&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;90;30;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2040</x><y>1530</y><w>72</w><h>366</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>130;90;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>909</x><y>618</y><w>93</w><h>228</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>100;10;20;80;10;590</additional_attributes></element><element><id>Relation</id><coordinates><x>2178</x><y>1194</y><w>66</w><h>66</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;10;30;110;130;480;290;740</additional_attributes></element><element><id>Relation</id><coordinates><x>963</x><y>423</y><w>24</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;90;90;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2328</x><y>810</y><w>108</w><h>108</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;180;60;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1053</x><y>249</y><w>27</w><h>42</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;160;160</additional_attributes></element><element><id>Relation</id><coordinates><x>2238</x><y>1530</y><w>30</w><h>102</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;10;70;120</additional_attributes></element><element><id>Relation</id><coordinates><x>981</x><y>618</y><w>54</w><h>39</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>30;150;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1896</x><y>1380</y><w>558</w><h>810</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>160;110;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>768</x><y>501</y><w>438</w><h>555</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>910;1330;320;680;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>1944</x><y>1128</y><w>228</w><h>150</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>1440;1830;1000;860;640;830;460;710;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>858</x><y>390</y><w>93</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;230;360;10</additional_attributes></element><element><id>Relation</id><coordinates><x>2178</x><y>1296</y><w>408</w><h>894</h></coordinates><panel_attributes>lt=&lt;-
+m2=1</panel_attributes><additional_attributes>10;180;290;10</additional_attributes></element><element><id>Relation</id><coordinates><x>963</x><y>501</y><w>309</w><h>555</h></coordinates><panel_attributes>lt=&lt;-
 m1=1
-m2=1</panel_attributes><additional_attributes>10;10;430;70;660;1470</additional_attributes></element></diagram>
+m2=1</panel_attributes><additional_attributes>10;10;390;70;1010;1830</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1107</x><y>522</y><w>81</w><h>42</h></coordinates><panel_attributes>CaptureAct
+--
+- TAG: String
+- barcodeScannerView: DecoratedBarcodeView
+--
+# onCreate()
+- isValidEventID(scannedText: String)
+# onResume()
+# onPause()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1281</x><y>399</y><w>81</w><h>42</h></coordinates><panel_attributes>ConfirmationDialog
+--
+- context: Context
+- listener: ConfirmationDialogListener
+- deletedItem: String
+--
++ ConfirmationDialog(context, listener, deletedItem)
++ showDialog()</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1476</x><y>345</y><w>81</w><h>18</h></coordinates><panel_attributes>ConfirmationDialogListener
+--
++ deleteConfirmation(confirmDelete: boolean, deletedItem: String)
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>774</x><y>660</y><w>81</w><h>42</h></coordinates><panel_attributes>DateFormatter
+--
++ formatDate(inputDate: String): String
++ unformatDate(inputDate: String): String
+- addSuffix(date: Date): String</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1251</x><y>333</y><w>81</w><h>42</h></coordinates><panel_attributes>GeolocationDialog
+--
+- context: Context                                    
+- listener: GeolocationDialogListener
+--
++ GeolocationDialog(context: Context, listener: GeolocationDialogListener) 
++ showDialog(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1494</x><y>258</y><w>81</w><h>15</h></coordinates><panel_attributes>GeolocationDialogListener
+--
++ onJoinEventConfirmed(confirmJoin: boolean): void
+
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>1050</x><y>3</y><w>141</w><h>123</h></coordinates><panel_attributes>HomeAdminFragment
+--
+- itemList: List&lt;Event&gt;                                
+- itemClickListener: OnItemClickListener
+--
++ HomeAdapter(itemList: List&lt;Event&gt;)                   
++ setOnItemClickListener(listener: OnItemClickListener): void
++ setItemList(itemList: List&lt;Event&gt;): void
++ clearItems(): void
++ getItemCount(): int
++ onCreateViewHolder(parent: ViewGroup, viewType: int): RegisteredViewHolder
++ onBindViewHolder(holder: RegisteredViewHolder, position: int): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1023</x><y>348</y><w>234</w><h>84</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>760;10;120;260;10;240</additional_attributes></element><element><id>Relation</id><coordinates><x>1011</x><y>423</y><w>102</w><h>123</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;320;390</additional_attributes></element><element><id>Relation</id><coordinates><x>1023</x><y>423</y><w>264</w><h>48</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;130;140;860;20</additional_attributes></element><element><id>Relation</id><coordinates><x>1266</x><y>732</y><w>12</w><h>54</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;10;160</additional_attributes></element><element><id>Relation</id><coordinates><x>1329</x><y>261</y><w>171</w><h>102</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;320;550;10</additional_attributes></element><element><id>Relation</id><coordinates><x>807</x><y>483</y><w>90</w><h>183</h></coordinates><panel_attributes>lt=&lt;&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>280;10;10;590</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1197</x><y>642</y><w>159</w><h>93</h></coordinates><panel_attributes>ImageDB
+--
+- db: FirebaseFirestore                              
+- imageRef: CollectionReference
+
+--
++ ImageDB()                                          
++ add(uri: Uri, documentID: String, context: Context) 
++ update(uri: Uri, documentID: String, context: Context)
++ delete(documentID: String)                         
++ imageUriToString(uri: Uri, context: Context): String
++ resizeBitmap(original: Bitmap, maxWidth: int, maxHeight: int): Bitmap 
++ stringToBitmap(base64String: String): Bitmap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>966</x><y>504</y><w>237</w><h>195</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;580;400;770;630</additional_attributes></element><element><id>Relation</id><coordinates><x>858</x><y>366</y><w>345</w><h>312</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;930;780;1130;1020</additional_attributes></element><element><id>Relation</id><coordinates><x>939</x><y>732</y><w>276</w><h>270</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;680;680;880;900;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1236</x><y>780</y><w>159</w><h>69</h></coordinates><panel_attributes>ImagesArrayAdapter
+--
+- images: ArrayList&lt;String&gt;                                 
+- context: Context                                          
+- events: ArrayList&lt;String&gt;                                 
+- db: FirebaseFirestore                                     
+- usersref: CollectionReference                             
+- username: String
+
+--
++ ImagesArrayAdapter(context: Context, images: ArrayList&lt;String&gt;, events: ArrayList&lt;String&gt;) 
++ getView(position: int, convertView: View, parent: ViewGroup): View 
++ getName(eventID: String): String 
++ stringToBitmap(base64String: String): Bitmapmap</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1359</x><y>351</y><w>123</w><h>72</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;220;390;10</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1236</x><y>459</y><w>129</w><h>72</h></coordinates><panel_attributes>MapDB
+--
+- db: FirebaseFirestore                              
+- mapRef: CollectionReference
+--
++ MapDB()                                             
++ createMap(eventID: String)                          
++ addLocation(eventID: String, deviceID: String, lat: double, lon: double) 
++ removeLocation(eventID: String, deviceID: String)   
++ deleteMap(eventID: String)                          
++ splitData(idLatLon: String): String[]</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>1053</x><y>123</y><w>60</w><h>75</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>180;10;10;230</additional_attributes></element><element><id>UMLClass</id><coordinates><x>336</x><y>0</y><w>237</w><h>129</h></coordinates><panel_attributes>Notification
+--
+- notificationID: String                                
+- eventSender: String                                    
+- eventSenderID: String                                 
+- recipientDeviceID: String                            
+- message: String                                       
+- datetime: String                                      
+- seen: Boolean                                         
+- force: Boolean                                        
+- eventImage: String
+--
++ Notification(notificationID: String, eventSender: String, eventSenderID: String, recipientDeviceID: String, message: String, force: boolean)
++ Notification(notificationID: String, eventSender: String, message: String, datetime: String)
++ getNotificationID(): String                          
++ getEventSender(): String                             
++ getEventSenderID(): String                           
++ getRecipientDeviceID(): String                       
++ getMessage(): String                                 
++ getDatetime(): String                                
++ setDatetime(datetime: String): void                  
++ getSeen(): Boolean                                   
++ getSeenString(): String                              
++ setSeen(seen: Boolean): void                         
++ getForce(): Boolean                                  
++ getForceString(): String                             
++ setForce(force: Boolean): void                       
++ getEventImage(): String                              
++ setEventImage(eventImage: String): void </panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>78</x><y>156</y><w>237</w><h>39</h></coordinates><panel_attributes>Notification
+--
+- context: Context                                       
+- notifications: ArrayList&lt;Notification&gt;
+--
++ NotificationArrayAdapter(context: Context, notifications: ArrayList&lt;Notification&gt;) 
++ getView(position: int, convertView: View, parent: ViewGroup): View </panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>24</x><y>252</y><w>237</w><h>39</h></coordinates><panel_attributes>NotificationDB
+--
+- db: FirebaseFirestore                               
+- notificationRef: CollectionReference
+--
++ NotificationDB()                                     
++ add(notification: Notification): void               
++ delete(notificationID: String): void                 
++ deleteNotificationsFromEvent(eventID: String): void  
++ deleteNotificationsToUser(deviceID: String): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>9</x><y>348</y><w>111</w><h>54</h></coordinates><panel_attributes>NotificationDialog
+--
+- eventID: String                                           
+- sendGroup: String                                         
+- messageInput: EditText                                    
+- db: FirebaseFirestore                                     
+- eventRef: CollectionReference                             
+- userListRef: CollectionReference                          
+--
++ NotificationDialog(eventID: String)                      
++ onCreateDialog(savedInstanceState: Bundle): Dialog       
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>UMLClass</id><coordinates><x>0</x><y>435</y><w>123</w><h>27</h></coordinates><panel_attributes>NotificationManagerHelper
+--
+- CHANNEL_ID: String ("butter_notifications")
+--
++ handleNotification(context: Context, title: String, body: String): void
+- requestNotificationPermission(context: Context): void    
+</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>423</x><y>126</y><w>18</w><h>165</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>40;530;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>312</x><y>189</y><w>90</w><h>102</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>280;320;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>258</x><y>270</y><w>93</w><h>42</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>290;120;10;10</additional_attributes></element><element><id>Relation</id><coordinates><x>117</x><y>318</y><w>237</w><h>60</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>770;10;10;180</additional_attributes></element><element><id>Relation</id><coordinates><x>123</x><y>354</y><w>234</w><h>96</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>760;10;10;300</additional_attributes></element><element><id>UMLClass</id><coordinates><x>1197</x><y>549</y><w>156</w><h>72</h></coordinates><panel_attributes>ViewMap
+--
+- db: FirebaseFirestore
+- mapRef: CollectionReference
+- eventID: String
+- map: MapView
+--
++ onCreate(savedInstanceState: Bundle): void
++ loadMarkers(eventID: String): void
++ createMarker(lat: double, lon: double, label: String): void
++ onPause(): void
++ onResume(): void</panel_attributes><additional_attributes></additional_attributes></element><element><id>Relation</id><coordinates><x>996</x><y>576</y><w>207</w><h>27</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>670;10;10;60</additional_attributes></element><element><id>Relation</id><coordinates><x>852</x><y>687</y><w>138</w><h>180</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;440;580</additional_attributes></element><element><id>Relation</id><coordinates><x>999</x><y>426</y><w>243</w><h>63</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>10;10;170;170;790;180</additional_attributes></element><element><id>Relation</id><coordinates><x>1269</x><y>513</y><w>207</w><h>27</h></coordinates><panel_attributes>lt=&lt;-
+m1=1
+m2=1</panel_attributes><additional_attributes>670;10;10;60</additional_attributes></element></diagram>

@@ -26,6 +26,11 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * This is the NotificationDialog used to prompt the user with a dialogue for their notification when sent.
+ * Displays the notification, and a choice to send or cancel this notification.
+ * @author Ahmer
+ */
 public class NotificationDialog extends DialogFragment {
 
     String eventID;

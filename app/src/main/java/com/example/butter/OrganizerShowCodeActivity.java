@@ -153,6 +153,11 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Takes in a given eventID, and displays the QRCode for the corresponding event
+     * @param eventID
+     * Used to identify our event and find the QRCode in the DB
+     */
     // displays the QR Code for this event
     private void displayQRCode(String eventID) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -178,6 +183,11 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Converts a string into a bitmap (used for showing image (QR))
+     * @param base64String
+     * The string to be converted
+     */
     // function to convert a string into a bitmap
     private Bitmap stringToBitmap(String base64String) {
         byte[] imageBytes = Base64.decode(base64String, Base64.DEFAULT);
@@ -185,6 +195,11 @@ public class OrganizerShowCodeActivity extends AppCompatActivity {
         return bitmap;
     }
 
+    /**
+     * Generates a QRCode for a given event, and stores it in the database.
+     * @param eventID
+     * ID for the event that needs a newly generated QRCode
+     */
     private void generateQRCode(String eventID) {
         MultiFormatWriter writer = new MultiFormatWriter();
         try {

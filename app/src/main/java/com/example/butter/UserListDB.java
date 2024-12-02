@@ -194,6 +194,11 @@ public class UserListDB {
         });
     }
 
+    /**
+     * Deletes a given list from the database
+     * @param userListID
+     *      ID of the given list to be removed
+     */
     public void deleteList(String userListID) {
         DocumentReference docRef = userListRef.document(userListID);
 

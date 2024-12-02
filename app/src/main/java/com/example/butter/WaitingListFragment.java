@@ -11,6 +11,12 @@ import android.widget.ListView;
 
 import com.example.butter.EventsFragment;
 
+/**
+ * WaitingListFragment for viewing the waiting list
+ * Simply gets and returns the view
+ * Is called to from {@link ViewPagerAdapter}
+ * @author Arsalan
+ */
 public class WaitingListFragment extends Fragment {
 
     @Nullable

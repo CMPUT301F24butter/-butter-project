@@ -9,6 +9,11 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
+/**
+ * Used to manage notifications.
+ * Handles displaying the notification as well
+ * @author Ahmer
+ */
 public class NotificationManagerHelper {
     private static final String CHANNEL_ID = "butter_notifications";
 

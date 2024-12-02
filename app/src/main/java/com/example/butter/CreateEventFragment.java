@@ -350,6 +350,11 @@ public class CreateEventFragment extends AppCompatActivity {
         }
     }
 
+    /**
+     * After grabbing an image from intent, handle it by setting its uri.
+     * Update the existing image
+     * This method is called upon the return after a call to "pickImage".
+     */
     private void registerResult() {
         resultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -371,11 +376,19 @@ public class CreateEventFragment extends AppCompatActivity {
         );
     }
 
+    /**
+     * Simply launches an intent to grab the image from a launcher
+     * Returns the result to the launcher in registerResult
+     */
     private void pickImage() {
         Intent intent = new Intent(MediaStore.ACTION_PICK_IMAGES);
         resultLauncher.launch(intent);
     }
 
+    /**
+     * Called upon click on a date.
+     * This opens the date picker to pick a date, as well as updates the textView if picked.
+     */
     private void showDatePicker(TextView dateTextView) {
 
         String selectedDate = dateTextView.getText().toString();

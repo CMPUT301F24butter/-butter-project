@@ -215,6 +215,10 @@ public class EntrantListsActivity extends AppCompatActivity {
 
     }
 
+    /**
+     * Displays the list of entrants depending on the type chosen
+     * Determines the type of list, then fetches the database and populates the list to be displayed
+     */
     // function to display entrants in the chosen list
     private void displayEntrants() {
         String userListID; // generating the userListID for the given list
@@ -289,6 +293,10 @@ public class EntrantListsActivity extends AppCompatActivity {
         });
     }
 
+    /**
+     * Displays buttons depending on which type of list is selected.
+     * May hide or show buttons.
+     */
     // displays the correct buttons based on the list you have selected
     private void generateButtons() {
         generateEntrants.setVisibility(View.GONE);
@@ -308,6 +316,11 @@ public class EntrantListsActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Samples the entrants, and moves them from the waitlist to the drawn list
+     * @param sampleSize
+     * Takes in a sampleSize used to choose how many entrants to pull
+     */
     // randomly moves users from the waitlist to the draw list
     private void sampleEntrants(int sampleSize) {
 
@@ -413,6 +426,11 @@ public class EntrantListsActivity extends AppCompatActivity {
         displayEntrants(); // re-printing the updated list
     }
 
+    /**
+     * This is used to update and draw new entrants.
+     * Checks for any cancelled entrants, and draws replacements if so.
+     * If there are no cancelled entrants, then we can just return.
+     */
     private void drawReplacementEntrant() {
 
         if (entrantsData.size() == 0) { // if there are no cancelled entrants

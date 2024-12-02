@@ -75,4 +75,5 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.0.1")
 
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    testImplementation("org.mockito:mockito-core:4.0.0")
 }
